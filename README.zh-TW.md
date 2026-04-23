@@ -31,6 +31,45 @@ English README: [README.md](./README.md)
   </tr>
 </table>
 
+### Game Sprite / 四方向行走
+
+<table>
+  <tr>
+    <td align="center" width="25%">
+      <img src="./src/down.gif" alt="Samurai walking down" width="144" />
+      <br />
+      <strong>下</strong>
+    </td>
+    <td align="center" width="25%">
+      <img src="./src/left.gif" alt="Samurai walking left" width="144" />
+      <br />
+      <strong>左</strong>
+    </td>
+    <td align="center" width="25%">
+      <img src="./src/right.gif" alt="Samurai walking right" width="144" />
+      <br />
+      <strong>右</strong>
+    </td>
+    <td align="center" width="25%">
+      <img src="./src/up.gif" alt="Samurai walking up" width="144" />
+      <br />
+      <strong>上</strong>
+    </td>
+  </tr>
+</table>
+
+Prompt：
+
+```text
+Use Generate 2D Sprite to create a top-down 4x4 player_sheet for a wandering young samurai with a red scarf and short katana.
+Make a four-direction walk sprite sheet with 4 frames per direction.
+Row order: down, left, right, up.
+Same character, same outfit, same proportions, same pixel scale in every frame.
+Solid #FF00FF background.
+Each frame must fit fully inside its cell, with clear margin on all sides.
+Retro JRPG pixel-art style.
+```
+
 ### 參考圖到 Sprite
 
 <table>
