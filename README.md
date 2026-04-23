@@ -48,6 +48,20 @@ Traditional Chinese README: [README.zh-TW.md](./README.zh-TW.md)
       <code>幫我使用$generate2dsprite做一個這隻鱷魚玩手上石頭的元素</code>
     </td>
   </tr>
+  <tr>
+    <td align="center" width="35%">
+      <img src="./src/ref2.jpg" alt="Reference male character" width="180" />
+      <br />
+      <strong>Reference</strong>
+    </td>
+    <td align="center" width="65%">
+      <img src="./src/cz.gif" alt="Male character teaching animation" width="220" />
+      <br />
+      <strong>Generated sprite animation</strong>
+      <br />
+      <code>Use$generate2dsprite to create this male character teaching.</code>
+    </td>
+  </tr>
 </table>
 
 Codex-first 2D sprite generation skill for game-ready pixel assets.
