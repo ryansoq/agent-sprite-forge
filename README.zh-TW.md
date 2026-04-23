@@ -19,17 +19,45 @@ English README: [README.md](./README.md)
       <br />
       <strong>悟空使用龜派氣功</strong>
       <br />
-      <code>help me to use$generate2dsprite to create a goku is attacking with Kamehameha</code>
+      <code>help me to use $generate2dsprite to create a goku is attacking with Kamehameha</code>
     </td>
     <td align="center" width="33%">
       <img src="./src/naruto-rasengan.gif" alt="Naruto Rasengan" width="192" />
       <br />
       <strong>鳴人使用螺旋丸</strong>
       <br />
-      <code>使用$generate2dsprite幫我做一個鳴人使用螺旋丸的元素</code>
+      <code>使用 $generate2dsprite 幫我做一個鳴人使用螺旋丸的元素</code>
     </td>
   </tr>
 </table>
+
+### Spell Bundle / Cast、Projectile、Impact
+
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <img src="./src/cast.gif" alt="Fire mage cast animation" width="176" />
+      <br />
+      <strong>Cast</strong>
+    </td>
+    <td align="center" width="33%">
+      <img src="./src/projectile.gif" alt="Fire mage projectile animation" width="176" />
+      <br />
+      <strong>Projectile</strong>
+    </td>
+    <td align="center" width="33%">
+      <img src="./src/impact.gif" alt="Fire mage impact animation" width="176" />
+      <br />
+      <strong>Impact</strong>
+    </td>
+  </tr>
+</table>
+
+Prompt：
+
+```text
+Use  $generate2dsprite to create a fire mage cast animation with projectile and impact.
+```
 
 ### Game Sprite / 四方向行走
 
@@ -84,7 +112,7 @@ Retro JRPG pixel-art style.
       <br />
       <strong>生成結果</strong>
       <br />
-      <code>幫我使用$generate2dsprite做一個這隻鱷魚玩手上石頭的元素</code>
+      <code>幫我使用 $generate2dsprite 做一個這隻鱷魚玩手上石頭的元素</code>
     </td>
   </tr>
   <tr>
@@ -98,7 +126,7 @@ Retro JRPG pixel-art style.
       <br />
       <strong>生成結果</strong>
       <br />
-      <code>Use$generate2dsprite to create this male character teaching.</code>
+      <code>Use  $generate2dsprite to create this male character teaching.</code>
     </td>
   </tr>
 </table>
@@ -225,43 +253,43 @@ cp -R ./skills/generate2dsprite ~/.codex/skills/generate2dsprite
 ### 基本用法
 
 ```text
-Use $generate2dsprite to create a 3x3 idle for an ultimate earth titan.
+Use  $generate2dsprite to create a 3x3 idle for an ultimate earth titan.
 ```
 
 ```text
-Use $generate2dsprite to create a side-view lightning knight attack animation.
+Use  $generate2dsprite to create a side-view lightning knight attack animation.
 ```
 
 ```text
-Use $generate2dsprite to create a late-Sengoku player_sheet for a wandering fire swordsman.
+Use  $generate2dsprite to create a late-Sengoku player_sheet for a wandering fire swordsman.
 ```
 
 ### Spell / FX
 
 ```text
-Use $generate2dsprite to create a wizard spell bundle with cast, projectile, and impact sprites.
+Use  $generate2dsprite to create a wizard spell bundle with cast, projectile, and impact sprites.
 ```
 
 ```text
-Use $generate2dsprite to create a fireball projectile loop and a matching explosion impact.
+Use  $generate2dsprite to create a fireball projectile loop and a matching explosion impact.
 ```
 
 ```text
-Use $generate2dsprite to create a side-view summon entrance effect for a thunder wolf spirit.
+Use  $generate2dsprite to create a side-view summon entrance effect for a thunder wolf spirit.
 ```
 
 ### Character / Monster 範例
 
 ```text
-Use $generate2dsprite to create Omegamon attack and right-move animation assets.
+Use  $generate2dsprite to create Omegamon attack and right-move animation assets.
 ```
 
 ```text
-Use $generate2dsprite to create a golden divine boar 2x2 idle animation.
+Use  $generate2dsprite to create a golden divine boar 2x2 idle animation.
 ```
 
 ```text
-Use $generate2dsprite to create a Naruto-style rasengan cast sheet in 2x3.
+Use  $generate2dsprite to create a Naruto-style rasengan cast sheet in 2x3.
 ```
 
 ## 會輸出什麼
