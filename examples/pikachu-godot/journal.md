@@ -181,3 +181,26 @@ The original backlog is empty. From here, new directions need to be
 invented anew. The programd.md file lists candidate themes (day/night,
 move learning, more monsters/types, trainer roster, second gym).
 The loop can keep firing as long as it's seeded with new ideas.
+
+## After iter23–iter30 (Tier-4 finish + Tier-5 + new themes, 8 more keeps)
+
+- **Iter23 (ec68c4b)** — Themed panel StyleBox via root theme (dark-green).
+- **Iter24 (a4f4dfd)** — Battle log, last 3 messages stacked, 40-site sed
+  rewrite to _say(...).
+- **Iter25 (7ba4536)** — Footstep dust + healing pad sparkles; LAST Tier-4.
+- **Iter26 (4bfd34f)** — Tier-5 input QoL: WASD + hold-Z fast-forward.
+- **Iter27 (16538f6)** — Tier-5 multiple save slots; LAST Tier-5.
+- **Iter28 (aeb2312)** — Day/night cycle (4-min sine, dark-blue overlay
+  below UI). First post-Tier-5 idea.
+- **Iter29 (3c51123)** — Trainer roster expansion + 2nd gym leader.
+- **Iter30 (0751db7)** — Nighttime encounter pool variants per region;
+  extends iter28.
+
+30 iterations / 30 keeps / 0 discards / 0 crashes. The original
+five-tier backlog has been fully shipped (iter1–iter27) and three
+post-backlog content/atmosphere additions added on top
+(iter28–iter30). The day/night system (iter28) inspired a follow-up
+gameplay variant (iter30) the same week — pattern: a single
+atmospheric mechanic naturally seeds gameplay rules. **Next
+direction:** move learning at level-up — biggest remaining
+mechanical gap, requires per-member moves field + sync helper.
