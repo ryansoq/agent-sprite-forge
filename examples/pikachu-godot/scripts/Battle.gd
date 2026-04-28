@@ -106,6 +106,12 @@ func _setup_visuals() -> void:
 func _scale_damage(base_dmg: int, attacker_level: int) -> int:
 	return max(1, int(round(base_dmg * (1.0 + (attacker_level - 5) * 0.1))))
 
+func _process(_delta: float) -> void:
+	Engine.time_scale = 4.0 if Input.is_action_pressed("fast_forward") else 1.0
+
+func _exit_tree() -> void:
+	Engine.time_scale = 1.0
+
 func _can_act(actor: Dictionary, label: String) -> bool:
 	var status: String = String(actor.get("status", ""))
 	if status == "sleep":
