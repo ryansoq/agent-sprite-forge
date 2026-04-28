@@ -10,6 +10,7 @@ const TALL_GRASS_TEX := preload("res://assets/tall_grass.png")
 const WATER_TEX := preload("res://assets/water.png")
 const TRAINER_TEX := preload("res://assets/trainer.png")
 const SHOPKEEPER_TEX := preload("res://assets/shopkeeper.png")
+const NPC_ELDER_TEX := preload("res://assets/npc_elder.png")
 
 const TRAINERS := [
 	{"id": "trainer_volty", "monster": "volty", "level": 6, "pos": Vector2(880, 300)},
@@ -18,6 +19,32 @@ const TRAINERS := [
 
 const SHOPS := [
 	{"id": "shop_main", "pos": Vector2(560, 360)},
+]
+
+const NPCS := [
+	{
+		"id": "elder",
+		"name": "Elder",
+		"texture": "elder",
+		"pos": Vector2(720, 360),
+		"pages": [
+			"Welcome, young trainer!",
+			"Catch wild monsters in tall grass with Pokeballs.",
+			"Trainers will challenge you on sight — beat them for bigger rewards.",
+			"Visit the shop or step on the healing pad whenever you need to recover.",
+		],
+	},
+	{
+		"id": "kid",
+		"name": "Kid",
+		"texture": "elder",
+		"pos": Vector2(380, 240),
+		"pages": [
+			"Whoa, a real Trainer!",
+			"I heard there's a powerful one to the north-east…",
+			"Train your team well before challenging them!",
+		],
+	},
 ]
 
 @onready var player: CharacterBody2D = $Player
@@ -31,6 +58,8 @@ var encounter_cooldown := 1.5
 var triggered := false
 var pause_scene: PackedScene = preload("res://scenes/PauseMenu.tscn")
 var shop_scene: PackedScene = preload("res://scenes/ShopMenu.tscn")
+var dialogue_scene: PackedScene = preload("res://scenes/DialogueBox.tscn")
+var nearby_npc: Area2D = null
 
 func _ready() -> void:
 	rng.randomize()
@@ -43,6 +72,7 @@ func _ready() -> void:
 	_build_world()
 	_spawn_trainers()
 	_spawn_shops()
+	_spawn_npcs()
 	heal_area.body_entered.connect(_on_healing_pad_entered)
 	_refresh_hud()
 	hint.text = "Arrows: move   ESC: pause   Walk into dark grass for wild encounters!"
@@ -70,6 +100,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		var pause := pause_scene.instantiate()
 		add_child(pause)
+	elif event.is_action_pressed("ui_accept") and nearby_npc != null:
+		var dlg := dialogue_scene.instantiate()
+		dlg.set_dialogue_pages(nearby_npc.get_meta("pages"))
+		add_child(dlg)
 
 func _build_world() -> void:
 	# perimeter trees (every 64px around the edges)
@@ -236,6 +270,39 @@ func _on_shop_entered(body: Node2D) -> void:
 	encounter_cooldown = 0.6
 	var shop := shop_scene.instantiate()
 	add_child(shop)
+
+func _spawn_npcs() -> void:
+	var node := Node2D.new()
+	node.name = "NPCs"
+	add_child(node)
+	for n in NPCS:
+		var area := Area2D.new()
+		area.position = n["pos"]
+		var sprite := Sprite2D.new()
+		sprite.texture = NPC_ELDER_TEX
+		area.add_child(sprite)
+		var col := CollisionShape2D.new()
+		var shape := RectangleShape2D.new()
+		shape.size = Vector2(34, 36)
+		col.shape = shape
+		area.add_child(col)
+		area.set_meta("name", String(n["name"]))
+		area.set_meta("pages", n["pages"])
+		node.add_child(area)
+		area.body_entered.connect(_on_npc_entered.bind(area))
+		area.body_exited.connect(_on_npc_exited.bind(area))
+
+func _on_npc_entered(body: Node2D, area: Area2D) -> void:
+	if not (body is CharacterBody2D):
+		return
+	nearby_npc = area
+	hint.text = "Press [Space] to talk to %s" % String(area.get_meta("name"))
+
+func _on_npc_exited(body: Node2D, area: Area2D) -> void:
+	if not (body is CharacterBody2D):
+		return
+	if nearby_npc == area:
+		nearby_npc = null
 
 func _on_healing_pad_entered(body: Node2D) -> void:
 	if not (body is CharacterBody2D):

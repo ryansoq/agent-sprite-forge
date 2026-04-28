@@ -177,6 +177,32 @@ def make_shopkeeper() -> None:
     img.save(ASSETS / "shopkeeper.png")
 
 
+def make_npc_elder() -> None:
+    img, d = _new()
+    robe = (140, 100, 180, 255)
+    robe_dark = (90, 60, 130, 255)
+    skin = (240, 200, 160, 255)
+    beard = (220, 220, 220, 255)
+
+    # robe / lower body
+    d.rectangle([8, 14, 24, 30], fill=robe, outline=BLACK)
+    d.line([(16, 16), (16, 28)], fill=robe_dark)
+    # arms
+    d.rectangle([5, 15, 8, 22], fill=robe, outline=BLACK)
+    d.rectangle([24, 15, 27, 22], fill=robe, outline=BLACK)
+    # head
+    d.ellipse([10, 4, 22, 14], fill=skin, outline=BLACK)
+    # eyes
+    d.point((13, 9), fill=BLACK)
+    d.point((19, 9), fill=BLACK)
+    # beard
+    d.ellipse([10, 12, 22, 16], fill=beard, outline=BLACK)
+    # pointed hat
+    d.polygon([(8, 5), (24, 5), (16, -1)], fill=robe_dark, outline=BLACK)
+
+    img.save(ASSETS / "npc_elder.png")
+
+
 def make_volty() -> None:
     """Original electric mouse-like creature; not Pikachu."""
     img, d = _new()
@@ -426,6 +452,7 @@ def main() -> None:
     make_raichu()
     make_trainer()
     make_shopkeeper()
+    make_npc_elder()
     make_volty()
     make_twigling()
     make_embertail()
