@@ -216,6 +216,64 @@ layered_raster + y_sorted_props + precise_shapes + trigger_zones + raw_canvas
 5. 如果有洋紅邊，先用 soft-matte chroma-key cleanup 加 despill，再切出透明 props。
 6. 最終 runtime preview 由原始 base map 加上切好的透明 props 合成。
 
+### Godot 可調整 TileMap 匯出
+
+`$generate2dmap` 也可以輸出可在 Godot 裡調整的地圖工程，而不是只給一張 flattened 圖。這個 showcase 使用 image-generated tileset 和 3x3 prop sheet，接到 Godot 4.5 scene，產出可編輯的 `TileMapLayer`、分離式 prop sprites、遇怪草叢 `Area2D`、碰撞 `StaticBody2D`、出口區、metadata JSON，以及可立即開場景檢查的 debug player/camera。
+
+Prompt：
+
+```text
+幫我使用 Generate 2D Map 生成一個2d rpg的遊戲地圖, 要有分開的Props, 包含遇怪獸的草叢, 連接Godot遊戲引擎，做完之後要可以開啟godot進行所有的元素調整
+```
+
+<p align="center">
+  <img src="./src/godot-editor.png" alt="Generate2DMap Godot editor scene with editable TileMapLayer and nodes" width="860" />
+  <br />
+  <strong>Godot editor scene：可調整 layers、props、zones、collision、exits 與 debug player</strong>
+</p>
+
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="./src/godot-meadow-layered-preview.png" alt="Godot meadow layered RPG map preview" width="360" />
+      <br />
+      <strong>Layered map preview</strong>
+    </td>
+    <td align="center" width="50%">
+      <img src="./src/godot-meadow-debug-preview.png" alt="Godot meadow debug preview with collision and zones" width="360" />
+      <br />
+      <strong>Collision and zone debug overlay</strong>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="./src/godot-meadow-tileset.png" alt="Image-generated Godot meadow tileset atlas" width="360" />
+      <br />
+      <strong>Image-generated tileset atlas</strong>
+    </td>
+    <td align="center" width="50%">
+      <img src="./src/godot-meadow-prop-pack.png" alt="Image-generated 3x3 meadow prop pack" width="360" />
+      <br />
+      <strong>3x3 generated prop pack</strong>
+    </td>
+  </tr>
+</table>
+
+Godot 輸出包含：
+
+- 可調整的 `TileMapLayer`：ground、water/bridge、decor、encounter grass、obstacles。
+- `YSorted_SeparateProps` 裡的獨立 `Sprite2D` props。
+- 帶 encounter table 的遇怪草叢 `Area2D` zones。
+- 邊界、水域、斷崖與 prop base 的 `StaticBody2D` collision blockers。
+- 用於路線轉場的出口 `Area2D` zones。
+- 可立即開場景測試的 `CharacterBody2D` debug player 與 camera。
+
+Pipeline：
+
+```text
+image_gen tileset + prop_pack_3x3 + layered_tilemap + separate_props + trigger_zones + Godot_TileMap
+```
+
 這是一組以 Codex 為核心的 2D game asset skills，用來產出可直接拿去做遊戲資產與可玩地圖場景的 2D sprites、props、FX 與地圖。
 
 這個 repo 目前提供兩個 skills：
@@ -254,6 +312,7 @@ layered_raster + y_sorted_props + precise_shapes + trigger_zones + raw_canvas
 - `2x2`、`3x3`、`4x4` 這類 2D map prop pack
 - 可玩地圖用的 collision / zone metadata
 - 給 QA 與 showcase 用的 flattened map preview
+- Godot 可開啟調整的地圖工程，包含 `TileMapLayer`、分離式 props、`Area2D` 遇怪草叢、`StaticBody2D` 碰撞、出口區與 debug player scene
 
 ## 為什麼先做 Codex 版本
 

@@ -216,6 +216,64 @@ Reference-guided layered maps use this flow:
 5. Run soft-matte chroma-key cleanup with despill before extracting props when magenta fringe appears.
 6. Compose the final runtime preview from the original base plus extracted transparent props.
 
+### Godot Editable TileMap Export
+
+`$generate2dmap` can also produce an editable Godot map project instead of a single flattened image. In this showcase, the image-generated tileset and 3x3 prop sheet are wired into a Godot 4.5 scene with editable `TileMapLayer` nodes, separate prop sprites, encounter grass `Area2D` zones, collision `StaticBody2D` blockers, exit zones, metadata JSON, and a debug player/camera for immediate inspection.
+
+Prompt:
+
+```text
+幫我使用 Generate 2D Map 生成一個2d rpg的遊戲地圖, 要有分開的Props, 包含遇怪獸的草叢, 連接Godot遊戲引擎，做完之後要可以開啟godot進行所有的元素調整
+```
+
+<p align="center">
+  <img src="./src/godot-editor.png" alt="Generate2DMap Godot editor scene with editable TileMapLayer and nodes" width="860" />
+  <br />
+  <strong>Godot editor scene: editable layers, props, zones, collision, exits, and debug player</strong>
+</p>
+
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="./src/godot-meadow-layered-preview.png" alt="Godot meadow layered RPG map preview" width="360" />
+      <br />
+      <strong>Layered map preview</strong>
+    </td>
+    <td align="center" width="50%">
+      <img src="./src/godot-meadow-debug-preview.png" alt="Godot meadow debug preview with collision and zones" width="360" />
+      <br />
+      <strong>Collision and zone debug overlay</strong>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="./src/godot-meadow-tileset.png" alt="Image-generated Godot meadow tileset atlas" width="360" />
+      <br />
+      <strong>Image-generated tileset atlas</strong>
+    </td>
+    <td align="center" width="50%">
+      <img src="./src/godot-meadow-prop-pack.png" alt="Image-generated 3x3 meadow prop pack" width="360" />
+      <br />
+      <strong>3x3 generated prop pack</strong>
+    </td>
+  </tr>
+</table>
+
+Godot output includes:
+
+- Editable `TileMapLayer` nodes for ground, water/bridge, decor, encounter grass, and obstacles.
+- `YSorted_SeparateProps` with independent `Sprite2D` props.
+- Encounter grass `Area2D` zones with encounter tables.
+- Collision `StaticBody2D` blockers for boundaries, water, cliffs, and prop bases.
+- Exit `Area2D` zones for route transitions.
+- A `CharacterBody2D` debug player with camera for opening and testing the scene immediately.
+
+Pipeline:
+
+```text
+image_gen tileset + prop_pack_3x3 + layered_tilemap + separate_props + trigger_zones + Godot_TileMap
+```
+
 Codex-first 2D game asset skills for game-ready 2D sprites, props, FX, and playable map scenes.
 
 This repository currently ships two skills:
@@ -254,6 +312,7 @@ The current focus is 2D game assets and map scenes, not full game-pack automatio
 - 2D map prop packs such as `2x2`, `3x3`, and `4x4`
 - Collision and zone metadata for playable maps
 - Flattened map previews for QA and showcase
+- Godot-ready editable maps with `TileMapLayer`, separate props, `Area2D` encounter grass, `StaticBody2D` collision, exit zones, and debug player scenes
 
 ## Why Codex First
 
