@@ -177,16 +177,16 @@ func _refresh_hud() -> void:
 	]
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel"):
+	if event.is_action_pressed("pause"):
 		var pause := pause_scene.instantiate()
 		add_child(pause)
-	elif event.is_action_pressed("ui_accept") and nearby_gym_leader != null:
+	elif event.is_action_pressed("interact") and nearby_gym_leader != null:
 		var leader := nearby_gym_leader
 		var dlg := dialogue_scene.instantiate()
 		dlg.set_dialogue_pages(leader.get_meta("pre_dialogue"))
 		dlg.closed.connect(_on_gym_dialogue_closed.bind(leader))
 		add_child(dlg)
-	elif event.is_action_pressed("ui_accept") and nearby_npc != null:
+	elif event.is_action_pressed("interact") and nearby_npc != null:
 		var dlg := dialogue_scene.instantiate()
 		dlg.set_dialogue_pages(nearby_npc.get_meta("pages"))
 		add_child(dlg)

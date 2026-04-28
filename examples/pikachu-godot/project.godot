@@ -11,6 +11,7 @@ config/features=PackedStringArray("4.2", "Forward Plus")
 
 [autoload]
 
+InputBindings="*res://scripts/InputBindings.gd"
 MonsterData="*res://scripts/MonsterData.gd"
 MoveData="*res://scripts/MoveData.gd"
 Fade="*res://scripts/Fade.gd"
