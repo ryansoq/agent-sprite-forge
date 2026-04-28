@@ -9,6 +9,7 @@ var captures: int = 0
 var defeated_trainers: Array = []
 var picked_up_items: Array = []
 var money: int = 0
+var playtime_seconds: float = 0.0
 
 var overworld_position: Vector2 = Vector2(640, 360)
 var overworld_facing: String = "down"
@@ -23,6 +24,10 @@ func _ready() -> void:
 	if not load_game():
 		new_game()
 
+func _process(delta: float) -> void:
+	# autoload inherits PROCESS_MODE_PAUSABLE; stops ticking when tree.paused
+	playtime_seconds += delta
+
 func new_game() -> void:
 	party = [_make_party_member("pikachu")]
 	inventory = {"potion": 3, "pokeball": 5}
@@ -30,6 +35,7 @@ func new_game() -> void:
 	defeated_trainers = []
 	picked_up_items = []
 	money = 0
+	playtime_seconds = 0.0
 	overworld_position = Vector2(640, 360)
 	overworld_facing = "down"
 	save_game()
@@ -250,6 +256,7 @@ func save_game() -> void:
 	cfg.set_value("save", "defeated_trainers", defeated_trainers)
 	cfg.set_value("save", "money", money)
 	cfg.set_value("save", "picked_up_items", picked_up_items)
+	cfg.set_value("save", "playtime_seconds", playtime_seconds)
 	cfg.save(SAVE_PATH)
 
 func load_game() -> bool:
@@ -264,6 +271,7 @@ func load_game() -> bool:
 	defeated_trainers = cfg.get_value("save", "defeated_trainers", [])
 	money = cfg.get_value("save", "money", 0)
 	picked_up_items = cfg.get_value("save", "picked_up_items", [])
+	playtime_seconds = float(cfg.get_value("save", "playtime_seconds", 0.0))
 	# backfill level/xp/pp/status on legacy saves
 	for m in party:
 		if not m.has("level"):
