@@ -32,6 +32,8 @@ func _make_party_member(id: String, level: int = 5) -> Dictionary:
 		"xp": 0,
 		"current_hp": _calc_max_hp(id, level),
 		"pp": _init_pp(id),
+		"status": "",
+		"status_turns": 0,
 	}
 
 func _init_pp(id: String) -> Dictionary:
@@ -99,6 +101,8 @@ func heal_party_full() -> void:
 	for m in party:
 		m["current_hp"] = max_hp_of(m)
 		m["pp"] = _init_pp(String(m["id"]))
+		m["status"] = ""
+		m["status_turns"] = 0
 	save_game()
 
 func add_to_party(id: String, current_hp: int, level: int = 5) -> bool:
@@ -110,6 +114,8 @@ func add_to_party(id: String, current_hp: int, level: int = 5) -> bool:
 		"xp": 0,
 		"current_hp": current_hp,
 		"pp": _init_pp(id),
+		"status": "",
+		"status_turns": 0,
 	})
 	captures += 1
 	save_game()
@@ -142,7 +148,8 @@ func start_wild_battle(wild_id: String) -> void:
 		"level": wild_level,
 		"max_hp": max_hp,
 		"current_hp": max_hp,
-		"paralyzed": false,
+		"status": "",
+		"status_turns": 0,
 	}
 	Fade.go_to_scene("res://scenes/Battle.tscn")
 
@@ -172,7 +179,7 @@ func load_game() -> bool:
 	overworld_position = cfg.get_value("save", "overworld_position", Vector2(640, 360))
 	overworld_facing = cfg.get_value("save", "overworld_facing", "down")
 	captures = cfg.get_value("save", "captures", 0)
-	# backfill level/xp/pp on legacy saves
+	# backfill level/xp/pp/status on legacy saves
 	for m in party:
 		if not m.has("level"):
 			m["level"] = 5
@@ -180,6 +187,10 @@ func load_game() -> bool:
 			m["xp"] = 0
 		if not m.has("pp"):
 			m["pp"] = _init_pp(String(m["id"]))
+		if not m.has("status"):
+			m["status"] = ""
+		if not m.has("status_turns"):
+			m["status_turns"] = 0
 	return party.size() > 0
 
 func delete_save() -> void:

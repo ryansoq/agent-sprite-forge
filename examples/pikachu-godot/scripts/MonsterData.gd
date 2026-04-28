@@ -20,14 +20,14 @@ const MONSTERS := {
 		"display_name": "Twigling",
 		"type": "grass",
 		"max_hp": 32,
-		"moves": ["vine_lash", "tackle"],
+		"moves": ["vine_lash", "tackle", "sleep_powder"],
 		"sprite": "res://assets/enemy_twigling.png",
 	},
 	"embertail": {
 		"display_name": "Embertail",
 		"type": "fire",
 		"max_hp": 30,
-		"moves": ["ember", "scratch"],
+		"moves": ["ember", "scratch", "flame_touch"],
 		"sprite": "res://assets/enemy_embertail.png",
 	},
 }

@@ -1,7 +1,7 @@
 extends Node
 
 # kind: "damage" | "heal" | "status"
-# status: "" | "paralyze"  (only used when kind = "status")
+# status: "" | "paralyze" | "sleep" | "burn"  (only used when kind = "status")
 # type:  normal | electric | fire | water | grass
 const MOVES := {
 	"thunderbolt":   {"name": "Thunderbolt",   "kind": "damage", "type": "electric", "min": 9,  "max": 14, "accuracy": 95,  "max_pp": 15},
@@ -11,7 +11,9 @@ const MOVES := {
 	"spark":         {"name": "Spark",         "kind": "damage", "type": "electric", "min": 5,  "max": 9,  "accuracy": 95,  "max_pp": 20},
 	"tackle":        {"name": "Tackle",        "kind": "damage", "type": "normal",   "min": 4,  "max": 8,  "accuracy": 100, "max_pp": 35},
 	"vine_lash":     {"name": "Vine Lash",     "kind": "damage", "type": "grass",    "min": 6,  "max": 10, "accuracy": 95,  "max_pp": 10},
+	"sleep_powder":  {"name": "Sleep Powder",  "kind": "status", "type": "grass",    "status": "sleep",    "accuracy": 75, "max_pp": 15},
 	"ember":         {"name": "Ember",         "kind": "damage", "type": "fire",     "min": 5,  "max": 11, "accuracy": 95,  "max_pp": 15},
+	"flame_touch":   {"name": "Flame Touch",   "kind": "status", "type": "fire",     "status": "burn",     "accuracy": 85, "max_pp": 25},
 	"scratch":       {"name": "Scratch",       "kind": "damage", "type": "normal",   "min": 4,  "max": 7,  "accuracy": 100, "max_pp": 35},
 }
 

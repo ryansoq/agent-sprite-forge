@@ -69,7 +69,8 @@ func _ready() -> void:
 			"level": 5,
 			"max_hp": fallback_max,
 			"current_hp": fallback_max,
-			"paralyzed": false,
+			"status": "",
+			"status_turns": 0,
 		}
 	_setup_visuals()
 	_refresh_bars()
@@ -90,6 +91,51 @@ func _setup_visuals() -> void:
 
 func _scale_damage(base_dmg: int, attacker_level: int) -> int:
 	return max(1, int(round(base_dmg * (1.0 + (attacker_level - 5) * 0.1))))
+
+func _can_act(actor: Dictionary, label: String) -> bool:
+	var status: String = String(actor.get("status", ""))
+	if status == "sleep":
+		var turns: int = int(actor.get("status_turns", 0))
+		if turns > 0:
+			actor["status_turns"] = turns - 1
+			message.text = "%s is fast asleep!" % label
+			await get_tree().create_timer(0.7).timeout
+			return false
+		actor["status"] = ""
+		message.text = "%s woke up!" % label
+		await get_tree().create_timer(0.7).timeout
+		return true
+	if status == "paralyze" and rng.randf() < 0.5:
+		message.text = "%s is paralyzed and can't move!" % label
+		await get_tree().create_timer(0.7).timeout
+		return false
+	return true
+
+func _apply_burn_damage(actor: Dictionary, label: String, sprite: Sprite2D) -> void:
+	if String(actor.get("status", "")) != "burn":
+		return
+	if int(actor["current_hp"]) <= 0:
+		return
+	var dmg: int = 2
+	actor["current_hp"] = max(0, int(actor["current_hp"]) - dmg)
+	await _flash(sprite)
+	_refresh_bars()
+	message.text = "%s is hurt by its burn! (-%d HP)" % [label, dmg]
+	await get_tree().create_timer(0.7).timeout
+
+func _apply_status_to(target: Dictionary, status_id: String, label: String) -> void:
+	if status_id == "" or String(target.get("status", "")) != "":
+		message.text = "But it had no effect."
+		await get_tree().create_timer(0.7).timeout
+		return
+	target["status"] = status_id
+	if status_id == "sleep":
+		target["status_turns"] = rng.randi_range(1, 3)
+	match status_id:
+		"paralyze": message.text = "%s is paralyzed!" % label
+		"sleep":    message.text = "%s fell asleep!" % label
+		"burn":     message.text = "%s was burned!" % label
+	await get_tree().create_timer(0.7).timeout
 
 func _refresh_bars() -> void:
 	var wild = GameState.current_wild
@@ -190,12 +236,15 @@ func _on_move_chosen(idx: int) -> void:
 	var pp_dict: Dictionary = active.get("pp", {})
 	if int(pp_dict.get(move_id, 0)) <= 0:
 		return  # safety: button should already be disabled
-	pp_dict[move_id] = int(pp_dict.get(move_id, 0)) - 1
-	active["pp"] = pp_dict
+	var active_label: String = MonsterData.MONSTERS[active["id"]]["display_name"]
 	_set_state(State.RESOLVING)
-	await _player_uses_move(move_id)
-	if state == State.ENDING:
-		return
+	# Pre-action status check (sleep/paralyze can prevent acting; no PP consumed)
+	if await _can_act(active, active_label):
+		pp_dict[move_id] = int(pp_dict.get(move_id, 0)) - 1
+		active["pp"] = pp_dict
+		await _player_uses_move(move_id)
+		if state == State.ENDING:
+			return
 	await _enemy_turn()
 	if state == State.ENDING:
 		return
@@ -248,56 +297,73 @@ func _player_uses_move(move_id: String) -> void:
 			message.text = "Recovered %d HP." % (int(active["current_hp"]) - before)
 			await get_tree().create_timer(0.7).timeout
 		"status":
-			if String(move.get("status", "")) == "paralyze":
-				GameState.current_wild["paralyzed"] = true
-				message.text = "%s is paralyzed!" % MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]
-				await get_tree().create_timer(0.7).timeout
+			var status_id: String = String(move.get("status", ""))
+			var wild_label: String = MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]
+			await _apply_status_to(GameState.current_wild, status_id, wild_label)
 
 func _enemy_turn() -> void:
 	if int(GameState.current_wild["current_hp"]) <= 0:
 		return
-	if GameState.current_wild.get("paralyzed", false) and rng.randf() < 0.5:
-		message.text = "%s is paralyzed and can't move!" % MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]
+	var enemy_label: String = MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]
+	if await _can_act(GameState.current_wild, enemy_label):
+		var moves = MonsterData.MONSTERS[GameState.current_wild["id"]]["moves"]
+		var move_id: String = moves[rng.randi() % moves.size()]
+		var move = MoveData.MOVES[move_id]
+		message.text = "Wild %s used %s!" % [enemy_label, MoveData.name_of(move_id)]
 		await get_tree().create_timer(0.7).timeout
-		return
-	var moves = MonsterData.MONSTERS[GameState.current_wild["id"]]["moves"]
-	var move_id: String = moves[rng.randi() % moves.size()]
-	var move = MoveData.MOVES[move_id]
-	message.text = "Wild %s used %s!" % [MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"], MoveData.name_of(move_id)]
-	await get_tree().create_timer(0.7).timeout
-	if rng.randi_range(1, 100) > int(move["accuracy"]):
-		message.text = "But it missed!"
-		await get_tree().create_timer(0.6).timeout
-		return
-	if String(move["kind"]) == "damage":
-		var raw := rng.randi_range(int(move["min"]), int(move["max"]))
-		var attacker_lv: int = int(GameState.current_wild.get("level", 5))
-		var dmg := _scale_damage(raw, attacker_lv)
-		var active = GameState.active_monster()
-		var move_type: String = String(move.get("type", "normal"))
-		var defender_type: String = String(MonsterData.MONSTERS[active["id"]].get("type", "normal"))
-		var eff_mult := MoveData.effectiveness(move_type, defender_type)
-		var crit := rng.randi_range(1, 16) == 1
-		var crit_mult := 1.5 if crit else 1.0
-		dmg = max(1, int(round(dmg * eff_mult * crit_mult)))
-		active["current_hp"] = max(0, int(active["current_hp"]) - dmg)
-		await _flash(player_sprite)
-		_refresh_bars()
-		if crit:
-			message.text = "Critical hit!"
-			await get_tree().create_timer(0.5).timeout
-		var prefix := ""
-		if eff_mult > 1.0:
-			prefix = "It's super effective! "
-		elif eff_mult < 1.0:
-			prefix = "It's not very effective… "
-		message.text = "%s%s took %d damage." % [prefix, MonsterData.MONSTERS[active["id"]]["display_name"], dmg]
-		await get_tree().create_timer(0.7).timeout
-		if int(active["current_hp"]) <= 0:
-			message.text = "%s fainted!" % MonsterData.MONSTERS[active["id"]]["display_name"]
+		if rng.randi_range(1, 100) > int(move["accuracy"]):
+			message.text = "But it missed!"
+			await get_tree().create_timer(0.6).timeout
+		elif String(move["kind"]) == "damage":
+			var raw := rng.randi_range(int(move["min"]), int(move["max"]))
+			var attacker_lv: int = int(GameState.current_wild.get("level", 5))
+			var dmg := _scale_damage(raw, attacker_lv)
+			var active = GameState.active_monster()
+			var move_type: String = String(move.get("type", "normal"))
+			var defender_type: String = String(MonsterData.MONSTERS[active["id"]].get("type", "normal"))
+			var eff_mult := MoveData.effectiveness(move_type, defender_type)
+			var crit := rng.randi_range(1, 16) == 1
+			var crit_mult := 1.5 if crit else 1.0
+			dmg = max(1, int(round(dmg * eff_mult * crit_mult)))
+			active["current_hp"] = max(0, int(active["current_hp"]) - dmg)
+			await _flash(player_sprite)
+			_refresh_bars()
+			if crit:
+				message.text = "Critical hit!"
+				await get_tree().create_timer(0.5).timeout
+			var prefix := ""
+			if eff_mult > 1.0:
+				prefix = "It's super effective! "
+			elif eff_mult < 1.0:
+				prefix = "It's not very effective… "
+			message.text = "%s%s took %d damage." % [prefix, MonsterData.MONSTERS[active["id"]]["display_name"], dmg]
+			await get_tree().create_timer(0.7).timeout
+			if int(active["current_hp"]) <= 0:
+				message.text = "%s fainted!" % MonsterData.MONSTERS[active["id"]]["display_name"]
+				await get_tree().create_timer(0.9).timeout
+				if not GameState.has_living_monster():
+					_white_out()
+					return
+		elif String(move["kind"]) == "status":
+			var status_id: String = String(move.get("status", ""))
+			var active = GameState.active_monster()
+			var active_label: String = MonsterData.MONSTERS[active["id"]]["display_name"]
+			await _apply_status_to(active, status_id, active_label)
+	# End-of-round burn ticks (player first, then enemy)
+	var active2 = GameState.active_monster()
+	if not active2.is_empty() and int(active2["current_hp"]) > 0:
+		var active_label2: String = MonsterData.MONSTERS[active2["id"]]["display_name"]
+		await _apply_burn_damage(active2, active_label2, player_sprite)
+		if int(active2["current_hp"]) <= 0:
+			message.text = "%s fainted!" % active_label2
 			await get_tree().create_timer(0.9).timeout
 			if not GameState.has_living_monster():
 				_white_out()
+				return
+	if int(GameState.current_wild["current_hp"]) > 0:
+		await _apply_burn_damage(GameState.current_wild, enemy_label, enemy_sprite)
+		if int(GameState.current_wild["current_hp"]) <= 0:
+			await _victory()
 
 func _flash(node: Sprite2D) -> void:
 	var original := node.position
