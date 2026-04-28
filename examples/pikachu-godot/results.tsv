@@ -17,3 +17,4 @@ dd940b9	content	keep	iter13: encounter table per region — 4 regions (central/s
 270114d	content	keep	iter15: second map (Cave) — north entrance + south exit door, cave wild pool Lv 6-10; LAST Tier-2 done
 810b45c	code	keep	iter16: semantic input actions (interact + pause) via InputBindings autoload; first Tier-3 iteration
 d15c00b	skill-ready	keep	iter17: data-driven overworld layout — inner_trees/rocks/pond/patches/regions in data/overworld_layout.json; SKILL replacement point
+5fa5a84	polish	keep	iter18: tween HP bars on damage/heal/burn/potion (0.25s); first Tier-4 polish iteration after Tier-3 EncounterTable was deemed superseded by iter17
