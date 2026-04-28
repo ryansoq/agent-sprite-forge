@@ -14,3 +14,4 @@ f6be18b	depth	keep	iter8: trainer battles — 2 fixed-spot NPCs, no run/catch, 2
 8271459	content	keep	iter12: overworld item pickups — 4 ground items (2 Potion + 2 Pokeball), persistent via picked_up_items in save
 dd940b9	content	keep	iter13: encounter table per region — 4 regions (central/south/NW/east) with own pools+level ranges; resolves OQ on wild level swings
 9ad1cb8	content	keep	iter14: Gym Leader (Thunder Lord) — pre-fight dialogue then Lv 10 trainer battle; bonus +$100 +3 Pokeballs on win
+270114d	content	keep	iter15: second map (Cave) — north entrance + south exit door, cave wild pool Lv 6-10; LAST Tier-2 done

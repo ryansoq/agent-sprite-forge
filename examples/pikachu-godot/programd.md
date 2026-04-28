@@ -148,20 +148,18 @@ when done — do not delete; future iterations should see history.
 
 **All Tier-1 depth shipped. Pull from Tier 2 next.**
 
-### Tier 2 — Content
-- [ ] **3+ new wild monsters**: a water type (e.g. Aquillo), a normal type
-      (e.g. Bunten), a psychic type (e.g. Mindling). Sprites added in
-      `make_assets.py`.
-- [ ] **Gym Leader boss**: special trainer with strong moves and a fanfare
-      message; gives a key item that unlocks evolution stones in shop.
-- [ ] **Second map** (cave or town interior). Use a door `Area2D` that
-      transitions via `Fade.go_to_scene`. Different encounter pool.
-- [ ] **NPC + dialogue box**. Talk by walking up + Space. Multi-line text.
-      Use a generic `DialogueBox.tscn` reusable component.
-- [ ] **Overworld item pickup**: scattered Potion / Pokeball sprites you can
-      walk over to collect. Stay collected across save.
-- [ ] **Encounter table per region** (different grass patches → different
-      wild pools). Spec via data dict keyed by region id.
+### Tier 2 — Content (ALL DONE as of iter15)
+- [x] ~~**3+ new wild monsters.**~~ iter10 (4b694f0). Aquillo/Bunten/Mindling.
+- [x] ~~**Gym Leader boss.**~~ iter14 (9ad1cb8). Thunder Lord, Lv 10 Embertail,
+      pre-fight dialogue + bonus rewards.
+- [x] ~~**Second map.**~~ iter15 (270114d). Cave at NE corner, separate wild
+      pool, north entrance + south exit door.
+- [x] ~~**NPC + dialogue box.**~~ iter11 (3f03421). Reusable DialogueBox.
+- [x] ~~**Overworld item pickup.**~~ iter12 (8271459). 4 ground items, persistent.
+- [x] ~~**Encounter table per region.**~~ iter13 (dd940b9). 4 regions in
+      overworld + 1 in cave.
+
+**All Tier-1 and Tier-2 items shipped. Pull from Tier 3 (code health) or Tier 4 (polish/UI) next.**
 
 ### Tier 3 — Code health / SKILL-readiness
 - [ ] **Input action map** properly defined in `project.godot` (custom

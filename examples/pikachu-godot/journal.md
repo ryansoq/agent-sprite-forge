@@ -94,3 +94,30 @@ with their own ecology). **Remaining Tier-2:** Gym Leader boss,
 second map. Both larger (~150 LOC). **Next direction:** Gym Leader —
 reuses DialogueBox + Trainer battle infra; second map can wait until
 the gym leader gives a reason to travel.
+
+## Milestone — All Tier-1 + Tier-2 shipped (iter1–iter15)
+
+- **Iter14 (9ad1cb8)** — Gym Leader "Thunder Lord" Lv 10 with pre-fight
+  dialogue and bonus reward ($100 + 3 Pokeballs).
+- **Iter15 (270114d)** — Second map (Cave) at NE corner; door transition
+  via overworld_return_pos; cave-only encounter region Lv 6-10
+  (Aquillo / Mindling / Bunten).
+
+15 iterations / 15 keeps / 0 discards / 0 crashes. The demo is now
+content-complete to the spec laid out at iter0:
+- Battle: levels, types (4), crits, PP, status (sleep/burn/paralyze),
+  evolution
+- Economy: money, shop, item pickups
+- World: 1280×720 overworld + 480×360 cave with door transitions, 4
+  region encounter pools, 2 trainers, 1 gym leader, 2 NPCs, shop, healing
+  pad, 4 ground items
+- Persistence: save/load via ConfigFile, defeated_trainers, picked_up_
+  items, money, party with level/xp/pp/status
+- UI: title screen, pause menu, dialogue box (reusable), shop menu
+
+Remaining backlog is Tier 3 (code health / SKILL-readiness:
+data-driven layout, input map, dialogue scenes for shop/healing) and
+Tier 4 (polish: tweens, damage popups, themed StyleBox, walking dust,
+status icons). Per programd.md priority, future iterations should
+prefer Tier 3 over Tier 4 — those unblock asset replacement via the
+parent repo's SKILLs.
