@@ -9,6 +9,7 @@ const TALL_GRASS_TEX := preload("res://assets/tall_grass.png")
 
 const CAVE_REGION := {
 	"pool": ["aquillo", "mindling", "bunten"],
+	"night_pool": ["mindling", "mindling", "aquillo"],
 	"level_min": 6,
 	"level_max": 10,
 }
@@ -142,7 +143,7 @@ func _on_grass_entered(body: Node2D) -> void:
 	if rng.randf() < ENCOUNTER_CHANCE:
 		triggered = true
 		encounter_cooldown = 1.0
-		var pool: Array = CAVE_REGION["pool"]
+		var pool: Array = CAVE_REGION["night_pool"] if GameState.is_night() else CAVE_REGION["pool"]
 		var lv_min: int = int(CAVE_REGION["level_min"])
 		var lv_max: int = int(CAVE_REGION["level_max"])
 		var wild_id: String = String(pool[rng.randi() % pool.size()])

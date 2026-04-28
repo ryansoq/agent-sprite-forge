@@ -40,6 +40,10 @@ func night_alpha() -> float:
 	# Smooth sine: 0 at phase 0 / 1, peaks at phase 0.5 (midnight)
 	return NIGHT_PEAK_ALPHA * (0.5 - 0.5 * cos(2.0 * PI * time_of_day))
 
+func is_night() -> bool:
+	# True during the darker half of the cycle (dusk -> midnight -> dawn).
+	return night_alpha() > 0.20
+
 func new_game() -> void:
 	party = [_make_party_member("pikachu")]
 	inventory = {"potion": 3, "pokeball": 5}

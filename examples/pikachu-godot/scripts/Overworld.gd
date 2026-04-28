@@ -294,7 +294,11 @@ func _on_tall_grass_entered(body: Node2D, area: Area2D = null) -> void:
 			region_id = String(area.get_meta("region_id"))
 		var regions: Dictionary = layout.get("regions", {})
 		var region: Dictionary = regions.get(region_id, {})
-		var pool: Array = region.get("pool", MonsterData.WILD_POOL)
+		var pool: Array
+		if GameState.is_night() and region.has("night_pool"):
+			pool = region["night_pool"]
+		else:
+			pool = region.get("pool", MonsterData.WILD_POOL)
 		var lv_min: int = int(region.get("level_min", 3))
 		var lv_max: int = int(region.get("level_max", 7))
 		var wild_id: String = String(pool[rng.randi() % pool.size()])
