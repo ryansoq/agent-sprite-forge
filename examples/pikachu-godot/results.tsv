@@ -11,3 +11,4 @@ f6be18b	depth	keep	iter8: trainer battles — 2 fixed-spot NPCs, no run/catch, 2
 8a024a6	depth	keep	iter9: money + shop NPC — battle wins grant $; shopkeeper sells Potion ($30) + Pokeball ($50); HUD shows $; LAST Tier-1 done
 4b694f0	content	keep	iter10: 3 new wild monsters (Aquillo/Bunten/Mindling); WILD_POOL doubles to 6; first Tier-2 iteration
 3f03421	content	keep	iter11: reusable DialogueBox + 2 seeded NPCs (Elder, Kid); press [Space] to talk; unblocks future NPC features
+8271459	content	keep	iter12: overworld item pickups — 4 ground items (2 Potion + 2 Pokeball), persistent via picked_up_items in save
