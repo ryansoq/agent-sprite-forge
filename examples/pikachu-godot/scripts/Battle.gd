@@ -119,6 +119,7 @@ func _apply_burn_damage(actor: Dictionary, label: String, sprite: Sprite2D) -> v
 	var dmg: int = 2
 	actor["current_hp"] = max(0, int(actor["current_hp"]) - dmg)
 	await _flash(sprite)
+	_spawn_damage_popup(sprite.position, "-%d" % dmg, Color(1.0, 0.6, 0.3))
 	_refresh_bars(true)
 	message.text = "%s is hurt by its burn! (-%d HP)" % [label, dmg]
 	await get_tree().create_timer(0.7).timeout
@@ -147,6 +148,32 @@ func _refresh_bars(animate: bool = false) -> void:
 	player_hp_bar.max_value = max_hp
 	_set_bar(player_hp_bar, int(active["current_hp"]), animate)
 	player_hp_text.text = "%d/%d" % [active["current_hp"], max_hp]
+
+func _spawn_damage_popup(at: Vector2, text: String, color: Color) -> void:
+	var lbl := Label.new()
+	lbl.text = text
+	lbl.position = at + Vector2(-12, -16)
+	lbl.modulate = color
+	lbl.add_theme_font_size_override("font_size", 16)
+	lbl.add_theme_constant_override("outline_size", 3)
+	lbl.add_theme_color_override("font_outline_color", Color.BLACK)
+	lbl.z_index = 20
+	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(lbl)
+	var tw := create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(lbl, "position:y", lbl.position.y - 26, 0.7)
+	tw.tween_property(lbl, "modulate:a", 0.0, 0.7)
+	tw.finished.connect(lbl.queue_free)
+
+func _damage_color(eff_mult: float, crit: bool) -> Color:
+	if eff_mult > 1.0:
+		return Color(1.0, 0.35, 0.35)
+	if eff_mult < 1.0:
+		return Color(0.75, 0.75, 0.75)
+	if crit:
+		return Color(1.0, 0.85, 0.4)
+	return Color(1.0, 1.0, 0.85)
 
 func _set_bar(bar: ProgressBar, target: int, animate: bool) -> void:
 	if animate and int(bar.value) != target:
@@ -292,6 +319,7 @@ func _player_uses_move(move_id: String) -> void:
 			dmg = max(1, int(round(dmg * eff_mult * crit_mult)))
 			GameState.current_wild["current_hp"] = max(0, int(GameState.current_wild["current_hp"]) - dmg)
 			await _flash(enemy_sprite)
+			_spawn_damage_popup(enemy_sprite.position, "-%d" % dmg, _damage_color(eff_mult, crit))
 			_refresh_bars(true)
 			if crit:
 				message.text = "Critical hit!"
@@ -311,6 +339,7 @@ func _player_uses_move(move_id: String) -> void:
 			var max_hp = GameState.max_hp_of(active)
 			var before = int(active["current_hp"])
 			active["current_hp"] = min(max_hp, before + amt)
+			_spawn_damage_popup(player_sprite.position, "+%d" % (int(active["current_hp"]) - before), Color(0.4, 1.0, 0.5))
 			_refresh_bars(true)
 			message.text = "Recovered %d HP." % (int(active["current_hp"]) - before)
 			await get_tree().create_timer(0.7).timeout
@@ -345,6 +374,7 @@ func _enemy_turn() -> void:
 			dmg = max(1, int(round(dmg * eff_mult * crit_mult)))
 			active["current_hp"] = max(0, int(active["current_hp"]) - dmg)
 			await _flash(player_sprite)
+			_spawn_damage_popup(player_sprite.position, "-%d" % dmg, _damage_color(eff_mult, crit))
 			_refresh_bars(true)
 			if crit:
 				message.text = "Critical hit!"
