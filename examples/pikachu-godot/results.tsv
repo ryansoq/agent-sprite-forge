@@ -1,3 +1,4 @@
 commit	axis	status	summary
 7a5e555	depth	keep	iter1: Level/XP system; HP+damage scale with level; wild monsters roll level 3-7; party gains XP and levels up post-battle (bundled with scaffold commit because demo was untracked at loop start)
 bde6cee	meta	keep	gitignore .godot/ cache and *.uid so iteration diffs stay readable
+14b100f	depth	keep	iter2: type effectiveness — electric/fire/water/grass chart with 2x and 0.5x; super-effective and not-very-effective messages
