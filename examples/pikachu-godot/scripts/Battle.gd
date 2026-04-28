@@ -412,6 +412,11 @@ func _victory() -> void:
 			_setup_visuals()
 			_refresh_bars()
 			await get_tree().create_timer(1.4).timeout
+	var money_reward: int = enemy_lv * (15 if GameState.is_trainer_battle else 5)
+	if money_reward > 0:
+		GameState.grant_money(money_reward)
+		message.text = "Got $%d!" % money_reward
+		await get_tree().create_timer(0.9).timeout
 	GameState.go_to_overworld()
 
 func _white_out() -> void:

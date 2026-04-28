@@ -7,6 +7,7 @@ var party: Array = []
 var inventory: Dictionary = {}
 var captures: int = 0
 var defeated_trainers: Array = []
+var money: int = 0
 
 var overworld_position: Vector2 = Vector2(640, 360)
 var overworld_facing: String = "down"
@@ -25,6 +26,7 @@ func new_game() -> void:
 	inventory = {"potion": 3, "pokeball": 5}
 	captures = 0
 	defeated_trainers = []
+	money = 0
 	overworld_position = Vector2(640, 360)
 	overworld_facing = "down"
 	save_game()
@@ -172,6 +174,15 @@ func consume_item(item: String) -> bool:
 func grant_item(item: String, amount: int) -> void:
 	inventory[item] = int(inventory.get(item, 0)) + amount
 
+func grant_money(amount: int) -> void:
+	money = max(0, money + amount)
+
+func spend_money(amount: int) -> bool:
+	if money < amount:
+		return false
+	money -= amount
+	return true
+
 func use_potion_on(member: Dictionary) -> int:
 	if not consume_item("potion"):
 		return 0
@@ -229,6 +240,7 @@ func save_game() -> void:
 	cfg.set_value("save", "overworld_facing", overworld_facing)
 	cfg.set_value("save", "captures", captures)
 	cfg.set_value("save", "defeated_trainers", defeated_trainers)
+	cfg.set_value("save", "money", money)
 	cfg.save(SAVE_PATH)
 
 func load_game() -> bool:
@@ -241,6 +253,7 @@ func load_game() -> bool:
 	overworld_facing = cfg.get_value("save", "overworld_facing", "down")
 	captures = cfg.get_value("save", "captures", 0)
 	defeated_trainers = cfg.get_value("save", "defeated_trainers", [])
+	money = cfg.get_value("save", "money", 0)
 	# backfill level/xp/pp/status on legacy saves
 	for m in party:
 		if not m.has("level"):

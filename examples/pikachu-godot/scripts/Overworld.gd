@@ -9,10 +9,15 @@ const ROCK_TEX := preload("res://assets/rock.png")
 const TALL_GRASS_TEX := preload("res://assets/tall_grass.png")
 const WATER_TEX := preload("res://assets/water.png")
 const TRAINER_TEX := preload("res://assets/trainer.png")
+const SHOPKEEPER_TEX := preload("res://assets/shopkeeper.png")
 
 const TRAINERS := [
 	{"id": "trainer_volty", "monster": "volty", "level": 6, "pos": Vector2(880, 300)},
 	{"id": "trainer_twigling", "monster": "twigling", "level": 7, "pos": Vector2(260, 460)},
+]
+
+const SHOPS := [
+	{"id": "shop_main", "pos": Vector2(560, 360)},
 ]
 
 @onready var player: CharacterBody2D = $Player
@@ -25,6 +30,7 @@ var rng := RandomNumberGenerator.new()
 var encounter_cooldown := 1.5
 var triggered := false
 var pause_scene: PackedScene = preload("res://scenes/PauseMenu.tscn")
+var shop_scene: PackedScene = preload("res://scenes/ShopMenu.tscn")
 
 func _ready() -> void:
 	rng.randomize()
@@ -36,6 +42,7 @@ func _ready() -> void:
 	camera.make_current()
 	_build_world()
 	_spawn_trainers()
+	_spawn_shops()
 	heal_area.body_entered.connect(_on_healing_pad_entered)
 	_refresh_hud()
 	hint.text = "Arrows: move   ESC: pause   Walk into dark grass for wild encounters!"
@@ -49,10 +56,11 @@ func _refresh_hud() -> void:
 	var active := GameState.active_monster()
 	var disp_name: String = MonsterData.MONSTERS[active["id"]]["display_name"]
 	var lv: int = int(active.get("level", 5))
-	hud.text = "%s Lv%d  %d/%d HP   Pokeballs: %d   Potions: %d   Caught: %d" % [
+	hud.text = "%s Lv%d  %d/%d HP   $%d   Balls: %d  Potions: %d   Caught: %d" % [
 		disp_name, lv,
 		int(active["current_hp"]),
 		GameState.max_hp_of(active),
+		GameState.money,
 		int(GameState.inventory.get("pokeball", 0)),
 		int(GameState.inventory.get("potion", 0)),
 		GameState.captures,
@@ -201,6 +209,33 @@ func _on_trainer_entered(body: Node2D, area: Area2D) -> void:
 		String(area.get_meta("monster_id")),
 		int(area.get_meta("level")),
 	)
+
+func _spawn_shops() -> void:
+	var node := Node2D.new()
+	node.name = "Shops"
+	add_child(node)
+	for s in SHOPS:
+		var area := Area2D.new()
+		area.position = s["pos"]
+		var sprite := Sprite2D.new()
+		sprite.texture = SHOPKEEPER_TEX
+		area.add_child(sprite)
+		var col := CollisionShape2D.new()
+		var shape := RectangleShape2D.new()
+		shape.size = Vector2(22, 28)
+		col.shape = shape
+		area.add_child(col)
+		node.add_child(area)
+		area.body_entered.connect(_on_shop_entered)
+
+func _on_shop_entered(body: Node2D) -> void:
+	if not (body is CharacterBody2D):
+		return
+	if encounter_cooldown > 0.0:
+		return
+	encounter_cooldown = 0.6
+	var shop := shop_scene.instantiate()
+	add_child(shop)
 
 func _on_healing_pad_entered(body: Node2D) -> void:
 	if not (body is CharacterBody2D):

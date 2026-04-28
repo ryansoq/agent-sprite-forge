@@ -145,6 +145,38 @@ def make_trainer() -> None:
     img.save(ASSETS / "trainer.png")
 
 
+def make_shopkeeper() -> None:
+    img, d = _new()
+    tunic = (90, 160, 80, 255)
+    tunic_dark = (50, 110, 40, 255)
+    skin = (240, 200, 160, 255)
+    pants = (90, 60, 40, 255)
+    apron = (180, 130, 70, 255)
+    apron_dark = (130, 90, 40, 255)
+
+    # legs
+    d.rectangle([10, 22, 14, 30], fill=pants, outline=BLACK)
+    d.rectangle([18, 22, 22, 30], fill=pants, outline=BLACK)
+    # body / tunic
+    d.rectangle([8, 14, 24, 24], fill=tunic, outline=BLACK)
+    # apron
+    d.rectangle([10, 18, 22, 24], fill=apron, outline=apron_dark)
+    # arms
+    d.rectangle([5, 15, 8, 22], fill=tunic, outline=BLACK)
+    d.rectangle([24, 15, 27, 22], fill=tunic, outline=BLACK)
+    # head
+    d.ellipse([10, 4, 22, 14], fill=skin, outline=BLACK)
+    # hair
+    d.rectangle([10, 4, 22, 6], fill=tunic_dark)
+    # eyes
+    d.point((13, 9), fill=BLACK)
+    d.point((19, 9), fill=BLACK)
+    # mouth (slight grin)
+    d.line([(14, 12), (16, 13), (18, 12)], fill=BLACK)
+
+    img.save(ASSETS / "shopkeeper.png")
+
+
 def make_volty() -> None:
     """Original electric mouse-like creature; not Pikachu."""
     img, d = _new()
@@ -322,6 +354,7 @@ def main() -> None:
     make_pikachu_side()
     make_raichu()
     make_trainer()
+    make_shopkeeper()
     make_volty()
     make_twigling()
     make_embertail()
