@@ -75,6 +75,20 @@ func grant_battle_xp(enemy_level: int) -> Array:
 		"xp": amount,
 		"levels": levels,
 	})
+	# Faint XP share: other non-fainted members get half
+	var share: int = amount / 2
+	if share > 0:
+		for m in party:
+			if m == active:
+				continue
+			if int(m.get("current_hp", 0)) <= 0:
+				continue
+			var lv := gain_xp(m, share)
+			summaries.append({
+				"name": String(MonsterData.MONSTERS[m["id"]]["display_name"]),
+				"xp": share,
+				"levels": lv,
+			})
 	return summaries
 
 func active_index() -> int:
