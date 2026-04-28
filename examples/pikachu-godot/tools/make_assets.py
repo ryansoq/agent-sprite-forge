@@ -238,6 +238,77 @@ def make_embertail() -> None:
     img.save(ASSETS / "enemy_embertail.png")
 
 
+def make_aquillo() -> None:
+    img, d = _new()
+    blue = (90, 160, 220, 255)
+    blue_dark = (50, 100, 170, 255)
+    light = (180, 220, 240, 255)
+    # body
+    d.ellipse([4, 10, 28, 30], fill=blue, outline=BLACK)
+    # lighter belly
+    d.ellipse([8, 18, 24, 28], fill=light)
+    # side fins
+    d.polygon([(2, 18), (8, 14), (8, 22)], fill=blue_dark, outline=BLACK)
+    d.polygon([(30, 18), (24, 14), (24, 22)], fill=blue_dark, outline=BLACK)
+    # eyes
+    d.ellipse([10, 14, 13, 18], fill=BLACK)
+    d.ellipse([19, 14, 22, 18], fill=BLACK)
+    d.point((11, 15), fill=WHITE)
+    d.point((20, 15), fill=WHITE)
+    # smile
+    d.line([(13, 22), (16, 24), (19, 22)], fill=BLACK)
+    img.save(ASSETS / "enemy_aquillo.png")
+
+
+def make_bunten() -> None:
+    img, d = _new()
+    brown = (170, 130, 90, 255)
+    brown_dark = (110, 80, 50, 255)
+    cream = (245, 220, 180, 255)
+    pink = (240, 170, 170, 255)
+    # long ears
+    d.ellipse([6, 0, 12, 14], fill=brown, outline=BLACK)
+    d.ellipse([20, 0, 26, 14], fill=brown, outline=BLACK)
+    d.ellipse([7, 3, 11, 11], fill=pink)
+    d.ellipse([21, 3, 25, 11], fill=pink)
+    # head/body
+    d.ellipse([4, 10, 28, 30], fill=brown, outline=BLACK)
+    # cream belly
+    d.ellipse([10, 18, 22, 28], fill=cream)
+    # eyes
+    d.ellipse([10, 14, 13, 17], fill=BLACK)
+    d.ellipse([19, 14, 22, 17], fill=BLACK)
+    # nose
+    d.ellipse([15, 18, 17, 20], fill=pink)
+    # whiskers
+    d.line([(8, 20), (12, 21)], fill=brown_dark)
+    d.line([(20, 21), (24, 20)], fill=brown_dark)
+    img.save(ASSETS / "enemy_bunten.png")
+
+
+def make_mindling() -> None:
+    img, d = _new()
+    purple = (180, 130, 200, 255)
+    purple_dark = (130, 80, 160, 255)
+    glow = (250, 220, 240, 255)
+    # antenna with bulb
+    d.line([(16, 1), (16, 7)], fill=purple_dark)
+    d.ellipse([14, 0, 18, 4], fill=glow, outline=purple_dark)
+    # body
+    d.ellipse([4, 10, 28, 30], fill=purple, outline=BLACK)
+    # third eye on forehead
+    d.ellipse([14, 11, 18, 14], fill=glow)
+    d.ellipse([15, 12, 17, 14], fill=BLACK)
+    # main eyes (large, glowing pink-tinted)
+    d.ellipse([8, 15, 14, 21], fill=glow)
+    d.ellipse([18, 15, 24, 21], fill=glow)
+    d.ellipse([10, 17, 12, 19], fill=BLACK)
+    d.ellipse([20, 17, 22, 19], fill=BLACK)
+    # mouth
+    d.line([(14, 24), (16, 25), (18, 24)], fill=BLACK)
+    img.save(ASSETS / "enemy_mindling.png")
+
+
 def make_grass_tile() -> None:
     img = Image.new("RGBA", (32, 32), GREEN)
     d = ImageDraw.Draw(img)
@@ -358,6 +429,9 @@ def main() -> None:
     make_volty()
     make_twigling()
     make_embertail()
+    make_aquillo()
+    make_bunten()
+    make_mindling()
     make_grass_tile()
     make_tall_grass_tile()
     make_dirt_tile()

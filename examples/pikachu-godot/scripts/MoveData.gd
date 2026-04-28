@@ -15,6 +15,9 @@ const MOVES := {
 	"ember":         {"name": "Ember",         "kind": "damage", "type": "fire",     "min": 5,  "max": 11, "accuracy": 95,  "max_pp": 15},
 	"flame_touch":   {"name": "Flame Touch",   "kind": "status", "type": "fire",     "status": "burn",     "accuracy": 85, "max_pp": 25},
 	"scratch":       {"name": "Scratch",       "kind": "damage", "type": "normal",   "min": 4,  "max": 7,  "accuracy": 100, "max_pp": 35},
+	"water_pulse":   {"name": "Water Pulse",   "kind": "damage", "type": "water",    "min": 6,  "max": 10, "accuracy": 95,  "max_pp": 20},
+	"pound":         {"name": "Pound",         "kind": "damage", "type": "normal",   "min": 5,  "max": 9,  "accuracy": 100, "max_pp": 35},
+	"confusion":     {"name": "Confusion",     "kind": "damage", "type": "psychic",  "min": 5,  "max": 9,  "accuracy": 100, "max_pp": 25},
 }
 
 # Only non-1.0 entries listed; missing pairs default to neutral (1.0).

@@ -39,6 +39,27 @@ const MONSTERS := {
 		"moves": ["ember", "scratch", "flame_touch"],
 		"sprite": "res://assets/enemy_embertail.png",
 	},
+	"aquillo": {
+		"display_name": "Aquillo",
+		"type": "water",
+		"max_hp": 30,
+		"moves": ["water_pulse", "tackle"],
+		"sprite": "res://assets/enemy_aquillo.png",
+	},
+	"bunten": {
+		"display_name": "Bunten",
+		"type": "normal",
+		"max_hp": 32,
+		"moves": ["pound", "tackle"],
+		"sprite": "res://assets/enemy_bunten.png",
+	},
+	"mindling": {
+		"display_name": "Mindling",
+		"type": "psychic",
+		"max_hp": 26,
+		"moves": ["confusion", "scratch"],
+		"sprite": "res://assets/enemy_mindling.png",
+	},
 }
 
-const WILD_POOL := ["volty", "twigling", "embertail"]
+const WILD_POOL := ["volty", "twigling", "embertail", "aquillo", "bunten", "mindling"]
