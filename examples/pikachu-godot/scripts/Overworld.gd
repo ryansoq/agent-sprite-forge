@@ -11,6 +11,8 @@ const WATER_TEX := preload("res://assets/water.png")
 const TRAINER_TEX := preload("res://assets/trainer.png")
 const SHOPKEEPER_TEX := preload("res://assets/shopkeeper.png")
 const NPC_ELDER_TEX := preload("res://assets/npc_elder.png")
+const POTION_TEX := preload("res://assets/potion.png")
+const POKEBALL_TEX := preload("res://assets/pokeball.png")
 
 const TRAINERS := [
 	{"id": "trainer_volty", "monster": "volty", "level": 6, "pos": Vector2(880, 300)},
@@ -19,6 +21,13 @@ const TRAINERS := [
 
 const SHOPS := [
 	{"id": "shop_main", "pos": Vector2(560, 360)},
+]
+
+const ITEM_SPAWNS := [
+	{"id": "pickup_potion_nw", "item": "potion",   "pos": Vector2(160, 220)},
+	{"id": "pickup_ball_ne",   "item": "pokeball", "pos": Vector2(1100, 200)},
+	{"id": "pickup_potion_e",  "item": "potion",   "pos": Vector2(940, 480)},
+	{"id": "pickup_ball_sw",   "item": "pokeball", "pos": Vector2(200, 600)},
 ]
 
 const NPCS := [
@@ -73,6 +82,7 @@ func _ready() -> void:
 	_spawn_trainers()
 	_spawn_shops()
 	_spawn_npcs()
+	_spawn_pickups()
 	heal_area.body_entered.connect(_on_healing_pad_entered)
 	_refresh_hud()
 	hint.text = "Arrows: move   ESC: pause   Walk into dark grass for wild encounters!"
@@ -303,6 +313,43 @@ func _on_npc_exited(body: Node2D, area: Area2D) -> void:
 		return
 	if nearby_npc == area:
 		nearby_npc = null
+
+func _spawn_pickups() -> void:
+	var node := Node2D.new()
+	node.name = "Pickups"
+	add_child(node)
+	for entry in ITEM_SPAWNS:
+		if String(entry["id"]) in GameState.picked_up_items:
+			continue
+		var area := Area2D.new()
+		area.position = entry["pos"]
+		var sprite := Sprite2D.new()
+		var item_id: String = String(entry["item"])
+		sprite.texture = POTION_TEX if item_id == "potion" else POKEBALL_TEX
+		sprite.scale = Vector2(1.5, 1.5)
+		area.add_child(sprite)
+		var col := CollisionShape2D.new()
+		var shape := RectangleShape2D.new()
+		shape.size = Vector2(20, 20)
+		col.shape = shape
+		area.add_child(col)
+		area.set_meta("pickup_id", String(entry["id"]))
+		area.set_meta("item_id", item_id)
+		node.add_child(area)
+		area.body_entered.connect(_on_item_pickup.bind(area))
+
+func _on_item_pickup(body: Node2D, area: Area2D) -> void:
+	if not (body is CharacterBody2D):
+		return
+	var pickup_id: String = String(area.get_meta("pickup_id"))
+	if pickup_id in GameState.picked_up_items:
+		return
+	var item_id: String = String(area.get_meta("item_id"))
+	GameState.picked_up_items.append(pickup_id)
+	GameState.grant_item(item_id, 1)
+	GameState.save_game()
+	hint.text = "Picked up a %s!" % ("Potion" if item_id == "potion" else "Pokeball")
+	area.queue_free()
 
 func _on_healing_pad_entered(body: Node2D) -> void:
 	if not (body is CharacterBody2D):

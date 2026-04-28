@@ -7,6 +7,7 @@ var party: Array = []
 var inventory: Dictionary = {}
 var captures: int = 0
 var defeated_trainers: Array = []
+var picked_up_items: Array = []
 var money: int = 0
 
 var overworld_position: Vector2 = Vector2(640, 360)
@@ -26,6 +27,7 @@ func new_game() -> void:
 	inventory = {"potion": 3, "pokeball": 5}
 	captures = 0
 	defeated_trainers = []
+	picked_up_items = []
 	money = 0
 	overworld_position = Vector2(640, 360)
 	overworld_facing = "down"
@@ -241,6 +243,7 @@ func save_game() -> void:
 	cfg.set_value("save", "captures", captures)
 	cfg.set_value("save", "defeated_trainers", defeated_trainers)
 	cfg.set_value("save", "money", money)
+	cfg.set_value("save", "picked_up_items", picked_up_items)
 	cfg.save(SAVE_PATH)
 
 func load_game() -> bool:
@@ -254,6 +257,7 @@ func load_game() -> bool:
 	captures = cfg.get_value("save", "captures", 0)
 	defeated_trainers = cfg.get_value("save", "defeated_trainers", [])
 	money = cfg.get_value("save", "money", 0)
+	picked_up_items = cfg.get_value("save", "picked_up_items", [])
 	# backfill level/xp/pp/status on legacy saves
 	for m in party:
 		if not m.has("level"):
