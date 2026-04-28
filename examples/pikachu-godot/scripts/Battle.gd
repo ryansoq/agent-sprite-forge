@@ -280,7 +280,7 @@ func _show_main_menu() -> void:
 
 func _on_fight_pressed() -> void:
 	var active = GameState.active_monster()
-	var moves = MonsterData.MONSTERS[active["id"]]["moves"]
+	var moves = active.get("moves", MonsterData.MONSTERS[active["id"]]["moves"])
 	var pp_dict: Dictionary = active.get("pp", {})
 	for i in move_buttons.size():
 		var btn: Button = move_buttons[i]
@@ -359,11 +359,11 @@ func _on_run_pressed() -> void:
 			_show_main_menu()
 
 func _on_move_chosen(idx: int) -> void:
-	var moves = MonsterData.MONSTERS[GameState.active_monster()["id"]]["moves"]
+	var active = GameState.active_monster()
+	var moves = active.get("moves", MonsterData.MONSTERS[active["id"]]["moves"])
 	if idx >= moves.size():
 		return
 	var move_id: String = moves[idx]
-	var active = GameState.active_monster()
 	var pp_dict: Dictionary = active.get("pp", {})
 	if int(pp_dict.get(move_id, 0)) <= 0:
 		return  # safety: button should already be disabled
@@ -535,6 +535,9 @@ func _victory() -> void:
 			_setup_visuals()
 			_refresh_bars()
 			await get_tree().create_timer(1.4).timeout
+		for mv_id in s.get("learned", []):
+			_say("%s learned %s!" % [s["name"], MoveData.name_of(mv_id)])
+			await get_tree().create_timer(1.0).timeout
 	var money_reward: int = enemy_lv * (15 if GameState.is_trainer_battle else 5)
 	if money_reward > 0:
 		GameState.grant_money(money_reward)

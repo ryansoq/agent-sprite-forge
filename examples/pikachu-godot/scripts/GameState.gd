@@ -57,15 +57,18 @@ func new_game() -> void:
 	save_game()
 
 func _make_party_member(id: String, level: int = 5) -> Dictionary:
-	return {
+	var m := {
 		"id": id,
 		"level": level,
 		"xp": 0,
 		"current_hp": _calc_max_hp(id, level),
-		"pp": _init_pp(id),
+		"pp": {},
+		"moves": [],
 		"status": "",
 		"status_turns": 0,
 	}
+	_sync_moves(m)
+	return m
 
 func _init_pp(id: String) -> Dictionary:
 	var pp := {}
@@ -80,10 +83,11 @@ func _calc_max_hp(id: String, level: int) -> int:
 func _xp_to_next(level: int) -> int:
 	return level * 25
 
-func gain_xp(member: Dictionary, amount: int) -> Array:
+func gain_xp(member: Dictionary, amount: int) -> Dictionary:
 	var levels_gained: Array = []
+	var newly_learned: Array = []
 	if amount <= 0:
-		return levels_gained
+		return {"levels": levels_gained, "learned": newly_learned}
 	member["xp"] = int(member.get("xp", 0)) + amount
 	while int(member["xp"]) >= _xp_to_next(int(member.get("level", 5))):
 		member["xp"] = int(member["xp"]) - _xp_to_next(int(member["level"]))
@@ -93,7 +97,42 @@ func gain_xp(member: Dictionary, amount: int) -> Array:
 		member["current_hp"] = int(member["current_hp"]) + (new_max - old_max)
 		levels_gained.append(int(member["level"]))
 		_check_evolution(member)
-	return levels_gained
+		for mv in _sync_moves(member):
+			newly_learned.append(mv)
+	return {"levels": levels_gained, "learned": newly_learned}
+
+func _sync_moves(member: Dictionary) -> Array:
+	# Reconcile member['moves'] with the species default + learnset entries up to
+	# member['level']. Returns array of move ids newly added to the member.
+	var species_id: String = String(member["id"])
+	var data: Dictionary = MonsterData.MONSTERS[species_id]
+	var lvl: int = int(member.get("level", 5))
+	var prev: Array = (member.get("moves", []) as Array).duplicate()
+	var moves: Array = (data["moves"] as Array).duplicate()
+	var lset: Dictionary = data.get("learnset", {})
+	var sorted_keys: Array = lset.keys()
+	sorted_keys.sort()
+	for k in sorted_keys:
+		if int(k) <= lvl and not (lset[k] in moves):
+			if moves.size() < 4:
+				moves.append(lset[k])
+			# else: 4-move cap reached, skip (no replace dialog in V1)
+	member["moves"] = moves
+	# Sync pp dict: add full PP for new moves, drop entries for moves no longer present
+	var pp = (member.get("pp", {}) as Dictionary).duplicate()
+	for mv in moves:
+		if not pp.has(mv):
+			pp[mv] = int(MoveData.MOVES[mv].get("max_pp", 10))
+	for mv in pp.keys():
+		if not (mv in moves):
+			pp.erase(mv)
+	member["pp"] = pp
+	# Newly learned = in moves but not in prev
+	var newly: Array = []
+	for m in moves:
+		if not (m in prev):
+			newly.append(m)
+	return newly
 
 func _check_evolution(member: Dictionary) -> void:
 	var data = MonsterData.MONSTERS[member["id"]]
@@ -105,7 +144,10 @@ func _check_evolution(member: Dictionary) -> void:
 	var hp_before: int = int(member["current_hp"])
 	var max_before: int = max_hp_of(member)
 	member["id"] = new_id
-	member["pp"] = _init_pp(new_id)
+	# clear pp/moves so _sync_moves rebuilds for the new species
+	member["pp"] = {}
+	member["moves"] = []
+	_sync_moves(member)
 	var max_after: int = max_hp_of(member)
 	# bump current HP by the species-change delta so evolution feels rewarding
 	member["current_hp"] = min(max_after, hp_before + max(0, max_after - max_before))
@@ -117,12 +159,13 @@ func grant_battle_xp(enemy_level: int) -> Array:
 	if active.is_empty():
 		return summaries
 	var name_before: String = String(MonsterData.MONSTERS[active["id"]]["display_name"])
-	var levels := gain_xp(active, amount)
+	var result: Dictionary = gain_xp(active, amount)
 	var name_after: String = String(MonsterData.MONSTERS[active["id"]]["display_name"])
 	summaries.append({
 		"name": name_before,
 		"xp": amount,
-		"levels": levels,
+		"levels": result.get("levels", []),
+		"learned": result.get("learned", []),
 		"evolved_to": (name_after if name_after != name_before else ""),
 	})
 	# Faint XP share: other non-fainted members get half
@@ -134,12 +177,13 @@ func grant_battle_xp(enemy_level: int) -> Array:
 			if int(m.get("current_hp", 0)) <= 0:
 				continue
 			var n_before: String = String(MonsterData.MONSTERS[m["id"]]["display_name"])
-			var lv := gain_xp(m, share)
+			var r2: Dictionary = gain_xp(m, share)
 			var n_after: String = String(MonsterData.MONSTERS[m["id"]]["display_name"])
 			summaries.append({
 				"name": n_before,
 				"xp": share,
-				"levels": lv,
+				"levels": r2.get("levels", []),
+				"learned": r2.get("learned", []),
 				"evolved_to": (n_after if n_after != n_before else ""),
 			})
 	return summaries
@@ -175,15 +219,18 @@ func heal_party_full() -> void:
 func add_to_party(id: String, current_hp: int, level: int = 5) -> bool:
 	if party.size() >= 6:
 		return false
-	party.append({
+	var m := {
 		"id": id,
 		"level": level,
 		"xp": 0,
 		"current_hp": current_hp,
-		"pp": _init_pp(id),
+		"pp": {},
+		"moves": [],
 		"status": "",
 		"status_turns": 0,
-	})
+	}
+	_sync_moves(m)
+	party.append(m)
 	captures += 1
 	save_game()
 	return true
@@ -306,6 +353,10 @@ func load_game() -> bool:
 			m["status"] = ""
 		if not m.has("status_turns"):
 			m["status_turns"] = 0
+		if not m.has("moves"):
+			# Legacy save: derive moves + sync pp from current species + level.
+			# Discard the returned newly-learned list — no level-up notification.
+			_sync_moves(m)
 	return party.size() > 0
 
 func delete_save(slot: int = -1) -> void:
