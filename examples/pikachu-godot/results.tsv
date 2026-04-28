@@ -9,3 +9,4 @@ b1ff534	depth	keep	iter5: sleep & burn statuses; Sleep Powder (twigling) + Flame
 586b325	depth	keep	iter7: evolution — Pikachu→Raichu at Lv8; new Raichu sprite + evolves_at/evolves_to schema; sprite refreshes mid-battle
 f6be18b	depth	keep	iter8: trainer battles — 2 fixed-spot NPCs, no run/catch, 2x XP, defeated_trainers persists in save
 8a024a6	depth	keep	iter9: money + shop NPC — battle wins grant $; shopkeeper sells Potion ($30) + Pokeball ($50); HUD shows $; LAST Tier-1 done
+4b694f0	content	keep	iter10: 3 new wild monsters (Aquillo/Bunten/Mindling); WILD_POOL doubles to 6; first Tier-2 iteration
