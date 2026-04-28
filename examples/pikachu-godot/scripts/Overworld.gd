@@ -89,6 +89,7 @@ var rng := RandomNumberGenerator.new()
 var encounter_cooldown := 1.5
 var triggered := false
 var layout: Dictionary = {}
+var night_overlay: ColorRect
 var pause_scene: PackedScene = preload("res://scenes/PauseMenu.tscn")
 var shop_scene: PackedScene = preload("res://scenes/ShopMenu.tscn")
 var dialogue_scene: PackedScene = preload("res://scenes/DialogueBox.tscn")
@@ -117,6 +118,7 @@ func _ready() -> void:
 	_spawn_pickups()
 	_spawn_gym_leaders()
 	_spawn_cave_doors()
+	_create_night_overlay()
 	heal_area.body_entered.connect(_on_healing_pad_entered)
 	_refresh_hud()
 	hint.text = "Arrows: move   ESC: pause   Walk into dark grass for wild encounters!"
@@ -124,7 +126,23 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if encounter_cooldown > 0.0:
 		encounter_cooldown -= delta
+	if night_overlay:
+		night_overlay.color.a = GameState.night_alpha()
 	_refresh_hud()
+
+func _create_night_overlay() -> void:
+	var layer := CanvasLayer.new()
+	layer.name = "NightLayer"
+	layer.layer = 0
+	add_child(layer)
+	# Move just before $UI in tree so UI draws on top
+	move_child(layer, $UI.get_index())
+	night_overlay = ColorRect.new()
+	night_overlay.color = Color(0.05, 0.08, 0.20, 0.0)
+	night_overlay.anchor_right = 1.0
+	night_overlay.anchor_bottom = 1.0
+	night_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(night_overlay)
 
 func _refresh_hud() -> void:
 	var active := GameState.active_monster()

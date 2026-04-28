@@ -13,6 +13,10 @@ var defeated_trainers: Array = []
 var picked_up_items: Array = []
 var money: int = 0
 var playtime_seconds: float = 0.0
+var time_of_day: float = 0.0  # 0..1; 0 = noon, 0.5 = midnight, smooth sine
+
+const DAY_LENGTH_SECONDS := 240.0  # 4 minutes per full cycle
+const NIGHT_PEAK_ALPHA := 0.45
 
 var overworld_position: Vector2 = Vector2(640, 360)
 var overworld_facing: String = "down"
@@ -30,6 +34,11 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	# autoload inherits PROCESS_MODE_PAUSABLE; stops ticking when tree.paused
 	playtime_seconds += delta
+	time_of_day = fposmod(time_of_day + delta / DAY_LENGTH_SECONDS, 1.0)
+
+func night_alpha() -> float:
+	# Smooth sine: 0 at phase 0 / 1, peaks at phase 0.5 (midnight)
+	return NIGHT_PEAK_ALPHA * (0.5 - 0.5 * cos(2.0 * PI * time_of_day))
 
 func new_game() -> void:
 	party = [_make_party_member("pikachu")]

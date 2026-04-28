@@ -27,6 +27,7 @@ var rng := RandomNumberGenerator.new()
 var encounter_cooldown := 1.5
 var triggered := false
 var pause_scene: PackedScene = preload("res://scenes/PauseMenu.tscn")
+var night_overlay: ColorRect
 
 func _ready() -> void:
 	rng.randomize()
@@ -36,13 +37,29 @@ func _ready() -> void:
 	camera.limit_bottom = CAVE_H
 	camera.make_current()
 	_build_cave()
+	_create_night_overlay()
 	hint.text = "Cave depths.  ESC: pause.  Walk to the south door to exit."
 	_refresh_hud()
 
 func _process(delta: float) -> void:
 	if encounter_cooldown > 0.0:
 		encounter_cooldown -= delta
+	if night_overlay:
+		night_overlay.color.a = GameState.night_alpha()
 	_refresh_hud()
+
+func _create_night_overlay() -> void:
+	var layer := CanvasLayer.new()
+	layer.name = "NightLayer"
+	layer.layer = 0
+	add_child(layer)
+	move_child(layer, $UI.get_index())
+	night_overlay = ColorRect.new()
+	night_overlay.color = Color(0.05, 0.08, 0.20, 0.0)
+	night_overlay.anchor_right = 1.0
+	night_overlay.anchor_bottom = 1.0
+	night_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(night_overlay)
 
 func _refresh_hud() -> void:
 	var active := GameState.active_monster()
