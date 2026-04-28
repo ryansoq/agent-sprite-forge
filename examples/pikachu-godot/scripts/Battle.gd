@@ -119,7 +119,7 @@ func _apply_burn_damage(actor: Dictionary, label: String, sprite: Sprite2D) -> v
 	var dmg: int = 2
 	actor["current_hp"] = max(0, int(actor["current_hp"]) - dmg)
 	await _flash(sprite)
-	_refresh_bars()
+	_refresh_bars(true)
 	message.text = "%s is hurt by its burn! (-%d HP)" % [label, dmg]
 	await get_tree().create_timer(0.7).timeout
 
@@ -137,16 +137,23 @@ func _apply_status_to(target: Dictionary, status_id: String, label: String) -> v
 		"burn":     message.text = "%s was burned!" % label
 	await get_tree().create_timer(0.7).timeout
 
-func _refresh_bars() -> void:
+func _refresh_bars(animate: bool = false) -> void:
 	var wild = GameState.current_wild
 	enemy_hp_bar.max_value = wild["max_hp"]
-	enemy_hp_bar.value = wild["current_hp"]
+	_set_bar(enemy_hp_bar, int(wild["current_hp"]), animate)
 	enemy_hp_text.text = "%d/%d" % [wild["current_hp"], wild["max_hp"]]
 	var active = GameState.active_monster()
 	var max_hp = GameState.max_hp_of(active)
 	player_hp_bar.max_value = max_hp
-	player_hp_bar.value = active["current_hp"]
+	_set_bar(player_hp_bar, int(active["current_hp"]), animate)
 	player_hp_text.text = "%d/%d" % [active["current_hp"], max_hp]
+
+func _set_bar(bar: ProgressBar, target: int, animate: bool) -> void:
+	if animate and int(bar.value) != target:
+		var tw := create_tween()
+		tw.tween_property(bar, "value", float(target), 0.25)
+	else:
+		bar.value = target
 
 func _set_state(s: int) -> void:
 	state = s
@@ -285,7 +292,7 @@ func _player_uses_move(move_id: String) -> void:
 			dmg = max(1, int(round(dmg * eff_mult * crit_mult)))
 			GameState.current_wild["current_hp"] = max(0, int(GameState.current_wild["current_hp"]) - dmg)
 			await _flash(enemy_sprite)
-			_refresh_bars()
+			_refresh_bars(true)
 			if crit:
 				message.text = "Critical hit!"
 				await get_tree().create_timer(0.5).timeout
@@ -304,7 +311,7 @@ func _player_uses_move(move_id: String) -> void:
 			var max_hp = GameState.max_hp_of(active)
 			var before = int(active["current_hp"])
 			active["current_hp"] = min(max_hp, before + amt)
-			_refresh_bars()
+			_refresh_bars(true)
 			message.text = "Recovered %d HP." % (int(active["current_hp"]) - before)
 			await get_tree().create_timer(0.7).timeout
 		"status":
@@ -338,7 +345,7 @@ func _enemy_turn() -> void:
 			dmg = max(1, int(round(dmg * eff_mult * crit_mult)))
 			active["current_hp"] = max(0, int(active["current_hp"]) - dmg)
 			await _flash(player_sprite)
-			_refresh_bars()
+			_refresh_bars(true)
 			if crit:
 				message.text = "Critical hit!"
 				await get_tree().create_timer(0.5).timeout
@@ -438,7 +445,7 @@ func _use_potion() -> void:
 	_set_state(State.RESOLVING)
 	var active = GameState.active_monster()
 	var healed = GameState.use_potion_on(active)
-	_refresh_bars()
+	_refresh_bars(true)
 	message.text = "Used a Potion. Restored %d HP." % healed
 	await get_tree().create_timer(0.9).timeout
 	await _enemy_turn()
