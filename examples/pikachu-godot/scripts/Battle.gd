@@ -2,6 +2,15 @@ extends Node2D
 
 enum State { INTRO, MAIN, MOVE, BAG, PARTY, RESOLVING, ENDING }
 
+const TYPE_COLORS := {
+	"normal":   Color(1.00, 1.00, 1.00),
+	"electric": Color(1.00, 0.85, 0.30),
+	"fire":     Color(1.00, 0.55, 0.30),
+	"water":    Color(0.45, 0.70, 1.00),
+	"grass":    Color(0.50, 0.95, 0.50),
+	"psychic":  Color(1.00, 0.55, 0.85),
+}
+
 @onready var enemy_sprite: Sprite2D = $EnemySprite
 @onready var player_sprite: Sprite2D = $PlayerSprite
 @onready var enemy_name: Label = $UI/EnemyPanel/EnemyName
@@ -212,14 +221,24 @@ func _on_fight_pressed() -> void:
 			var move_id: String = moves[i]
 			var pp: int = int(pp_dict.get(move_id, 0))
 			var max_pp: int = int(MoveData.MOVES[move_id].get("max_pp", 10))
+			var move_type: String = String(MoveData.MOVES[move_id].get("type", "normal"))
 			btn.text = "%s  %d/%d" % [MoveData.name_of(move_id), pp, max_pp]
 			btn.disabled = pp <= 0
+			_tint_button_by_type(btn, move_type)
 			btn.show()
 		else:
 			btn.text = "—"
 			btn.disabled = true
+			_tint_button_by_type(btn, "normal")
 			btn.show()
 	_set_state(State.MOVE)
+
+func _tint_button_by_type(btn: Button, type_id: String) -> void:
+	var c: Color = TYPE_COLORS.get(type_id, Color.WHITE)
+	btn.add_theme_color_override("font_color", c)
+	btn.add_theme_color_override("font_hover_color", c.lightened(0.15))
+	btn.add_theme_color_override("font_pressed_color", c.darkened(0.20))
+	btn.add_theme_color_override("font_disabled_color", c.darkened(0.55))
 
 func _on_bag_pressed() -> void:
 	potion_btn.text = "Potion x%d" % int(GameState.inventory.get("potion", 0))
