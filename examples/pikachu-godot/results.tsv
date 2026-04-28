@@ -7,3 +7,4 @@ bde6cee	meta	keep	gitignore .godot/ cache and *.uid so iteration diffs stay read
 b1ff534	depth	keep	iter5: sleep & burn statuses; Sleep Powder (twigling) + Flame Touch (embertail); _can_act + burn helpers; round-end burn ticks for both sides
 305da12	depth	keep	iter6: faint XP share — non-fainted party members gain half-XP per battle win; resolves journal open question on slow XP curve
 586b325	depth	keep	iter7: evolution — Pikachu→Raichu at Lv8; new Raichu sprite + evolves_at/evolves_to schema; sprite refreshes mid-battle
+f6be18b	depth	keep	iter8: trainer battles — 2 fixed-spot NPCs, no run/catch, 2x XP, defeated_trainers persists in save
