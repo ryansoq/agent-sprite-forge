@@ -160,3 +160,24 @@ Remaining backlog is Tier 5 (multiple save slots, WASD movement, hold-Z
 to fast-forward text). Beyond that, new ideas would need to be invented
 (broader battle moves, day/night, weather, NPC schedules, fishing,
 breeding, etc.) per programd.md "Add to this list as you discover ideas".
+
+## 🏆 Final milestone — All five tiers shipped (iter1–iter27)
+
+- **Iter26 (4bfd34f)** — Tier-5 input QoL: WASD alongside arrows; hold Z
+  for 4× battle fast-forward via Engine.time_scale.
+- **Iter27 (16538f6)** — Tier-5 multiple save slots: 3 per-slot files,
+  title screen peek_slot summary, click/1-2-3 to play, R resets all.
+
+27 iterations / 27 keeps / 0 discards / 0 crashes.
+
+Final tier completion:
+- Tier 1 (gameplay depth):              9/9   ✓
+- Tier 2 (content):                     6/6   ✓
+- Tier 3 (code health / SKILL-ready):   2/2   ✓ (+1 superseded)
+- Tier 4 (polish):                      8/8   ✓
+- Tier 5 (misc QoL):                    3/3   ✓
+
+The original backlog is empty. From here, new directions need to be
+invented anew. The programd.md file lists candidate themes (day/night,
+move learning, more monsters/types, trainer roster, second gym).
+The loop can keep firing as long as it's seeded with new ideas.

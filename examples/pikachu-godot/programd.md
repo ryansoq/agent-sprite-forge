@@ -182,10 +182,19 @@ when done — do not delete; future iterations should see history.
 
 **All Tier-1 / Tier-2 / Tier-3 / Tier-4 shipped. Pull from Tier 5 (misc / nice-to-have) next, or invent new ideas.**
 
-### Tier 5 — Misc / nice-to-have
-- [ ] Multiple save slots on title screen.
-- [ ] WASD alongside arrows.
-- [ ] Hold Z to fast-forward text.
+### Tier 5 — Misc / nice-to-have (ALL DONE as of iter27)
+- [x] ~~Multiple save slots on title screen~~ iter27 (16538f6).
+- [x] ~~WASD alongside arrows~~ iter26 (4bfd34f).
+- [x] ~~Hold Z to fast-forward text~~ iter26 (4bfd34f, bundled).
+
+**All five tiers of the original backlog are now empty.** Future iterations
+need to invent new directions per programd.md "Add to this list as you
+discover ideas". Suggested next themes:
+- Day/night cycle on overworld (tints + encounter pool variant)
+- Move learning at level-up (replace move dialog when full)
+- More monsters, types, and chart entries (poison, ground, flying)
+- Trainer roster (3-4 more trainers with multi-monster parties)
+- A second gym leader and gate progression
 
 (Add to this list as you discover ideas. Strike through obviously-bad ideas
 with `~~`. **Always pull from the lowest unticked tier first.**)
