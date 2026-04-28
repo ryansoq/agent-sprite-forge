@@ -8,6 +8,12 @@ const TREE_SCENE_TEX := preload("res://assets/tree.png")
 const ROCK_TEX := preload("res://assets/rock.png")
 const TALL_GRASS_TEX := preload("res://assets/tall_grass.png")
 const WATER_TEX := preload("res://assets/water.png")
+const TRAINER_TEX := preload("res://assets/trainer.png")
+
+const TRAINERS := [
+	{"id": "trainer_volty", "monster": "volty", "level": 6, "pos": Vector2(880, 300)},
+	{"id": "trainer_twigling", "monster": "twigling", "level": 7, "pos": Vector2(260, 460)},
+]
 
 @onready var player: CharacterBody2D = $Player
 @onready var camera: Camera2D = $Player/Camera2D
@@ -29,6 +35,7 @@ func _ready() -> void:
 	camera.limit_bottom = WORLD_H
 	camera.make_current()
 	_build_world()
+	_spawn_trainers()
 	heal_area.body_entered.connect(_on_healing_pad_entered)
 	_refresh_hud()
 	hint.text = "Arrows: move   ESC: pause   Walk into dark grass for wild encounters!"
@@ -156,6 +163,44 @@ func _on_tall_grass_entered(body: Node2D) -> void:
 		GameState.start_wild_battle(wild_id)
 	else:
 		encounter_cooldown = 0.5
+
+func _spawn_trainers() -> void:
+	var node := Node2D.new()
+	node.name = "Trainers"
+	add_child(node)
+	for t in TRAINERS:
+		if String(t["id"]) in GameState.defeated_trainers:
+			continue
+		var area := Area2D.new()
+		area.position = t["pos"]
+		var sprite := Sprite2D.new()
+		sprite.texture = TRAINER_TEX
+		area.add_child(sprite)
+		var col := CollisionShape2D.new()
+		var shape := RectangleShape2D.new()
+		shape.size = Vector2(22, 28)
+		col.shape = shape
+		area.add_child(col)
+		area.set_meta("trainer_id", String(t["id"]))
+		area.set_meta("monster_id", String(t["monster"]))
+		area.set_meta("level", int(t["level"]))
+		node.add_child(area)
+		area.body_entered.connect(_on_trainer_entered.bind(area))
+
+func _on_trainer_entered(body: Node2D, area: Area2D) -> void:
+	if not (body is CharacterBody2D):
+		return
+	if triggered or encounter_cooldown > 0.0:
+		return
+	triggered = true
+	encounter_cooldown = 1.0
+	hint.text = "A Trainer challenges you!"
+	await get_tree().create_timer(0.4).timeout
+	GameState.start_trainer_battle(
+		String(area.get_meta("trainer_id")),
+		String(area.get_meta("monster_id")),
+		int(area.get_meta("level")),
+	)
 
 func _on_healing_pad_entered(body: Node2D) -> void:
 	if not (body is CharacterBody2D):

@@ -6,12 +6,15 @@ const SAVE_PATH := "user://pikachu_save.cfg"
 var party: Array = []
 var inventory: Dictionary = {}
 var captures: int = 0
+var defeated_trainers: Array = []
 
 var overworld_position: Vector2 = Vector2(640, 360)
 var overworld_facing: String = "down"
 
-# active wild target during a battle scene
+# active wild/trainer target during a battle scene
 var current_wild: Dictionary = {}
+var is_trainer_battle: bool = false
+var current_trainer_id: String = ""
 
 func _ready() -> void:
 	if not load_game():
@@ -21,6 +24,7 @@ func new_game() -> void:
 	party = [_make_party_member("pikachu")]
 	inventory = {"potion": 3, "pokeball": 5}
 	captures = 0
+	defeated_trainers = []
 	overworld_position = Vector2(640, 360)
 	overworld_facing = "down"
 	save_game()
@@ -176,6 +180,24 @@ func use_potion_on(member: Dictionary) -> int:
 	member["current_hp"] = min(max_hp, before + 20)
 	return int(member["current_hp"]) - before
 
+func start_trainer_battle(trainer_id: String, monster_id: String, level: int) -> void:
+	var max_hp := _calc_max_hp(monster_id, level)
+	current_wild = {
+		"id": monster_id,
+		"level": level,
+		"max_hp": max_hp,
+		"current_hp": max_hp,
+		"status": "",
+		"status_turns": 0,
+	}
+	is_trainer_battle = true
+	current_trainer_id = trainer_id
+	Fade.go_to_scene("res://scenes/Battle.tscn")
+
+func mark_trainer_defeated(trainer_id: String) -> void:
+	if trainer_id != "" and not (trainer_id in defeated_trainers):
+		defeated_trainers.append(trainer_id)
+
 func start_wild_battle(wild_id: String) -> void:
 	var wild_level := randi_range(3, 7)
 	var max_hp := _calc_max_hp(wild_id, wild_level)
@@ -190,6 +212,8 @@ func start_wild_battle(wild_id: String) -> void:
 	Fade.go_to_scene("res://scenes/Battle.tscn")
 
 func go_to_overworld() -> void:
+	is_trainer_battle = false
+	current_trainer_id = ""
 	save_game()
 	Fade.go_to_scene("res://scenes/Overworld.tscn")
 
@@ -204,6 +228,7 @@ func save_game() -> void:
 	cfg.set_value("save", "overworld_position", overworld_position)
 	cfg.set_value("save", "overworld_facing", overworld_facing)
 	cfg.set_value("save", "captures", captures)
+	cfg.set_value("save", "defeated_trainers", defeated_trainers)
 	cfg.save(SAVE_PATH)
 
 func load_game() -> bool:
@@ -215,6 +240,7 @@ func load_game() -> bool:
 	overworld_position = cfg.get_value("save", "overworld_position", Vector2(640, 360))
 	overworld_facing = cfg.get_value("save", "overworld_facing", "down")
 	captures = cfg.get_value("save", "captures", 0)
+	defeated_trainers = cfg.get_value("save", "defeated_trainers", [])
 	# backfill level/xp/pp/status on legacy saves
 	for m in party:
 		if not m.has("level"):

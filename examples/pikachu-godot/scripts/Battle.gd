@@ -190,8 +190,12 @@ func _on_fight_pressed() -> void:
 func _on_bag_pressed() -> void:
 	potion_btn.text = "Potion x%d" % int(GameState.inventory.get("potion", 0))
 	potion_btn.disabled = int(GameState.inventory.get("potion", 0)) <= 0
-	ball_btn.text = "Pokeball x%d" % int(GameState.inventory.get("pokeball", 0))
-	ball_btn.disabled = int(GameState.inventory.get("pokeball", 0)) <= 0
+	if GameState.is_trainer_battle:
+		ball_btn.text = "Pokeball (no use)"
+		ball_btn.disabled = true
+	else:
+		ball_btn.text = "Pokeball x%d" % int(GameState.inventory.get("pokeball", 0))
+		ball_btn.disabled = int(GameState.inventory.get("pokeball", 0)) <= 0
 	_set_state(State.BAG)
 
 func _on_party_pressed() -> void:
@@ -216,6 +220,13 @@ func _show_party_menu() -> void:
 
 func _on_run_pressed() -> void:
 	_set_state(State.RESOLVING)
+	if GameState.is_trainer_battle:
+		message.text = "Can't escape from a Trainer battle!"
+		await get_tree().create_timer(0.9).timeout
+		await _enemy_turn()
+		if state != State.ENDING:
+			_show_main_menu()
+		return
 	if rng.randf() < 0.7:
 		message.text = "Got away safely!"
 		await get_tree().create_timer(0.9).timeout
@@ -379,10 +390,14 @@ func _flash(node: Sprite2D) -> void:
 
 func _victory() -> void:
 	_set_state(State.ENDING)
-	message.text = "The wild %s fainted! Victory!" % MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]
+	var who_word: String = "Trainer's" if GameState.is_trainer_battle else "wild"
+	message.text = "The %s %s fainted! Victory!" % [who_word, MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]]
 	await get_tree().create_timer(1.0).timeout
 	var enemy_lv: int = int(GameState.current_wild.get("level", 5))
-	var summaries: Array = GameState.grant_battle_xp(enemy_lv)
+	var xp_level: int = enemy_lv * 2 if GameState.is_trainer_battle else enemy_lv
+	if GameState.is_trainer_battle:
+		GameState.mark_trainer_defeated(GameState.current_trainer_id)
+	var summaries: Array = GameState.grant_battle_xp(xp_level)
 	for s in summaries:
 		message.text = "%s gained %d XP!" % [s["name"], int(s["xp"])]
 		_refresh_bars()
