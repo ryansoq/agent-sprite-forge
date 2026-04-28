@@ -26,7 +26,19 @@ func new_game() -> void:
 	save_game()
 
 func _make_party_member(id: String, level: int = 5) -> Dictionary:
-	return {"id": id, "level": level, "xp": 0, "current_hp": _calc_max_hp(id, level)}
+	return {
+		"id": id,
+		"level": level,
+		"xp": 0,
+		"current_hp": _calc_max_hp(id, level),
+		"pp": _init_pp(id),
+	}
+
+func _init_pp(id: String) -> Dictionary:
+	var pp := {}
+	for move_id in MonsterData.MONSTERS[id]["moves"]:
+		pp[move_id] = int(MoveData.MOVES[move_id].get("max_pp", 10))
+	return pp
 
 func _calc_max_hp(id: String, level: int) -> int:
 	var base: int = int(MonsterData.MONSTERS[id]["max_hp"])
@@ -86,12 +98,19 @@ func has_living_monster() -> bool:
 func heal_party_full() -> void:
 	for m in party:
 		m["current_hp"] = max_hp_of(m)
+		m["pp"] = _init_pp(String(m["id"]))
 	save_game()
 
 func add_to_party(id: String, current_hp: int, level: int = 5) -> bool:
 	if party.size() >= 6:
 		return false
-	party.append({"id": id, "level": level, "xp": 0, "current_hp": current_hp})
+	party.append({
+		"id": id,
+		"level": level,
+		"xp": 0,
+		"current_hp": current_hp,
+		"pp": _init_pp(id),
+	})
 	captures += 1
 	save_game()
 	return true
@@ -153,12 +172,14 @@ func load_game() -> bool:
 	overworld_position = cfg.get_value("save", "overworld_position", Vector2(640, 360))
 	overworld_facing = cfg.get_value("save", "overworld_facing", "down")
 	captures = cfg.get_value("save", "captures", 0)
-	# backfill level/xp on legacy saves
+	# backfill level/xp/pp on legacy saves
 	for m in party:
 		if not m.has("level"):
 			m["level"] = 5
 		if not m.has("xp"):
 			m["xp"] = 0
+		if not m.has("pp"):
+			m["pp"] = _init_pp(String(m["id"]))
 	return party.size() > 0
 
 func delete_save() -> void:

@@ -125,11 +125,15 @@ func _show_main_menu() -> void:
 func _on_fight_pressed() -> void:
 	var active = GameState.active_monster()
 	var moves = MonsterData.MONSTERS[active["id"]]["moves"]
+	var pp_dict: Dictionary = active.get("pp", {})
 	for i in move_buttons.size():
 		var btn: Button = move_buttons[i]
 		if i < moves.size():
-			btn.text = MoveData.name_of(moves[i])
-			btn.disabled = false
+			var move_id: String = moves[i]
+			var pp: int = int(pp_dict.get(move_id, 0))
+			var max_pp: int = int(MoveData.MOVES[move_id].get("max_pp", 10))
+			btn.text = "%s  %d/%d" % [MoveData.name_of(move_id), pp, max_pp]
+			btn.disabled = pp <= 0
 			btn.show()
 		else:
 			btn.text = "—"
@@ -181,8 +185,15 @@ func _on_move_chosen(idx: int) -> void:
 	var moves = MonsterData.MONSTERS[GameState.active_monster()["id"]]["moves"]
 	if idx >= moves.size():
 		return
+	var move_id: String = moves[idx]
+	var active = GameState.active_monster()
+	var pp_dict: Dictionary = active.get("pp", {})
+	if int(pp_dict.get(move_id, 0)) <= 0:
+		return  # safety: button should already be disabled
+	pp_dict[move_id] = int(pp_dict.get(move_id, 0)) - 1
+	active["pp"] = pp_dict
 	_set_state(State.RESOLVING)
-	await _player_uses_move(moves[idx])
+	await _player_uses_move(move_id)
 	if state == State.ENDING:
 		return
 	await _enemy_turn()
