@@ -27,3 +27,4 @@ a4f4dfd	polish	keep	iter24: battle log — last 3 messages stacked in resized pa
 7ba4536	polish	keep	iter25: footstep dust (every 0.18s while moving) + healing pad 8x yellow star sparkles; LAST Tier-4 done
 4bfd34f	code	keep	iter26: WASD alongside arrows + hold-Z fast-forward (Engine.time_scale 4.0 in battle, reset on _exit_tree); first Tier-5 iteration
 16538f6	code	keep	iter27: 3 save slots on title screen — peek_slot summary, click/1-2-3 to play, R resets all; LAST Tier-5 done
+aeb2312	content	keep	iter28: day/night cycle — 4-min sine, dark-blue overlay below UI, in both overworld and cave; first post-Tier-5 idea
