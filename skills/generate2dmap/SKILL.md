@@ -26,6 +26,7 @@ User-facing parameters may be stated in natural language:
 - `visual_model`: baked raster | layered raster | tilemap | layered tilemap | parallax
 - `size`: pixel dimensions, tile dimensions, or camera-relative size
 - `perspective`: top-down | 3/4 top-down | side-view | isometric-like
+- `art_style`: clean_hd | pixel_inspired | retro_pixel | hand_painted | project-native
 - `collision_precision`: none | coarse | precise | tile | walkmesh
 - `prop_generation`: none | one_by_one | prop_pack_2x2 | prop_pack_3x3 | prop_pack_4x4
 - `output_format`: PNG only | layered preview | manifest JSON | engine-native map data
@@ -38,6 +39,9 @@ When unspecified:
 - Use `parallax_layers` for side-scrollers and scrolling backgrounds.
 - Use prop packs when 4 or more small/medium static props share one style and can fit into equal cells.
 - Use one-by-one prop generation for hero props, buildings, gates, irregular large props, animated props, or props needing strong identity.
+- Use `clean_hd` for generated exploration maps unless the project or user asks for pixel art. This means clean hand-painted top-down 2D RPG game map, HD game asset style, sharp readable terrain shapes, low texture noise, and no chunky pixels.
+- Use `pixel_inspired` only when the user wants a pixel-adjacent look without retro chunkiness.
+- Use `retro_pixel` only when the user explicitly asks for 16-bit, retro JRPG, or classic pixel-art maps.
 
 ## Workflow
 
@@ -47,6 +51,7 @@ When unspecified:
 
 2. Choose the pipeline axes.
    - Select `visual_model`, `runtime_object_model`, `collision_model`, and `engine_target`.
+   - Select `art_style`. Prefer readable gameplay shapes over decorative texture density.
    - Treat `hybrid` as a result of combining axes, not as a primary category.
 
 3. Produce assets.

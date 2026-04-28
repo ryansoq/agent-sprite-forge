@@ -171,24 +171,24 @@ Use $generate2dsprite to create a 2D game similar to Pokemon. You only need to b
 Please also pay attention to the size of the elements (the generated sprites need to be proportionally correct when placed into the game), and a game map must be generated as well. Basically, just help me make a game like this—I believe you won't have any problem doing this with that skill! Just one scene is enough, and there's no need for too many monster characters. Let's just start with a few, and we can slowly expand on it later!
 ```
 
-### Layered RPG Map / Reference-Guided Prop Pack
+### Layered RPG Map / Clean HD Reference Pipeline
 
-`$generate2dmap` now models maps as a production pipeline instead of a single strategy label. It chooses a visual model, runtime object model, collision model, and export target. For layered raster maps it can generate a ground-only base map, use that visible base as a wrapper reference for a dressed planning pass, batch small props into a 3x3 prop pack, extract transparent props, place them with y-sort metadata, and compose a flattened preview.
+`$generate2dmap` now models maps as a production pipeline instead of a single strategy label. It chooses a visual model, runtime object model, collision model, art direction, and export target. For layered raster maps it defaults to a clean hand-painted HD game-map style for readability, generates a ground-only base map, uses that visible base as a wrapper reference for a dressed planning pass, batches small props into a 3x3 prop pack, extracts transparent props, places them with y-sort metadata, and composes a flattened preview.
 
 <table>
   <tr>
     <td align="center" width="33%">
-      <img src="./src/stoneford-base.png" alt="Ground-only Stoneford RPG base map" width="300" />
+      <img src="./src/cyber-canal-base.png" alt="Ground-only cyberpunk canal RPG base map" width="300" />
       <br />
       <strong>Ground-only base map</strong>
     </td>
     <td align="center" width="33%">
-      <img src="./src/stoneford-dressed-reference.png" alt="Dressed Stoneford reference map" width="300" />
+      <img src="./src/cyber-canal-dressed-reference.png" alt="Dressed cyberpunk canal reference map" width="300" />
       <br />
       <strong>Dressed reference pass</strong>
     </td>
     <td align="center" width="33%">
-      <img src="./src/stoneford-prop-pack.png" alt="Generated 3x3 Stoneford prop pack" width="300" />
+      <img src="./src/cyber-canal-prop-pack.png" alt="Generated 3x3 cyberpunk canal prop pack" width="300" />
       <br />
       <strong>3x3 generated prop pack</strong>
     </td>
@@ -196,7 +196,7 @@ Please also pay attention to the size of the elements (the generated sprites nee
 </table>
 
 <p align="center">
-  <img src="./src/stoneford-layered-preview.png" alt="Layered Stoneford RPG map preview" width="720" />
+  <img src="./src/cyber-canal-layered-preview.png" alt="Layered cyberpunk canal RPG map preview" width="720" />
   <br />
   <strong>Flattened layered RPG map preview</strong>
 </p>
@@ -209,13 +209,14 @@ layered_raster + y_sorted_props + precise_shapes + trigger_zones + raw_canvas
 
 Reference-guided layered maps use this flow:
 
-1. Generate a ground-only base map.
-2. Show the base map in the conversation context and generate a dressed reference from it.
-3. Generate one-by-one props or a tightly margined prop pack from the dressed reference.
-4. Run soft-matte chroma-key cleanup with despill before extracting props when magenta fringe appears.
-5. Compose the final runtime preview from the original base plus extracted transparent props.
+1. Pick the art direction: `clean_hd` by default for readable game maps, `pixel_inspired` for a softer pixel-adjacent look, or `retro_pixel` only when the user asks for classic pixel art.
+2. Generate a ground-only base map.
+3. Show the base map in the conversation context and generate a dressed reference from it.
+4. Generate one-by-one props or a tightly margined prop pack from the dressed reference.
+5. Run soft-matte chroma-key cleanup with despill before extracting props when magenta fringe appears.
+6. Compose the final runtime preview from the original base plus extracted transparent props.
 
-Codex-first 2D game asset skills for game-ready pixel assets and playable map scenes.
+Codex-first 2D game asset skills for game-ready 2D sprites, props, FX, and playable map scenes.
 
 This repository currently ships two skills:
 
@@ -247,6 +248,7 @@ The current focus is 2D game assets and map scenes, not full game-pack automatio
 - Small bundles such as `unit_bundle`, `spell_bundle`, and `combat_bundle`
 - Reference-guided sprite variants, animation sheets, and evolution lines
 - Single baked 2D maps
+- Clean HD hand-painted layered maps
 - Layered base maps with transparent props
 - Dressed-reference guided layered maps
 - 2D map prop packs such as `2x2`, `3x3`, and `4x4`
