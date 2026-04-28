@@ -1,6 +1,9 @@
 extends Node
 
-const SAVE_PATH := "user://pikachu_save.cfg"
+const SAVE_PATH_TEMPLATE := "user://pikachu_save_%d.cfg"
+const TOTAL_SLOTS := 3
+
+var current_slot: int = 1
 
 # party member: { id: String, level: int, xp: int, current_hp: int }
 var party: Array = []
@@ -257,11 +260,17 @@ func save_game() -> void:
 	cfg.set_value("save", "money", money)
 	cfg.set_value("save", "picked_up_items", picked_up_items)
 	cfg.set_value("save", "playtime_seconds", playtime_seconds)
-	cfg.save(SAVE_PATH)
+	cfg.save(_save_path_for(current_slot))
+
+func _save_path_for(slot: int) -> String:
+	return SAVE_PATH_TEMPLATE % slot
+
+func set_slot(slot: int) -> void:
+	current_slot = slot
 
 func load_game() -> bool:
 	var cfg := ConfigFile.new()
-	if cfg.load(SAVE_PATH) != OK:
+	if cfg.load(_save_path_for(current_slot)) != OK:
 		return false
 	party = cfg.get_value("save", "party", [])
 	inventory = cfg.get_value("save", "inventory", {})
@@ -286,6 +295,23 @@ func load_game() -> bool:
 			m["status_turns"] = 0
 	return party.size() > 0
 
-func delete_save() -> void:
-	if FileAccess.file_exists(SAVE_PATH):
-		DirAccess.remove_absolute(SAVE_PATH)
+func delete_save(slot: int = -1) -> void:
+	var s: int = current_slot if slot < 0 else slot
+	var path := _save_path_for(s)
+	if FileAccess.file_exists(path):
+		DirAccess.remove_absolute(path)
+
+func delete_all_saves() -> void:
+	for s in range(1, TOTAL_SLOTS + 1):
+		delete_save(s)
+
+func peek_slot(slot: int) -> Dictionary:
+	var cfg := ConfigFile.new()
+	if cfg.load(_save_path_for(slot)) != OK:
+		return {}
+	return {
+		"party_size": (cfg.get_value("save", "party", []) as Array).size(),
+		"captures": int(cfg.get_value("save", "captures", 0)),
+		"playtime_seconds": float(cfg.get_value("save", "playtime_seconds", 0.0)),
+		"money": int(cfg.get_value("save", "money", 0)),
+	}
