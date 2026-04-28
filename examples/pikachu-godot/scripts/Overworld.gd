@@ -11,6 +11,7 @@ const WATER_TEX := preload("res://assets/water.png")
 const TRAINER_TEX := preload("res://assets/trainer.png")
 const SHOPKEEPER_TEX := preload("res://assets/shopkeeper.png")
 const NPC_ELDER_TEX := preload("res://assets/npc_elder.png")
+const GYM_LEADER_TEX := preload("res://assets/gym_leader.png")
 const POTION_TEX := preload("res://assets/potion.png")
 const POKEBALL_TEX := preload("res://assets/pokeball.png")
 
@@ -21,6 +22,21 @@ const TRAINERS := [
 
 const SHOPS := [
 	{"id": "shop_main", "pos": Vector2(560, 360)},
+]
+
+const GYM_LEADERS := [
+	{
+		"id": "gym_thunder_lord",
+		"name": "Thunder Lord",
+		"monster": "embertail",
+		"level": 10,
+		"pos": Vector2(1100, 100),
+		"pre_dialogue": [
+			"So, you've reached me at last.",
+			"I am the Thunder Lord, sovereign of this forest.",
+			"Few trainers walk away from this fight. Are you ready?",
+		],
+	},
 ]
 
 const REGIONS := {
@@ -109,6 +125,7 @@ var pause_scene: PackedScene = preload("res://scenes/PauseMenu.tscn")
 var shop_scene: PackedScene = preload("res://scenes/ShopMenu.tscn")
 var dialogue_scene: PackedScene = preload("res://scenes/DialogueBox.tscn")
 var nearby_npc: Area2D = null
+var nearby_gym_leader: Area2D = null
 
 func _ready() -> void:
 	rng.randomize()
@@ -123,6 +140,7 @@ func _ready() -> void:
 	_spawn_shops()
 	_spawn_npcs()
 	_spawn_pickups()
+	_spawn_gym_leaders()
 	heal_area.body_entered.connect(_on_healing_pad_entered)
 	_refresh_hud()
 	hint.text = "Arrows: move   ESC: pause   Walk into dark grass for wild encounters!"
@@ -150,6 +168,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		var pause := pause_scene.instantiate()
 		add_child(pause)
+	elif event.is_action_pressed("ui_accept") and nearby_gym_leader != null:
+		var leader := nearby_gym_leader
+		var dlg := dialogue_scene.instantiate()
+		dlg.set_dialogue_pages(leader.get_meta("pre_dialogue"))
+		dlg.closed.connect(_on_gym_dialogue_closed.bind(leader))
+		add_child(dlg)
 	elif event.is_action_pressed("ui_accept") and nearby_npc != null:
 		var dlg := dialogue_scene.instantiate()
 		dlg.set_dialogue_pages(nearby_npc.get_meta("pages"))
@@ -391,6 +415,51 @@ func _on_item_pickup(body: Node2D, area: Area2D) -> void:
 	GameState.save_game()
 	hint.text = "Picked up a %s!" % ("Potion" if item_id == "potion" else "Pokeball")
 	area.queue_free()
+
+func _spawn_gym_leaders() -> void:
+	var node := Node2D.new()
+	node.name = "GymLeaders"
+	add_child(node)
+	for g in GYM_LEADERS:
+		if String(g["id"]) in GameState.defeated_trainers:
+			continue
+		var area := Area2D.new()
+		area.position = g["pos"]
+		var sprite := Sprite2D.new()
+		sprite.texture = GYM_LEADER_TEX
+		area.add_child(sprite)
+		var col := CollisionShape2D.new()
+		var shape := RectangleShape2D.new()
+		shape.size = Vector2(34, 36)
+		col.shape = shape
+		area.add_child(col)
+		area.set_meta("id", String(g["id"]))
+		area.set_meta("name", String(g["name"]))
+		area.set_meta("monster", String(g["monster"]))
+		area.set_meta("level", int(g["level"]))
+		area.set_meta("pre_dialogue", g["pre_dialogue"])
+		node.add_child(area)
+		area.body_entered.connect(_on_gym_entered.bind(area))
+		area.body_exited.connect(_on_gym_exited.bind(area))
+
+func _on_gym_entered(body: Node2D, area: Area2D) -> void:
+	if not (body is CharacterBody2D):
+		return
+	nearby_gym_leader = area
+	hint.text = "Press [Space] to challenge %s" % String(area.get_meta("name"))
+
+func _on_gym_exited(body: Node2D, area: Area2D) -> void:
+	if not (body is CharacterBody2D):
+		return
+	if nearby_gym_leader == area:
+		nearby_gym_leader = null
+
+func _on_gym_dialogue_closed(leader: Area2D) -> void:
+	GameState.start_trainer_battle(
+		String(leader.get_meta("id")),
+		String(leader.get_meta("monster")),
+		int(leader.get_meta("level")),
+	)
 
 func _on_healing_pad_entered(body: Node2D) -> void:
 	if not (body is CharacterBody2D):

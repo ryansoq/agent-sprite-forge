@@ -417,6 +417,11 @@ func _victory() -> void:
 		GameState.grant_money(money_reward)
 		message.text = "Got $%d!" % money_reward
 		await get_tree().create_timer(0.9).timeout
+	if GameState.is_trainer_battle and GameState.current_trainer_id.begins_with("gym_"):
+		GameState.grant_money(100)
+		GameState.grant_item("pokeball", 3)
+		message.text = "Gym victory bonus: $100 and 3 Pokeballs!"
+		await get_tree().create_timer(1.4).timeout
 	GameState.go_to_overworld()
 
 func _white_out() -> void:

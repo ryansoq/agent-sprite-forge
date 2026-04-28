@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+signal closed
+
 @onready var label: Label = $Panel/Label
 @onready var hint: Label = $Panel/Hint
 
@@ -36,4 +38,5 @@ func _advance() -> void:
 
 func _close() -> void:
 	get_tree().paused = false
+	closed.emit()
 	queue_free()

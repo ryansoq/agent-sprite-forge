@@ -177,6 +177,40 @@ def make_shopkeeper() -> None:
     img.save(ASSETS / "shopkeeper.png")
 
 
+def make_gym_leader() -> None:
+    img, d = _new()
+    cape = (200, 50, 50, 255)
+    cape_dark = (130, 20, 20, 255)
+    skin = (240, 200, 160, 255)
+    pants = (60, 40, 30, 255)
+    gold = (220, 190, 60, 255)
+    crown = (200, 170, 40, 255)
+    crown_dark = (140, 110, 20, 255)
+
+    # legs
+    d.rectangle([10, 22, 14, 30], fill=pants, outline=BLACK)
+    d.rectangle([18, 22, 22, 30], fill=pants, outline=BLACK)
+    # cape (wider than body)
+    d.polygon([(4, 14), (28, 14), (30, 28), (2, 28)], fill=cape, outline=BLACK)
+    # tunic
+    d.rectangle([8, 14, 24, 24], fill=cape_dark, outline=BLACK)
+    d.line([(16, 16), (16, 23)], fill=gold)
+    # arms
+    d.rectangle([5, 15, 8, 22], fill=cape_dark, outline=BLACK)
+    d.rectangle([24, 15, 27, 22], fill=cape_dark, outline=BLACK)
+    # head
+    d.ellipse([10, 4, 22, 14], fill=skin, outline=BLACK)
+    d.point((13, 9), fill=BLACK)
+    d.point((19, 9), fill=BLACK)
+    # serious flat mouth
+    d.line([(14, 12), (18, 12)], fill=BLACK)
+    # crown (zigzag top)
+    d.polygon([(8, 5), (12, 0), (16, 5), (20, 0), (24, 5)],
+              fill=crown, outline=crown_dark)
+
+    img.save(ASSETS / "gym_leader.png")
+
+
 def make_npc_elder() -> None:
     img, d = _new()
     robe = (140, 100, 180, 255)
@@ -452,6 +486,7 @@ def main() -> None:
     make_raichu()
     make_trainer()
     make_shopkeeper()
+    make_gym_leader()
     make_npc_elder()
     make_volty()
     make_twigling()
