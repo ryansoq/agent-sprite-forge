@@ -8,10 +8,10 @@ moving them into Reflections with the answer.
 - ~~XP curve too slow~~ — partially mitigated by iter6 (faint share doubles
   effective team XP/battle). Curve itself unchanged; revisit if level cap or
   evolution thresholds make late grinding tedious.
-- Wild level rolls 3-7 randomly. With iter5 (sleep/burn) and iter2 (type x2)
-  stacking, fights against high-level type-advantaged wilds can one-shot a low-
-  level party member. Consider region-scoped wild level pools when a second
-  map lands.
+- ~~Wild level rolls 3-7 randomly with type swings~~ — resolved by iter13
+  (region-scoped pools/levels): central_meadow Lv3-6, south_field Lv4-7,
+  northwest_thicket Lv5-8, east_pondside Lv5-9. Variance now bounded per
+  area; player can choose difficulty by location.
 - Status doesn't cure on faint+revive (heal_party_full clears it, but mid-
   battle KO + party-switch keeps the original member statused on next entry).
   Probably fine — adds permanence to status — but flag if it confuses players.
@@ -77,3 +77,20 @@ The battle layer + economic loop now matches a Pokémon-like prototype:
 9 iterations, 9 keeps, zero discards, zero crashes. Next pulls go from
 Tier 2 (content): new wild monsters, Gym Leader, second map, NPC
 dialogue, overworld pickups, regional encounter pools.
+
+## After iter10–iter13 (Tier-2, 4 more keeps)
+
+- **Iter10 (4b694f0)** — 3 new wild monsters (Aquillo water / Bunten
+  normal / Mindling psychic). WILD_POOL doubled to 6.
+- **Iter11 (3f03421)** — Reusable DialogueBox component + 2 NPCs
+  (Elder, Kid).
+- **Iter12 (8271459)** — 4 overworld item pickups, persistent.
+- **Iter13 (dd940b9)** — Encounter table per region (4 regions with
+  distinct pools and level ranges); resolves Open Question 2.
+
+13 iterations / 13 keeps / 0 discards / 0 crashes. The overworld now
+has visible content depth (NPCs to talk to, items to pick up, regions
+with their own ecology). **Remaining Tier-2:** Gym Leader boss,
+second map. Both larger (~150 LOC). **Next direction:** Gym Leader —
+reuses DialogueBox + Trainer battle infra; second map can wait until
+the gym leader gives a reason to travel.
