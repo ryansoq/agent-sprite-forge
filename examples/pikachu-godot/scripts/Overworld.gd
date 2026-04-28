@@ -21,8 +21,11 @@ const CAVE_DOORS := [
 ]
 
 const TRAINERS := [
-	{"id": "trainer_volty", "monster": "volty", "level": 6, "pos": Vector2(880, 300)},
-	{"id": "trainer_twigling", "monster": "twigling", "level": 7, "pos": Vector2(260, 460)},
+	{"id": "trainer_volty",    "monster": "volty",    "level": 6,  "pos": Vector2(880, 300)},
+	{"id": "trainer_twigling", "monster": "twigling", "level": 7,  "pos": Vector2(260, 460)},
+	{"id": "trainer_aquillo",  "monster": "aquillo",  "level": 8,  "pos": Vector2(1020, 540)},
+	{"id": "trainer_bunten",   "monster": "bunten",   "level": 9,  "pos": Vector2(520, 280)},
+	{"id": "trainer_mindling", "monster": "mindling", "level": 10, "pos": Vector2(740, 600)},
 ]
 
 const SHOPS := [
@@ -40,6 +43,18 @@ const GYM_LEADERS := [
 			"So, you've reached me at last.",
 			"I am the Thunder Lord, sovereign of this forest.",
 			"Few trainers walk away from this fight. Are you ready?",
+		],
+	},
+	{
+		"id": "gym_aqua_warden",
+		"name": "Aqua Warden",
+		"monster": "aquillo",
+		"level": 14,
+		"pos": Vector2(380, 100),
+		"pre_dialogue": [
+			"Another trainer. So Thunder Lord let you pass…",
+			"I am the Aqua Warden of the western springs.",
+			"My Aquillo has weathered storms greater than yours. Show me your fight.",
 		],
 	},
 ]
