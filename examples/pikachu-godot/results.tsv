@@ -21,3 +21,4 @@ d15c00b	skill-ready	keep	iter17: data-driven overworld layout — inner_trees/ro
 9453311	polish	keep	iter19: floating damage numbers — color-coded popups (red/gray/gold/green/orange) on damage/heal/burn sites
 a1c0f8a	polish	keep	iter20: move-type colour tag in Fight menu (yellow/orange/blue/green/pink/white per type)
 53dba03	polish	keep	iter21: status badges next to HP — PAR/SLP/BRN colored labels; auto-show on inflict, hide on wake/cure
+49d7edd	polish	keep	iter22: pause menu playtime + party/captures/money summary; GameState._process ticks playtime, halts on pause

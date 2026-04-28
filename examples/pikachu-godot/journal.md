@@ -121,3 +121,24 @@ Tier 4 (polish: tweens, damage popups, themed StyleBox, walking dust,
 status icons). Per programd.md priority, future iterations should
 prefer Tier 3 over Tier 4 — those unblock asset replacement via the
 parent repo's SKILLs.
+
+## After iter16–iter22 (Tier-3 + early Tier-4, 7 more keeps)
+
+- **Iter16 (810b45c)** — Tier-3 input action map: semantic interact /
+  pause via InputBindings autoload, replacing ui_accept/ui_cancel.
+- **Iter17 (d15c00b)** — Tier-3 data-driven overworld: positions /
+  patches / regions moved to data/overworld_layout.json. Direct SKILL
+  replacement point.
+- **Iter18 (5fa5a84)** — Tween HP bars on damage/heal/burn/potion.
+- **Iter19 (9453311)** — Floating damage popups, color-coded.
+- **Iter20 (a1c0f8a)** — Move-type colour tag in Fight menu.
+- **Iter21 (53dba03)** — PAR / SLP / BRN status badges next to HP.
+- **Iter22 (49d7edd)** — Pause menu playtime + summary line.
+
+22 iterations / 22 keeps / 0 discards / 0 crashes. **Tier-3 done**
+(EncounterTable resource superseded by iter17 JSON). **Tier-4 in
+progress** — battle UI now has tween bars, damage popups, type
+colors, status badges. Remaining Tier-4: Panel StyleBox theming,
+battle log (last 3 messages), footstep dust / healing pad sparkle.
+**Next direction:** Battle log — biggest remaining UX gap; players
+can miss messages during fast resolution.
