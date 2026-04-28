@@ -208,14 +208,19 @@ func _player_uses_move(move_id: String) -> void:
 			var dmg := _scale_damage(raw, attacker_lv)
 			var move_type: String = String(move.get("type", "normal"))
 			var defender_type: String = String(MonsterData.MONSTERS[GameState.current_wild["id"]].get("type", "normal"))
-			var mult := MoveData.effectiveness(move_type, defender_type)
-			dmg = max(1, int(round(dmg * mult)))
+			var eff_mult := MoveData.effectiveness(move_type, defender_type)
+			var crit := rng.randi_range(1, 16) == 1
+			var crit_mult := 1.5 if crit else 1.0
+			dmg = max(1, int(round(dmg * eff_mult * crit_mult)))
 			GameState.current_wild["current_hp"] = max(0, int(GameState.current_wild["current_hp"]) - dmg)
 			await _flash(enemy_sprite)
 			_refresh_bars()
-			if mult > 1.0:
+			if crit:
+				message.text = "Critical hit!"
+				await get_tree().create_timer(0.5).timeout
+			if eff_mult > 1.0:
 				message.text = "It's super effective! Dealt %d damage." % dmg
-			elif mult < 1.0:
+			elif eff_mult < 1.0:
 				message.text = "It's not very effective… Dealt %d damage." % dmg
 			else:
 				message.text = "Dealt %d damage." % dmg
@@ -260,15 +265,20 @@ func _enemy_turn() -> void:
 		var active = GameState.active_monster()
 		var move_type: String = String(move.get("type", "normal"))
 		var defender_type: String = String(MonsterData.MONSTERS[active["id"]].get("type", "normal"))
-		var mult := MoveData.effectiveness(move_type, defender_type)
-		dmg = max(1, int(round(dmg * mult)))
+		var eff_mult := MoveData.effectiveness(move_type, defender_type)
+		var crit := rng.randi_range(1, 16) == 1
+		var crit_mult := 1.5 if crit else 1.0
+		dmg = max(1, int(round(dmg * eff_mult * crit_mult)))
 		active["current_hp"] = max(0, int(active["current_hp"]) - dmg)
 		await _flash(player_sprite)
 		_refresh_bars()
+		if crit:
+			message.text = "Critical hit!"
+			await get_tree().create_timer(0.5).timeout
 		var prefix := ""
-		if mult > 1.0:
+		if eff_mult > 1.0:
 			prefix = "It's super effective! "
-		elif mult < 1.0:
+		elif eff_mult < 1.0:
 			prefix = "It's not very effective… "
 		message.text = "%s%s took %d damage." % [prefix, MonsterData.MONSTERS[active["id"]]["display_name"], dmg]
 		await get_tree().create_timer(0.7).timeout
