@@ -206,10 +206,19 @@ func _player_uses_move(move_id: String) -> void:
 			var raw := rng.randi_range(int(move["min"]), int(move["max"]))
 			var attacker_lv: int = int(GameState.active_monster().get("level", 5))
 			var dmg := _scale_damage(raw, attacker_lv)
+			var move_type: String = String(move.get("type", "normal"))
+			var defender_type: String = String(MonsterData.MONSTERS[GameState.current_wild["id"]].get("type", "normal"))
+			var mult := MoveData.effectiveness(move_type, defender_type)
+			dmg = max(1, int(round(dmg * mult)))
 			GameState.current_wild["current_hp"] = max(0, int(GameState.current_wild["current_hp"]) - dmg)
 			await _flash(enemy_sprite)
 			_refresh_bars()
-			message.text = "Dealt %d damage." % dmg
+			if mult > 1.0:
+				message.text = "It's super effective! Dealt %d damage." % dmg
+			elif mult < 1.0:
+				message.text = "It's not very effective… Dealt %d damage." % dmg
+			else:
+				message.text = "Dealt %d damage." % dmg
 			await get_tree().create_timer(0.7).timeout
 			if int(GameState.current_wild["current_hp"]) <= 0:
 				await _victory()
@@ -249,10 +258,19 @@ func _enemy_turn() -> void:
 		var attacker_lv: int = int(GameState.current_wild.get("level", 5))
 		var dmg := _scale_damage(raw, attacker_lv)
 		var active = GameState.active_monster()
+		var move_type: String = String(move.get("type", "normal"))
+		var defender_type: String = String(MonsterData.MONSTERS[active["id"]].get("type", "normal"))
+		var mult := MoveData.effectiveness(move_type, defender_type)
+		dmg = max(1, int(round(dmg * mult)))
 		active["current_hp"] = max(0, int(active["current_hp"]) - dmg)
 		await _flash(player_sprite)
 		_refresh_bars()
-		message.text = "%s took %d damage." % [MonsterData.MONSTERS[active["id"]]["display_name"], dmg]
+		var prefix := ""
+		if mult > 1.0:
+			prefix = "It's super effective! "
+		elif mult < 1.0:
+			prefix = "It's not very effective… "
+		message.text = "%s%s took %d damage." % [prefix, MonsterData.MONSTERS[active["id"]]["display_name"], dmg]
 		await get_tree().create_timer(0.7).timeout
 		if int(active["current_hp"]) <= 0:
 			message.text = "%s fainted!" % MonsterData.MONSTERS[active["id"]]["display_name"]
