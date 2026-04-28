@@ -486,3 +486,23 @@ func _on_healing_pad_entered(body: Node2D) -> void:
 	GameState.heal_party_full()
 	GameState.grant_item("potion", 1)
 	hint.text = "Pad: party fully healed and got a Potion!"
+	_spawn_heal_sparkles($HealingPad.position)
+
+func _spawn_heal_sparkles(at: Vector2) -> void:
+	for i in 8:
+		var s := Label.new()
+		s.text = "*"
+		s.add_theme_font_size_override("font_size", 14)
+		s.add_theme_color_override("font_color", Color(1.0, 0.95, 0.5))
+		s.add_theme_constant_override("outline_size", 2)
+		s.add_theme_color_override("font_outline_color", Color.BLACK)
+		var off := Vector2(rng.randi_range(-14, 14), rng.randi_range(-12, 0))
+		s.position = at + off
+		s.z_index = 5
+		s.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(s)
+		var tw := create_tween()
+		tw.set_parallel(true)
+		tw.tween_property(s, "position:y", s.position.y - 24, 0.7)
+		tw.tween_property(s, "modulate:a", 0.0, 0.7)
+		tw.finished.connect(s.queue_free)
