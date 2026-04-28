@@ -25,3 +25,4 @@ a1c0f8a	polish	keep	iter20: move-type colour tag in Fight menu (yellow/orange/bl
 ec68c4b	polish	keep	iter23: themed panel StyleBox — dark-green tint + border + rounded corners via Theming autoload setting root.theme
 a4f4dfd	polish	keep	iter24: battle log — last 3 messages stacked in resized panel; 40 message.text= sites converted to _say(...) helper
 7ba4536	polish	keep	iter25: footstep dust (every 0.18s while moving) + healing pad 8x yellow star sparkles; LAST Tier-4 done
+4bfd34f	code	keep	iter26: WASD alongside arrows + hold-Z fast-forward (Engine.time_scale 4.0 in battle, reset on _exit_tree); first Tier-5 iteration
