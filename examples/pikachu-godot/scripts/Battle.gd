@@ -51,12 +51,14 @@ const TYPE_COLORS := {
 var rng := RandomNumberGenerator.new()
 var enemy_status_label: Label
 var player_status_label: Label
+var message_log: Array = []
 var state: int = State.INTRO
 var force_switch := false  # entering party menu because active fainted
 
 func _ready() -> void:
 	rng.randomize()
 	_create_status_labels()
+	_resize_message_panel()
 	fight_btn.pressed.connect(_on_fight_pressed)
 	bag_btn.pressed.connect(_on_bag_pressed)
 	party_btn.pressed.connect(_on_party_pressed)
@@ -87,9 +89,9 @@ func _ready() -> void:
 	_setup_visuals()
 	_refresh_bars()
 	_set_state(State.INTRO)
-	message.text = "A wild %s appeared!" % MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]
+	_say("A wild %s appeared!" % MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"])
 	await get_tree().create_timer(1.0).timeout
-	message.text = "Go, %s!" % MonsterData.MONSTERS[GameState.active_monster()["id"]]["display_name"]
+	_say("Go, %s!" % MonsterData.MONSTERS[GameState.active_monster()["id"]]["display_name"])
 	await get_tree().create_timer(0.8).timeout
 	_show_main_menu()
 
@@ -110,16 +112,16 @@ func _can_act(actor: Dictionary, label: String) -> bool:
 		var turns: int = int(actor.get("status_turns", 0))
 		if turns > 0:
 			actor["status_turns"] = turns - 1
-			message.text = "%s is fast asleep!" % label
+			_say("%s is fast asleep!" % label)
 			await get_tree().create_timer(0.7).timeout
 			return false
 		actor["status"] = ""
 		_refresh_bars()
-		message.text = "%s woke up!" % label
+		_say("%s woke up!" % label)
 		await get_tree().create_timer(0.7).timeout
 		return true
 	if status == "paralyze" and rng.randf() < 0.5:
-		message.text = "%s is paralyzed and can't move!" % label
+		_say("%s is paralyzed and can't move!" % label)
 		await get_tree().create_timer(0.7).timeout
 		return false
 	return true
@@ -134,12 +136,12 @@ func _apply_burn_damage(actor: Dictionary, label: String, sprite: Sprite2D) -> v
 	await _flash(sprite)
 	_spawn_damage_popup(sprite.position, "-%d" % dmg, Color(1.0, 0.6, 0.3))
 	_refresh_bars(true)
-	message.text = "%s is hurt by its burn! (-%d HP)" % [label, dmg]
+	_say("%s is hurt by its burn! (-%d HP)" % [label, dmg])
 	await get_tree().create_timer(0.7).timeout
 
 func _apply_status_to(target: Dictionary, status_id: String, label: String) -> void:
 	if status_id == "" or String(target.get("status", "")) != "":
-		message.text = "But it had no effect."
+		_say("But it had no effect.")
 		await get_tree().create_timer(0.7).timeout
 		return
 	target["status"] = status_id
@@ -147,9 +149,9 @@ func _apply_status_to(target: Dictionary, status_id: String, label: String) -> v
 		target["status_turns"] = rng.randi_range(1, 3)
 	_refresh_bars()
 	match status_id:
-		"paralyze": message.text = "%s is paralyzed!" % label
-		"sleep":    message.text = "%s fell asleep!" % label
-		"burn":     message.text = "%s was burned!" % label
+		"paralyze": _say("%s is paralyzed!" % label)
+		"sleep":    _say("%s fell asleep!" % label)
+		"burn":     _say("%s was burned!" % label)
 	await get_tree().create_timer(0.7).timeout
 
 func _refresh_bars(animate: bool = false) -> void:
@@ -164,6 +166,22 @@ func _refresh_bars(animate: bool = false) -> void:
 	_set_bar(player_hp_bar, int(active["current_hp"]), animate)
 	player_hp_text.text = "%d/%d" % [active["current_hp"], max_hp]
 	_update_status_label(player_status_label, active)
+
+func _resize_message_panel() -> void:
+	# Make room for 3 stacked log lines (~14px line height at font 11)
+	var panel: Panel = $UI/MessagePanel
+	panel.offset_top = 178
+	panel.offset_bottom = 224
+	message.offset_top = 6
+	message.offset_bottom = 42
+	message.add_theme_font_size_override("font_size", 11)
+	message.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+
+func _say(text: String) -> void:
+	message_log.append(text)
+	while message_log.size() > 3:
+		message_log.pop_front()
+	message.text = "\n".join(message_log)
 
 func _create_status_labels() -> void:
 	enemy_status_label = _make_status_label()
@@ -251,7 +269,7 @@ func _show_main_menu() -> void:
 		return
 	_setup_visuals()
 	_refresh_bars()
-	message.text = "What will %s do?" % MonsterData.MONSTERS[GameState.active_monster()["id"]]["display_name"]
+	_say("What will %s do?" % MonsterData.MONSTERS[GameState.active_monster()["id"]]["display_name"])
 	_set_state(State.MAIN)
 
 func _on_fight_pressed() -> void:
@@ -317,18 +335,18 @@ func _show_party_menu() -> void:
 func _on_run_pressed() -> void:
 	_set_state(State.RESOLVING)
 	if GameState.is_trainer_battle:
-		message.text = "Can't escape from a Trainer battle!"
+		_say("Can't escape from a Trainer battle!")
 		await get_tree().create_timer(0.9).timeout
 		await _enemy_turn()
 		if state != State.ENDING:
 			_show_main_menu()
 		return
 	if rng.randf() < 0.7:
-		message.text = "Got away safely!"
+		_say("Got away safely!")
 		await get_tree().create_timer(0.9).timeout
 		GameState.go_to_overworld()
 	else:
-		message.text = "Couldn't escape!"
+		_say("Couldn't escape!")
 		await get_tree().create_timer(0.8).timeout
 		await _enemy_turn()
 		if state != State.ENDING:
@@ -360,11 +378,11 @@ func _on_move_chosen(idx: int) -> void:
 func _player_uses_move(move_id: String) -> void:
 	var move = MoveData.MOVES[move_id]
 	var move_name := MoveData.name_of(move_id)
-	message.text = "%s used %s!" % [MonsterData.MONSTERS[GameState.active_monster()["id"]]["display_name"], move_name]
+	_say("%s used %s!" % [MonsterData.MONSTERS[GameState.active_monster()["id"]]["display_name"], move_name])
 	await get_tree().create_timer(0.6).timeout
 
 	if rng.randi_range(1, 100) > int(move["accuracy"]):
-		message.text = "But it missed!"
+		_say("But it missed!")
 		await get_tree().create_timer(0.7).timeout
 		return
 
@@ -384,14 +402,14 @@ func _player_uses_move(move_id: String) -> void:
 			_spawn_damage_popup(enemy_sprite.position, "-%d" % dmg, _damage_color(eff_mult, crit))
 			_refresh_bars(true)
 			if crit:
-				message.text = "Critical hit!"
+				_say("Critical hit!")
 				await get_tree().create_timer(0.5).timeout
 			if eff_mult > 1.0:
-				message.text = "It's super effective! Dealt %d damage." % dmg
+				_say("It's super effective! Dealt %d damage." % dmg)
 			elif eff_mult < 1.0:
-				message.text = "It's not very effective… Dealt %d damage." % dmg
+				_say("It's not very effective… Dealt %d damage." % dmg)
 			else:
-				message.text = "Dealt %d damage." % dmg
+				_say("Dealt %d damage." % dmg)
 			await get_tree().create_timer(0.7).timeout
 			if int(GameState.current_wild["current_hp"]) <= 0:
 				await _victory()
@@ -403,7 +421,7 @@ func _player_uses_move(move_id: String) -> void:
 			active["current_hp"] = min(max_hp, before + amt)
 			_spawn_damage_popup(player_sprite.position, "+%d" % (int(active["current_hp"]) - before), Color(0.4, 1.0, 0.5))
 			_refresh_bars(true)
-			message.text = "Recovered %d HP." % (int(active["current_hp"]) - before)
+			_say("Recovered %d HP." % (int(active["current_hp"]) - before))
 			await get_tree().create_timer(0.7).timeout
 		"status":
 			var status_id: String = String(move.get("status", ""))
@@ -418,10 +436,10 @@ func _enemy_turn() -> void:
 		var moves = MonsterData.MONSTERS[GameState.current_wild["id"]]["moves"]
 		var move_id: String = moves[rng.randi() % moves.size()]
 		var move = MoveData.MOVES[move_id]
-		message.text = "Wild %s used %s!" % [enemy_label, MoveData.name_of(move_id)]
+		_say("Wild %s used %s!" % [enemy_label, MoveData.name_of(move_id)])
 		await get_tree().create_timer(0.7).timeout
 		if rng.randi_range(1, 100) > int(move["accuracy"]):
-			message.text = "But it missed!"
+			_say("But it missed!")
 			await get_tree().create_timer(0.6).timeout
 		elif String(move["kind"]) == "damage":
 			var raw := rng.randi_range(int(move["min"]), int(move["max"]))
@@ -439,17 +457,17 @@ func _enemy_turn() -> void:
 			_spawn_damage_popup(player_sprite.position, "-%d" % dmg, _damage_color(eff_mult, crit))
 			_refresh_bars(true)
 			if crit:
-				message.text = "Critical hit!"
+				_say("Critical hit!")
 				await get_tree().create_timer(0.5).timeout
 			var prefix := ""
 			if eff_mult > 1.0:
 				prefix = "It's super effective! "
 			elif eff_mult < 1.0:
 				prefix = "It's not very effective… "
-			message.text = "%s%s took %d damage." % [prefix, MonsterData.MONSTERS[active["id"]]["display_name"], dmg]
+			_say("%s%s took %d damage." % [prefix, MonsterData.MONSTERS[active["id"]]["display_name"], dmg])
 			await get_tree().create_timer(0.7).timeout
 			if int(active["current_hp"]) <= 0:
-				message.text = "%s fainted!" % MonsterData.MONSTERS[active["id"]]["display_name"]
+				_say("%s fainted!" % MonsterData.MONSTERS[active["id"]]["display_name"])
 				await get_tree().create_timer(0.9).timeout
 				if not GameState.has_living_monster():
 					_white_out()
@@ -465,7 +483,7 @@ func _enemy_turn() -> void:
 		var active_label2: String = MonsterData.MONSTERS[active2["id"]]["display_name"]
 		await _apply_burn_damage(active2, active_label2, player_sprite)
 		if int(active2["current_hp"]) <= 0:
-			message.text = "%s fainted!" % active_label2
+			_say("%s fainted!" % active_label2)
 			await get_tree().create_timer(0.9).timeout
 			if not GameState.has_living_monster():
 				_white_out()
@@ -490,7 +508,7 @@ func _flash(node: Sprite2D) -> void:
 func _victory() -> void:
 	_set_state(State.ENDING)
 	var who_word: String = "Trainer's" if GameState.is_trainer_battle else "wild"
-	message.text = "The %s %s fainted! Victory!" % [who_word, MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]]
+	_say("The %s %s fainted! Victory!" % [who_word, MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]])
 	await get_tree().create_timer(1.0).timeout
 	var enemy_lv: int = int(GameState.current_wild.get("level", 5))
 	var xp_level: int = enemy_lv * 2 if GameState.is_trainer_battle else enemy_lv
@@ -498,34 +516,34 @@ func _victory() -> void:
 		GameState.mark_trainer_defeated(GameState.current_trainer_id)
 	var summaries: Array = GameState.grant_battle_xp(xp_level)
 	for s in summaries:
-		message.text = "%s gained %d XP!" % [s["name"], int(s["xp"])]
+		_say("%s gained %d XP!" % [s["name"], int(s["xp"])])
 		_refresh_bars()
 		await get_tree().create_timer(0.8).timeout
 		for new_lv in s["levels"]:
-			message.text = "%s grew to Lv %d!" % [s["name"], int(new_lv)]
+			_say("%s grew to Lv %d!" % [s["name"], int(new_lv)])
 			_refresh_bars()
 			await get_tree().create_timer(0.9).timeout
 		var evolved_to: String = String(s.get("evolved_to", ""))
 		if evolved_to != "":
-			message.text = "%s evolved into %s!" % [s["name"], evolved_to]
+			_say("%s evolved into %s!" % [s["name"], evolved_to])
 			_setup_visuals()
 			_refresh_bars()
 			await get_tree().create_timer(1.4).timeout
 	var money_reward: int = enemy_lv * (15 if GameState.is_trainer_battle else 5)
 	if money_reward > 0:
 		GameState.grant_money(money_reward)
-		message.text = "Got $%d!" % money_reward
+		_say("Got $%d!" % money_reward)
 		await get_tree().create_timer(0.9).timeout
 	if GameState.is_trainer_battle and GameState.current_trainer_id.begins_with("gym_"):
 		GameState.grant_money(100)
 		GameState.grant_item("pokeball", 3)
-		message.text = "Gym victory bonus: $100 and 3 Pokeballs!"
+		_say("Gym victory bonus: $100 and 3 Pokeballs!")
 		await get_tree().create_timer(1.4).timeout
 	GameState.go_to_overworld()
 
 func _white_out() -> void:
 	_set_state(State.ENDING)
-	message.text = "All your monsters fainted... rushing back!"
+	_say("All your monsters fainted... rushing back!")
 	await get_tree().create_timer(1.4).timeout
 	GameState.heal_party_full()
 	GameState.overworld_position = Vector2(640, 360)
@@ -538,7 +556,7 @@ func _use_potion() -> void:
 	var active = GameState.active_monster()
 	var healed = GameState.use_potion_on(active)
 	_refresh_bars(true)
-	message.text = "Used a Potion. Restored %d HP." % healed
+	_say("Used a Potion. Restored %d HP." % healed)
 	await get_tree().create_timer(0.9).timeout
 	await _enemy_turn()
 	if state != State.ENDING:
@@ -549,7 +567,7 @@ func _throw_ball() -> void:
 		return
 	_set_state(State.RESOLVING)
 	GameState.consume_item("pokeball")
-	message.text = "Threw a Pokeball!"
+	_say("Threw a Pokeball!")
 	await get_tree().create_timer(0.7).timeout
 	var hp_ratio = float(GameState.current_wild["current_hp"]) / float(GameState.current_wild["max_hp"])
 	var chance: float = clamp(0.85 - hp_ratio * 0.7, 0.1, 0.85)
@@ -564,14 +582,14 @@ func _throw_ball() -> void:
 	if caught:
 		var added = GameState.add_to_party(GameState.current_wild["id"], int(GameState.current_wild["current_hp"]), int(GameState.current_wild.get("level", 5)))
 		if added:
-			message.text = "Gotcha! %s was caught!" % MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]
+			_say("Gotcha! %s was caught!" % MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"])
 		else:
-			message.text = "Caught! But the party is full — released."
+			_say("Caught! But the party is full — released.")
 		await get_tree().create_timer(1.4).timeout
 		_set_state(State.ENDING)
 		GameState.go_to_overworld()
 		return
-	message.text = "It broke free!"
+	_say("It broke free!")
 	await get_tree().create_timer(0.8).timeout
 	await _enemy_turn()
 	if state != State.ENDING:
@@ -592,7 +610,7 @@ func _switch_to(idx: int) -> void:
 	_set_state(State.RESOLVING)
 	_setup_visuals()
 	_refresh_bars()
-	message.text = "Go, %s!" % MonsterData.MONSTERS[chosen["id"]]["display_name"]
+	_say("Go, %s!" % MonsterData.MONSTERS[chosen["id"]]["display_name"])
 	await get_tree().create_timer(0.9).timeout
 	await _enemy_turn()
 	if state != State.ENDING:
