@@ -369,6 +369,17 @@ def make_mindling() -> None:
     img.save(ASSETS / "enemy_mindling.png")
 
 
+def make_cave_entrance() -> None:
+    img = Image.new("RGBA", (32, 32), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    rim = (90, 70, 50, 255)
+    rim_dark = (50, 35, 20, 255)
+    deep = (20, 15, 10, 255)
+    d.ellipse([2, 6, 30, 28], fill=rim, outline=BLACK)
+    d.ellipse([6, 10, 26, 26], fill=deep, outline=rim_dark)
+    img.save(ASSETS / "cave_entrance.png")
+
+
 def make_grass_tile() -> None:
     img = Image.new("RGBA", (32, 32), GREEN)
     d = ImageDraw.Draw(img)
@@ -494,6 +505,7 @@ def main() -> None:
     make_aquillo()
     make_bunten()
     make_mindling()
+    make_cave_entrance()
     make_grass_tile()
     make_tall_grass_tile()
     make_dirt_tile()

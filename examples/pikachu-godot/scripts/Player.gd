@@ -28,8 +28,10 @@ func _physics_process(delta: float) -> void:
 		sprite.position.y = -2
 		bob_time = 0.0
 	move_and_slide()
-	GameState.overworld_position = position
-	GameState.overworld_facing = facing
+	var scene := get_tree().current_scene
+	if scene != null and scene.name == "Overworld":
+		GameState.overworld_position = position
+		GameState.overworld_facing = facing
 
 func _update_facing(dir: Vector2) -> void:
 	var new_facing := facing

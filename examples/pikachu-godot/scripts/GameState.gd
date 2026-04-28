@@ -12,6 +12,7 @@ var money: int = 0
 
 var overworld_position: Vector2 = Vector2(640, 360)
 var overworld_facing: String = "down"
+var overworld_return_pos: Vector2 = Vector2.ZERO
 
 # active wild/trainer target during a battle scene
 var current_wild: Dictionary = {}
@@ -223,6 +224,11 @@ func start_wild_battle(wild_id: String, level: int = -1) -> void:
 		"status_turns": 0,
 	}
 	Fade.go_to_scene("res://scenes/Battle.tscn")
+
+func go_to_cave(entrance_pos: Vector2) -> void:
+	overworld_return_pos = entrance_pos
+	save_game()
+	Fade.go_to_scene("res://scenes/Cave.tscn")
 
 func go_to_overworld() -> void:
 	is_trainer_battle = false

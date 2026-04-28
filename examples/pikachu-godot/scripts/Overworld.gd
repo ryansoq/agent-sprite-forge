@@ -14,6 +14,11 @@ const NPC_ELDER_TEX := preload("res://assets/npc_elder.png")
 const GYM_LEADER_TEX := preload("res://assets/gym_leader.png")
 const POTION_TEX := preload("res://assets/potion.png")
 const POKEBALL_TEX := preload("res://assets/pokeball.png")
+const CAVE_ENTRANCE_TEX := preload("res://assets/cave_entrance.png")
+
+const CAVE_DOORS := [
+	{"id": "cave_north", "pos": Vector2(220, 80)},
+]
 
 const TRAINERS := [
 	{"id": "trainer_volty", "monster": "volty", "level": 6, "pos": Vector2(880, 300)},
@@ -129,7 +134,13 @@ var nearby_gym_leader: Area2D = null
 
 func _ready() -> void:
 	rng.randomize()
-	player.position = GameState.overworld_position
+	if GameState.overworld_return_pos != Vector2.ZERO:
+		# Just exited the cave — spawn south of the entrance to avoid re-trigger
+		player.position = GameState.overworld_return_pos + Vector2(0, 36)
+		GameState.overworld_position = player.position
+		GameState.overworld_return_pos = Vector2.ZERO
+	else:
+		player.position = GameState.overworld_position
 	camera.limit_left = 0
 	camera.limit_top = 0
 	camera.limit_right = WORLD_W
@@ -141,6 +152,7 @@ func _ready() -> void:
 	_spawn_npcs()
 	_spawn_pickups()
 	_spawn_gym_leaders()
+	_spawn_cave_doors()
 	heal_area.body_entered.connect(_on_healing_pad_entered)
 	_refresh_hud()
 	hint.text = "Arrows: move   ESC: pause   Walk into dark grass for wild encounters!"
@@ -460,6 +472,34 @@ func _on_gym_dialogue_closed(leader: Area2D) -> void:
 		String(leader.get_meta("monster")),
 		int(leader.get_meta("level")),
 	)
+
+func _spawn_cave_doors() -> void:
+	var node := Node2D.new()
+	node.name = "CaveDoors"
+	add_child(node)
+	for door_data in CAVE_DOORS:
+		var area := Area2D.new()
+		area.position = door_data["pos"]
+		var sprite := Sprite2D.new()
+		sprite.texture = CAVE_ENTRANCE_TEX
+		area.add_child(sprite)
+		var col := CollisionShape2D.new()
+		var shape := RectangleShape2D.new()
+		shape.size = Vector2(28, 22)
+		col.shape = shape
+		area.add_child(col)
+		area.set_meta("entrance_pos", door_data["pos"])
+		node.add_child(area)
+		area.body_entered.connect(_on_cave_door_entered.bind(area))
+
+func _on_cave_door_entered(body: Node2D, area: Area2D) -> void:
+	if not (body is CharacterBody2D):
+		return
+	if encounter_cooldown > 0.0:
+		return
+	encounter_cooldown = 1.0
+	hint.text = "Entering the cave…"
+	GameState.go_to_cave(area.get_meta("entrance_pos"))
 
 func _on_healing_pad_entered(body: Node2D) -> void:
 	if not (body is CharacterBody2D):
