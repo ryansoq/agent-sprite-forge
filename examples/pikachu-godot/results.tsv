@@ -23,3 +23,4 @@ a1c0f8a	polish	keep	iter20: move-type colour tag in Fight menu (yellow/orange/bl
 53dba03	polish	keep	iter21: status badges next to HP — PAR/SLP/BRN colored labels; auto-show on inflict, hide on wake/cure
 49d7edd	polish	keep	iter22: pause menu playtime + party/captures/money summary; GameState._process ticks playtime, halts on pause
 ec68c4b	polish	keep	iter23: themed panel StyleBox — dark-green tint + border + rounded corners via Theming autoload setting root.theme
+a4f4dfd	polish	keep	iter24: battle log — last 3 messages stacked in resized panel; 40 message.text= sites converted to _say(...) helper
