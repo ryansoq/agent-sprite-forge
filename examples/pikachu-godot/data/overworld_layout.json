@@ -1,0 +1,45 @@
+{
+  "_comment": "Drop-in replacement target for $generate2dmap output. Overworld.gd reads this on _ready and constructs the world. Replace this file (or extend the schema) with whatever the SKILL generates without touching code.",
+  "inner_trees": [
+    [180, 140], [220, 200], [160, 260], [260, 140],
+    [1080, 180], [1120, 240], [1060, 260],
+    [900, 540], [960, 600], [880, 600],
+    [420, 580], [360, 540], [300, 600]
+  ],
+  "rocks": [
+    [420, 180], [500, 220], [580, 180], [680, 240],
+    [820, 200], [140, 480], [220, 520]
+  ],
+  "water_pond": {
+    "x_min": 960, "x_max": 1216,
+    "y_min": 440, "y_max": 600,
+    "step": 32,
+    "skip": [[992, 600], [1024, 600], [1184, 600]]
+  },
+  "regions": {
+    "central_meadow":     {"pool": ["volty", "twigling", "embertail"],   "level_min": 3, "level_max": 6},
+    "south_field":        {"pool": ["bunten", "twigling", "volty"],      "level_min": 4, "level_max": 7},
+    "northwest_thicket":  {"pool": ["embertail", "mindling", "volty"],   "level_min": 5, "level_max": 8},
+    "east_pondside":      {"pool": ["aquillo", "bunten", "mindling"],    "level_min": 5, "level_max": 9}
+  },
+  "patches": [
+    {"region": "central_meadow",    "pos": [420, 360]},
+    {"region": "central_meadow",    "pos": [460, 380]},
+    {"region": "central_meadow",    "pos": [500, 360]},
+    {"region": "central_meadow",    "pos": [540, 400]},
+    {"region": "central_meadow",    "pos": [580, 360]},
+    {"region": "central_meadow",    "pos": [620, 400]},
+    {"region": "central_meadow",    "pos": [720, 440]},
+    {"region": "central_meadow",    "pos": [760, 420]},
+    {"region": "central_meadow",    "pos": [800, 460]},
+    {"region": "south_field",       "pos": [380, 600]},
+    {"region": "south_field",       "pos": [420, 620]},
+    {"region": "south_field",       "pos": [460, 600]},
+    {"region": "northwest_thicket", "pos": [140, 360]},
+    {"region": "northwest_thicket", "pos": [180, 380]},
+    {"region": "northwest_thicket", "pos": [220, 360]},
+    {"region": "east_pondside",     "pos": [1100, 500]},
+    {"region": "east_pondside",     "pos": [1140, 480]},
+    {"region": "east_pondside",     "pos": [1100, 460]}
+  ]
+}

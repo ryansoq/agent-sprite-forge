@@ -44,45 +44,7 @@ const GYM_LEADERS := [
 	},
 ]
 
-const REGIONS := {
-	"central_meadow": {
-		"pool": ["volty", "twigling", "embertail"],
-		"level_min": 3, "level_max": 6,
-	},
-	"south_field": {
-		"pool": ["bunten", "twigling", "volty"],
-		"level_min": 4, "level_max": 7,
-	},
-	"northwest_thicket": {
-		"pool": ["embertail", "mindling", "volty"],
-		"level_min": 5, "level_max": 8,
-	},
-	"east_pondside": {
-		"pool": ["aquillo", "bunten", "mindling"],
-		"level_min": 5, "level_max": 9,
-	},
-}
-
-const PATCHES := [
-	{"region": "central_meadow",     "pos": Vector2(420, 360)},
-	{"region": "central_meadow",     "pos": Vector2(460, 380)},
-	{"region": "central_meadow",     "pos": Vector2(500, 360)},
-	{"region": "central_meadow",     "pos": Vector2(540, 400)},
-	{"region": "central_meadow",     "pos": Vector2(580, 360)},
-	{"region": "central_meadow",     "pos": Vector2(620, 400)},
-	{"region": "central_meadow",     "pos": Vector2(720, 440)},
-	{"region": "central_meadow",     "pos": Vector2(760, 420)},
-	{"region": "central_meadow",     "pos": Vector2(800, 460)},
-	{"region": "south_field",        "pos": Vector2(380, 600)},
-	{"region": "south_field",        "pos": Vector2(420, 620)},
-	{"region": "south_field",        "pos": Vector2(460, 600)},
-	{"region": "northwest_thicket",  "pos": Vector2(140, 360)},
-	{"region": "northwest_thicket",  "pos": Vector2(180, 380)},
-	{"region": "northwest_thicket",  "pos": Vector2(220, 360)},
-	{"region": "east_pondside",      "pos": Vector2(1100, 500)},
-	{"region": "east_pondside",      "pos": Vector2(1140, 480)},
-	{"region": "east_pondside",      "pos": Vector2(1100, 460)},
-]
+const LAYOUT_PATH := "res://data/overworld_layout.json"
 
 const ITEM_SPAWNS := [
 	{"id": "pickup_potion_nw", "item": "potion",   "pos": Vector2(160, 220)},
@@ -126,6 +88,7 @@ const NPCS := [
 var rng := RandomNumberGenerator.new()
 var encounter_cooldown := 1.5
 var triggered := false
+var layout: Dictionary = {}
 var pause_scene: PackedScene = preload("res://scenes/PauseMenu.tscn")
 var shop_scene: PackedScene = preload("res://scenes/ShopMenu.tscn")
 var dialogue_scene: PackedScene = preload("res://scenes/DialogueBox.tscn")
@@ -134,6 +97,7 @@ var nearby_gym_leader: Area2D = null
 
 func _ready() -> void:
 	rng.randomize()
+	layout = _load_layout()
 	if GameState.overworld_return_pos != Vector2.ZERO:
 		# Just exited the cave — spawn south of the entrance to avoid re-trigger
 		player.position = GameState.overworld_return_pos + Vector2(0, 36)
@@ -192,7 +156,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		add_child(dlg)
 
 func _build_world() -> void:
-	# perimeter trees (every 64px around the edges)
+	# perimeter trees (every 64px around the edges) — formulaic, stays in code
 	var trees := $Trees
 	for x in range(0, WORLD_W, 64):
 		_spawn(trees, TREE_SCENE_TEX, Vector2(x + 16, 16), true, Vector2(20, 14), Vector2(0, 8))
@@ -201,37 +165,51 @@ func _build_world() -> void:
 		_spawn(trees, TREE_SCENE_TEX, Vector2(16, y + 16), true, Vector2(20, 14), Vector2(0, 8))
 		_spawn(trees, TREE_SCENE_TEX, Vector2(WORLD_W - 16, y + 16), true, Vector2(20, 14), Vector2(0, 8))
 
-	# scattered inner trees (forest pockets)
-	var inner_trees := [
-		Vector2(180, 140), Vector2(220, 200), Vector2(160, 260), Vector2(260, 140),
-		Vector2(1080, 180), Vector2(1120, 240), Vector2(1060, 260),
-		Vector2(900, 540), Vector2(960, 600), Vector2(880, 600),
-		Vector2(420, 580), Vector2(360, 540), Vector2(300, 600),
-	]
-	for p in inner_trees:
-		_spawn(trees, TREE_SCENE_TEX, p, true, Vector2(20, 14), Vector2(0, 8))
+	# scattered inner trees (from layout JSON)
+	for arr in layout.get("inner_trees", []):
+		_spawn(trees, TREE_SCENE_TEX, _v2(arr), true, Vector2(20, 14), Vector2(0, 8))
 
-	# rocks along the west path
+	# rocks (from layout JSON)
 	var rocks := $Rocks
-	for p in [Vector2(420, 180), Vector2(500, 220), Vector2(580, 180), Vector2(680, 240),
-			  Vector2(820, 200), Vector2(140, 480), Vector2(220, 520)]:
-		_spawn(rocks, ROCK_TEX, p, true, Vector2(22, 18), Vector2(0, 4))
+	for arr in layout.get("rocks", []):
+		_spawn(rocks, ROCK_TEX, _v2(arr), true, Vector2(22, 18), Vector2(0, 4))
 
-	# water pond (east) — purely decorative, walkable around
+	# water pond (from layout JSON; rect with optional skip cells)
 	var deco := $Decor
-	for x in range(960, 1216, 32):
-		for y in range(440, 600, 32):
-			if x in [992, 1024, 1184] and y in [600]:
-				continue
-			var s := Sprite2D.new()
-			s.texture = WATER_TEX
-			s.position = Vector2(x, y)
-			deco.add_child(s)
+	var pond: Dictionary = layout.get("water_pond", {})
+	if not pond.is_empty():
+		var skip_set := {}
+		for sxy in pond.get("skip", []):
+			skip_set[_v2(sxy)] = true
+		var step: int = int(pond.get("step", 32))
+		for x in range(int(pond.get("x_min", 0)), int(pond.get("x_max", 0)), step):
+			for y in range(int(pond.get("y_min", 0)), int(pond.get("y_max", 0)), step):
+				var tile_pos := Vector2(x, y)
+				if skip_set.has(tile_pos):
+					continue
+				var s := Sprite2D.new()
+				s.texture = WATER_TEX
+				s.position = tile_pos
+				deco.add_child(s)
 
-	# tall grass patches scattered (encounter zones), tagged by region
+	# tall grass patches (from layout JSON; tagged by region)
 	var patches := $TallGrassPatches
-	for entry in PATCHES:
-		_spawn_grass(patches, entry["pos"], String(entry["region"]))
+	for entry in layout.get("patches", []):
+		_spawn_grass(patches, _v2(entry["pos"]), String(entry["region"]))
+
+func _v2(arr) -> Vector2:
+	return Vector2(float(arr[0]), float(arr[1]))
+
+func _load_layout() -> Dictionary:
+	var f := FileAccess.open(LAYOUT_PATH, FileAccess.READ)
+	if f == null:
+		push_warning("Overworld: missing %s; world will be empty." % LAYOUT_PATH)
+		return {}
+	var parsed = JSON.parse_string(f.get_as_text())
+	if typeof(parsed) != TYPE_DICTIONARY:
+		push_warning("Overworld: %s is not a JSON object." % LAYOUT_PATH)
+		return {}
+	return parsed
 
 func _spawn(parent: Node, tex: Texture2D, pos: Vector2, with_collider: bool,
 			collider_size: Vector2 = Vector2(20, 14),
@@ -281,7 +259,8 @@ func _on_tall_grass_entered(body: Node2D, area: Area2D = null) -> void:
 		var region_id: String = "central_meadow"
 		if area != null and area.has_meta("region_id"):
 			region_id = String(area.get_meta("region_id"))
-		var region: Dictionary = REGIONS.get(region_id, {})
+		var regions: Dictionary = layout.get("regions", {})
+		var region: Dictionary = regions.get(region_id, {})
 		var pool: Array = region.get("pool", MonsterData.WILD_POOL)
 		var lv_min: int = int(region.get("level_min", 3))
 		var lv_max: int = int(region.get("level_max", 7))
