@@ -1,0 +1,364 @@
+extends Node2D
+
+enum State { INTRO, MAIN, MOVE, BAG, PARTY, RESOLVING, ENDING }
+
+@onready var enemy_sprite: Sprite2D = $EnemySprite
+@onready var player_sprite: Sprite2D = $PlayerSprite
+@onready var enemy_name: Label = $UI/EnemyPanel/EnemyName
+@onready var enemy_hp_bar: ProgressBar = $UI/EnemyPanel/EnemyHpBar
+@onready var enemy_hp_text: Label = $UI/EnemyPanel/EnemyHpText
+@onready var player_name: Label = $UI/PlayerPanel/PlayerName
+@onready var player_hp_bar: ProgressBar = $UI/PlayerPanel/PlayerHpBar
+@onready var player_hp_text: Label = $UI/PlayerPanel/PlayerHpText
+@onready var message: Label = $UI/MessagePanel/MessageLabel
+
+@onready var main_menu: Control = $UI/MainMenu
+@onready var move_menu: Control = $UI/MoveMenu
+@onready var bag_menu: Control = $UI/BagMenu
+@onready var party_menu: Control = $UI/PartyMenu
+
+@onready var fight_btn: Button = $UI/MainMenu/Grid/FightButton
+@onready var bag_btn: Button = $UI/MainMenu/Grid/BagButton
+@onready var party_btn: Button = $UI/MainMenu/Grid/PartyButton
+@onready var run_btn: Button = $UI/MainMenu/Grid/RunButton
+
+@onready var move_buttons := [
+	$UI/MoveMenu/Grid/Move1, $UI/MoveMenu/Grid/Move2,
+	$UI/MoveMenu/Grid/Move3, $UI/MoveMenu/Grid/Move4,
+]
+@onready var move_back: Button = $UI/MoveMenu/BackButton
+
+@onready var potion_btn: Button = $UI/BagMenu/Grid/PotionButton
+@onready var ball_btn: Button = $UI/BagMenu/Grid/BallButton
+@onready var bag_back: Button = $UI/BagMenu/BackButton
+
+@onready var party_buttons := [
+	$UI/PartyMenu/Grid/Slot1, $UI/PartyMenu/Grid/Slot2,
+	$UI/PartyMenu/Grid/Slot3, $UI/PartyMenu/Grid/Slot4,
+	$UI/PartyMenu/Grid/Slot5, $UI/PartyMenu/Grid/Slot6,
+]
+@onready var party_back: Button = $UI/PartyMenu/BackButton
+
+var rng := RandomNumberGenerator.new()
+var state: int = State.INTRO
+var force_switch := false  # entering party menu because active fainted
+
+func _ready() -> void:
+	rng.randomize()
+	fight_btn.pressed.connect(_on_fight_pressed)
+	bag_btn.pressed.connect(_on_bag_pressed)
+	party_btn.pressed.connect(_on_party_pressed)
+	run_btn.pressed.connect(_on_run_pressed)
+	move_back.pressed.connect(_show_main_menu)
+	bag_back.pressed.connect(_show_main_menu)
+	party_back.pressed.connect(_show_main_menu)
+	for i in move_buttons.size():
+		var idx := i
+		(move_buttons[i] as Button).pressed.connect(func(): _on_move_chosen(idx))
+	potion_btn.pressed.connect(_use_potion)
+	ball_btn.pressed.connect(_throw_ball)
+	for i in party_buttons.size():
+		var idx := i
+		(party_buttons[i] as Button).pressed.connect(func(): _switch_to(idx))
+
+	if GameState.current_wild.is_empty():
+		# direct-launch fallback (e.g. running Battle.tscn standalone for testing)
+		var fallback_max := GameState._calc_max_hp("volty", 5)
+		GameState.current_wild = {
+			"id": "volty",
+			"level": 5,
+			"max_hp": fallback_max,
+			"current_hp": fallback_max,
+			"paralyzed": false,
+		}
+	_setup_visuals()
+	_refresh_bars()
+	_set_state(State.INTRO)
+	message.text = "A wild %s appeared!" % MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]
+	await get_tree().create_timer(1.0).timeout
+	message.text = "Go, %s!" % MonsterData.MONSTERS[GameState.active_monster()["id"]]["display_name"]
+	await get_tree().create_timer(0.8).timeout
+	_show_main_menu()
+
+func _setup_visuals() -> void:
+	enemy_sprite.texture = load(MonsterData.MONSTERS[GameState.current_wild["id"]]["sprite"])
+	player_sprite.texture = load(MonsterData.MONSTERS[GameState.active_monster()["id"]]["sprite"])
+	var wild_lv: int = int(GameState.current_wild.get("level", 5))
+	var active_lv: int = int(GameState.active_monster().get("level", 5))
+	enemy_name.text = "%s  Lv %d" % [MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"], wild_lv]
+	player_name.text = "%s  Lv %d" % [MonsterData.MONSTERS[GameState.active_monster()["id"]]["display_name"], active_lv]
+
+func _scale_damage(base_dmg: int, attacker_level: int) -> int:
+	return max(1, int(round(base_dmg * (1.0 + (attacker_level - 5) * 0.1))))
+
+func _refresh_bars() -> void:
+	var wild = GameState.current_wild
+	enemy_hp_bar.max_value = wild["max_hp"]
+	enemy_hp_bar.value = wild["current_hp"]
+	enemy_hp_text.text = "%d/%d" % [wild["current_hp"], wild["max_hp"]]
+	var active = GameState.active_monster()
+	var max_hp = GameState.max_hp_of(active)
+	player_hp_bar.max_value = max_hp
+	player_hp_bar.value = active["current_hp"]
+	player_hp_text.text = "%d/%d" % [active["current_hp"], max_hp]
+
+func _set_state(s: int) -> void:
+	state = s
+	main_menu.visible = (s == State.MAIN)
+	move_menu.visible = (s == State.MOVE)
+	bag_menu.visible = (s == State.BAG)
+	party_menu.visible = (s == State.PARTY)
+
+func _show_main_menu() -> void:
+	if not GameState.has_living_monster():
+		_white_out()
+		return
+	if int(GameState.active_monster()["current_hp"]) <= 0:
+		force_switch = true
+		_show_party_menu()
+		return
+	_setup_visuals()
+	_refresh_bars()
+	message.text = "What will %s do?" % MonsterData.MONSTERS[GameState.active_monster()["id"]]["display_name"]
+	_set_state(State.MAIN)
+
+func _on_fight_pressed() -> void:
+	var active = GameState.active_monster()
+	var moves = MonsterData.MONSTERS[active["id"]]["moves"]
+	for i in move_buttons.size():
+		var btn: Button = move_buttons[i]
+		if i < moves.size():
+			btn.text = MoveData.name_of(moves[i])
+			btn.disabled = false
+			btn.show()
+		else:
+			btn.text = "—"
+			btn.disabled = true
+			btn.show()
+	_set_state(State.MOVE)
+
+func _on_bag_pressed() -> void:
+	potion_btn.text = "Potion x%d" % int(GameState.inventory.get("potion", 0))
+	potion_btn.disabled = int(GameState.inventory.get("potion", 0)) <= 0
+	ball_btn.text = "Pokeball x%d" % int(GameState.inventory.get("pokeball", 0))
+	ball_btn.disabled = int(GameState.inventory.get("pokeball", 0)) <= 0
+	_set_state(State.BAG)
+
+func _on_party_pressed() -> void:
+	force_switch = false
+	_show_party_menu()
+
+func _show_party_menu() -> void:
+	for i in party_buttons.size():
+		var btn: Button = party_buttons[i]
+		if i < GameState.party.size():
+			var m = GameState.party[i]
+			var max_hp = GameState.max_hp_of(m)
+			btn.text = "%s  %d/%d" % [MonsterData.MONSTERS[m["id"]]["display_name"], int(m["current_hp"]), max_hp]
+			btn.disabled = (i == GameState.active_index() and not force_switch) or int(m["current_hp"]) <= 0
+			btn.show()
+		else:
+			btn.text = "—"
+			btn.disabled = true
+			btn.show()
+	party_back.disabled = force_switch
+	_set_state(State.PARTY)
+
+func _on_run_pressed() -> void:
+	_set_state(State.RESOLVING)
+	if rng.randf() < 0.7:
+		message.text = "Got away safely!"
+		await get_tree().create_timer(0.9).timeout
+		GameState.go_to_overworld()
+	else:
+		message.text = "Couldn't escape!"
+		await get_tree().create_timer(0.8).timeout
+		await _enemy_turn()
+		if state != State.ENDING:
+			_show_main_menu()
+
+func _on_move_chosen(idx: int) -> void:
+	var moves = MonsterData.MONSTERS[GameState.active_monster()["id"]]["moves"]
+	if idx >= moves.size():
+		return
+	_set_state(State.RESOLVING)
+	await _player_uses_move(moves[idx])
+	if state == State.ENDING:
+		return
+	await _enemy_turn()
+	if state == State.ENDING:
+		return
+	_show_main_menu()
+
+func _player_uses_move(move_id: String) -> void:
+	var move = MoveData.MOVES[move_id]
+	var move_name := MoveData.name_of(move_id)
+	message.text = "%s used %s!" % [MonsterData.MONSTERS[GameState.active_monster()["id"]]["display_name"], move_name]
+	await get_tree().create_timer(0.6).timeout
+
+	if rng.randi_range(1, 100) > int(move["accuracy"]):
+		message.text = "But it missed!"
+		await get_tree().create_timer(0.7).timeout
+		return
+
+	match String(move["kind"]):
+		"damage":
+			var raw := rng.randi_range(int(move["min"]), int(move["max"]))
+			var attacker_lv: int = int(GameState.active_monster().get("level", 5))
+			var dmg := _scale_damage(raw, attacker_lv)
+			GameState.current_wild["current_hp"] = max(0, int(GameState.current_wild["current_hp"]) - dmg)
+			await _flash(enemy_sprite)
+			_refresh_bars()
+			message.text = "Dealt %d damage." % dmg
+			await get_tree().create_timer(0.7).timeout
+			if int(GameState.current_wild["current_hp"]) <= 0:
+				await _victory()
+		"heal":
+			var amt := rng.randi_range(int(move["min"]), int(move["max"]))
+			var active = GameState.active_monster()
+			var max_hp = GameState.max_hp_of(active)
+			var before = int(active["current_hp"])
+			active["current_hp"] = min(max_hp, before + amt)
+			_refresh_bars()
+			message.text = "Recovered %d HP." % (int(active["current_hp"]) - before)
+			await get_tree().create_timer(0.7).timeout
+		"status":
+			if String(move.get("status", "")) == "paralyze":
+				GameState.current_wild["paralyzed"] = true
+				message.text = "%s is paralyzed!" % MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]
+				await get_tree().create_timer(0.7).timeout
+
+func _enemy_turn() -> void:
+	if int(GameState.current_wild["current_hp"]) <= 0:
+		return
+	if GameState.current_wild.get("paralyzed", false) and rng.randf() < 0.5:
+		message.text = "%s is paralyzed and can't move!" % MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]
+		await get_tree().create_timer(0.7).timeout
+		return
+	var moves = MonsterData.MONSTERS[GameState.current_wild["id"]]["moves"]
+	var move_id: String = moves[rng.randi() % moves.size()]
+	var move = MoveData.MOVES[move_id]
+	message.text = "Wild %s used %s!" % [MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"], MoveData.name_of(move_id)]
+	await get_tree().create_timer(0.7).timeout
+	if rng.randi_range(1, 100) > int(move["accuracy"]):
+		message.text = "But it missed!"
+		await get_tree().create_timer(0.6).timeout
+		return
+	if String(move["kind"]) == "damage":
+		var raw := rng.randi_range(int(move["min"]), int(move["max"]))
+		var attacker_lv: int = int(GameState.current_wild.get("level", 5))
+		var dmg := _scale_damage(raw, attacker_lv)
+		var active = GameState.active_monster()
+		active["current_hp"] = max(0, int(active["current_hp"]) - dmg)
+		await _flash(player_sprite)
+		_refresh_bars()
+		message.text = "%s took %d damage." % [MonsterData.MONSTERS[active["id"]]["display_name"], dmg]
+		await get_tree().create_timer(0.7).timeout
+		if int(active["current_hp"]) <= 0:
+			message.text = "%s fainted!" % MonsterData.MONSTERS[active["id"]]["display_name"]
+			await get_tree().create_timer(0.9).timeout
+			if not GameState.has_living_monster():
+				_white_out()
+
+func _flash(node: Sprite2D) -> void:
+	var original := node.position
+	var tw := create_tween()
+	for i in 3:
+		tw.tween_property(node, "modulate", Color(1.5, 0.6, 0.6, 1), 0.05)
+		tw.tween_property(node, "modulate", Color.WHITE, 0.05)
+	for i in 3:
+		tw.tween_property(node, "position", original + Vector2(4, 0), 0.04)
+		tw.tween_property(node, "position", original - Vector2(4, 0), 0.04)
+	tw.tween_property(node, "position", original, 0.04)
+	await tw.finished
+
+func _victory() -> void:
+	_set_state(State.ENDING)
+	message.text = "The wild %s fainted! Victory!" % MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]
+	await get_tree().create_timer(1.0).timeout
+	var enemy_lv: int = int(GameState.current_wild.get("level", 5))
+	var summaries: Array = GameState.grant_battle_xp(enemy_lv)
+	for s in summaries:
+		message.text = "%s gained %d XP!" % [s["name"], int(s["xp"])]
+		_refresh_bars()
+		await get_tree().create_timer(0.8).timeout
+		for new_lv in s["levels"]:
+			message.text = "%s grew to Lv %d!" % [s["name"], int(new_lv)]
+			_refresh_bars()
+			await get_tree().create_timer(0.9).timeout
+	GameState.go_to_overworld()
+
+func _white_out() -> void:
+	_set_state(State.ENDING)
+	message.text = "All your monsters fainted... rushing back!"
+	await get_tree().create_timer(1.4).timeout
+	GameState.heal_party_full()
+	GameState.overworld_position = Vector2(640, 360)
+	GameState.go_to_overworld()
+
+func _use_potion() -> void:
+	if int(GameState.inventory.get("potion", 0)) <= 0:
+		return
+	_set_state(State.RESOLVING)
+	var active = GameState.active_monster()
+	var healed = GameState.use_potion_on(active)
+	_refresh_bars()
+	message.text = "Used a Potion. Restored %d HP." % healed
+	await get_tree().create_timer(0.9).timeout
+	await _enemy_turn()
+	if state != State.ENDING:
+		_show_main_menu()
+
+func _throw_ball() -> void:
+	if int(GameState.inventory.get("pokeball", 0)) <= 0:
+		return
+	_set_state(State.RESOLVING)
+	GameState.consume_item("pokeball")
+	message.text = "Threw a Pokeball!"
+	await get_tree().create_timer(0.7).timeout
+	var hp_ratio = float(GameState.current_wild["current_hp"]) / float(GameState.current_wild["max_hp"])
+	var chance: float = clamp(0.85 - hp_ratio * 0.7, 0.1, 0.85)
+	var caught := rng.randf() < chance
+	# wobble animation
+	var tw := create_tween()
+	for i in 3:
+		tw.tween_property(enemy_sprite, "rotation", 0.2, 0.12)
+		tw.tween_property(enemy_sprite, "rotation", -0.2, 0.12)
+	tw.tween_property(enemy_sprite, "rotation", 0.0, 0.08)
+	await tw.finished
+	if caught:
+		var added = GameState.add_to_party(GameState.current_wild["id"], int(GameState.current_wild["current_hp"]), int(GameState.current_wild.get("level", 5)))
+		if added:
+			message.text = "Gotcha! %s was caught!" % MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]
+		else:
+			message.text = "Caught! But the party is full — released."
+		await get_tree().create_timer(1.4).timeout
+		_set_state(State.ENDING)
+		GameState.go_to_overworld()
+		return
+	message.text = "It broke free!"
+	await get_tree().create_timer(0.8).timeout
+	await _enemy_turn()
+	if state != State.ENDING:
+		_show_main_menu()
+
+func _switch_to(idx: int) -> void:
+	if idx >= GameState.party.size():
+		return
+	if int(GameState.party[idx]["current_hp"]) <= 0:
+		return
+	if idx == GameState.active_index() and not force_switch:
+		return
+	# move chosen member to front of "alive" order: easiest is to move to slot 0
+	var chosen = GameState.party[idx]
+	GameState.party.remove_at(idx)
+	GameState.party.insert(0, chosen)
+	force_switch = false
+	_set_state(State.RESOLVING)
+	_setup_visuals()
+	_refresh_bars()
+	message.text = "Go, %s!" % MonsterData.MONSTERS[chosen["id"]]["display_name"]
+	await get_tree().create_timer(0.9).timeout
+	await _enemy_turn()
+	if state != State.ENDING:
+		_show_main_menu()

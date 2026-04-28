@@ -1,0 +1,165 @@
+extends Node2D
+
+const ENCOUNTER_CHANCE := 0.18
+const WORLD_W := 1280
+const WORLD_H := 720
+
+const TREE_SCENE_TEX := preload("res://assets/tree.png")
+const ROCK_TEX := preload("res://assets/rock.png")
+const TALL_GRASS_TEX := preload("res://assets/tall_grass.png")
+const WATER_TEX := preload("res://assets/water.png")
+
+@onready var player: CharacterBody2D = $Player
+@onready var camera: Camera2D = $Player/Camera2D
+@onready var hint: Label = $UI/HintLabel
+@onready var hud: Label = $UI/HudLabel
+@onready var heal_area: Area2D = $HealingPad/Area2D
+
+var rng := RandomNumberGenerator.new()
+var encounter_cooldown := 1.5
+var triggered := false
+var pause_scene: PackedScene = preload("res://scenes/PauseMenu.tscn")
+
+func _ready() -> void:
+	rng.randomize()
+	player.position = GameState.overworld_position
+	camera.limit_left = 0
+	camera.limit_top = 0
+	camera.limit_right = WORLD_W
+	camera.limit_bottom = WORLD_H
+	camera.make_current()
+	_build_world()
+	heal_area.body_entered.connect(_on_healing_pad_entered)
+	_refresh_hud()
+	hint.text = "Arrows: move   ESC: pause   Walk into dark grass for wild encounters!"
+
+func _process(delta: float) -> void:
+	if encounter_cooldown > 0.0:
+		encounter_cooldown -= delta
+	_refresh_hud()
+
+func _refresh_hud() -> void:
+	var active := GameState.active_monster()
+	var disp_name: String = MonsterData.MONSTERS[active["id"]]["display_name"]
+	var lv: int = int(active.get("level", 5))
+	hud.text = "%s Lv%d  %d/%d HP   Pokeballs: %d   Potions: %d   Caught: %d" % [
+		disp_name, lv,
+		int(active["current_hp"]),
+		GameState.max_hp_of(active),
+		int(GameState.inventory.get("pokeball", 0)),
+		int(GameState.inventory.get("potion", 0)),
+		GameState.captures,
+	]
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		var pause := pause_scene.instantiate()
+		add_child(pause)
+
+func _build_world() -> void:
+	# perimeter trees (every 64px around the edges)
+	var trees := $Trees
+	for x in range(0, WORLD_W, 64):
+		_spawn(trees, TREE_SCENE_TEX, Vector2(x + 16, 16), true, Vector2(20, 14), Vector2(0, 8))
+		_spawn(trees, TREE_SCENE_TEX, Vector2(x + 16, WORLD_H - 16), true, Vector2(20, 14), Vector2(0, 8))
+	for y in range(64, WORLD_H - 64, 64):
+		_spawn(trees, TREE_SCENE_TEX, Vector2(16, y + 16), true, Vector2(20, 14), Vector2(0, 8))
+		_spawn(trees, TREE_SCENE_TEX, Vector2(WORLD_W - 16, y + 16), true, Vector2(20, 14), Vector2(0, 8))
+
+	# scattered inner trees (forest pockets)
+	var inner_trees := [
+		Vector2(180, 140), Vector2(220, 200), Vector2(160, 260), Vector2(260, 140),
+		Vector2(1080, 180), Vector2(1120, 240), Vector2(1060, 260),
+		Vector2(900, 540), Vector2(960, 600), Vector2(880, 600),
+		Vector2(420, 580), Vector2(360, 540), Vector2(300, 600),
+	]
+	for p in inner_trees:
+		_spawn(trees, TREE_SCENE_TEX, p, true, Vector2(20, 14), Vector2(0, 8))
+
+	# rocks along the west path
+	var rocks := $Rocks
+	for p in [Vector2(420, 180), Vector2(500, 220), Vector2(580, 180), Vector2(680, 240),
+			  Vector2(820, 200), Vector2(140, 480), Vector2(220, 520)]:
+		_spawn(rocks, ROCK_TEX, p, true, Vector2(22, 18), Vector2(0, 4))
+
+	# water pond (east) — purely decorative, walkable around
+	var deco := $Decor
+	for x in range(960, 1216, 32):
+		for y in range(440, 600, 32):
+			if x in [992, 1024, 1184] and y in [600]:
+				continue
+			var s := Sprite2D.new()
+			s.texture = WATER_TEX
+			s.position = Vector2(x, y)
+			deco.add_child(s)
+
+	# tall grass patches scattered (encounter zones)
+	var patches := $TallGrassPatches
+	var patch_positions := [
+		Vector2(420, 360), Vector2(460, 380), Vector2(500, 360),
+		Vector2(540, 400), Vector2(580, 360), Vector2(620, 400),
+		Vector2(720, 440), Vector2(760, 420), Vector2(800, 460),
+		Vector2(380, 600), Vector2(420, 620), Vector2(460, 600),
+		Vector2(140, 360), Vector2(180, 380), Vector2(220, 360),
+		Vector2(1100, 500), Vector2(1140, 480), Vector2(1100, 460),
+	]
+	for p in patch_positions:
+		_spawn_grass(patches, p)
+
+func _spawn(parent: Node, tex: Texture2D, pos: Vector2, with_collider: bool,
+			collider_size: Vector2 = Vector2(20, 14),
+			collider_offset: Vector2 = Vector2.ZERO) -> void:
+	if with_collider:
+		var body := StaticBody2D.new()
+		body.position = pos
+		var sprite := Sprite2D.new()
+		sprite.texture = tex
+		body.add_child(sprite)
+		var col := CollisionShape2D.new()
+		var shape := RectangleShape2D.new()
+		shape.size = collider_size
+		col.shape = shape
+		col.position = collider_offset
+		body.add_child(col)
+		parent.add_child(body)
+	else:
+		var sprite := Sprite2D.new()
+		sprite.texture = tex
+		sprite.position = pos
+		parent.add_child(sprite)
+
+func _spawn_grass(parent: Node, pos: Vector2) -> void:
+	var area := Area2D.new()
+	area.position = pos
+	var sprite := Sprite2D.new()
+	sprite.texture = TALL_GRASS_TEX
+	area.add_child(sprite)
+	var col := CollisionShape2D.new()
+	var shape := RectangleShape2D.new()
+	shape.size = Vector2(28, 28)
+	col.shape = shape
+	area.add_child(col)
+	parent.add_child(area)
+	area.body_entered.connect(_on_tall_grass_entered)
+
+func _on_tall_grass_entered(body: Node2D) -> void:
+	if triggered or encounter_cooldown > 0.0:
+		return
+	if not (body is CharacterBody2D):
+		return
+	if rng.randf() < ENCOUNTER_CHANCE:
+		triggered = true
+		encounter_cooldown = 1.0
+		hint.text = "A wild monster appeared!"
+		var wild_id: String = MonsterData.WILD_POOL[rng.randi() % MonsterData.WILD_POOL.size()]
+		await get_tree().create_timer(0.4).timeout
+		GameState.start_wild_battle(wild_id)
+	else:
+		encounter_cooldown = 0.5
+
+func _on_healing_pad_entered(body: Node2D) -> void:
+	if not (body is CharacterBody2D):
+		return
+	GameState.heal_party_full()
+	GameState.grant_item("potion", 1)
+	hint.text = "Pad: party fully healed and got a Potion!"

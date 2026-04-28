@@ -1,0 +1,30 @@
+; Godot 4 project file for the Pikachu demo.
+; Open this folder in Godot 4.2+ to play.
+
+config_version=5
+
+[application]
+
+config/name="Pikachu Mini RPG"
+run/main_scene="res://scenes/TitleScreen.tscn"
+config/features=PackedStringArray("4.2", "Forward Plus")
+
+[autoload]
+
+MonsterData="*res://scripts/MonsterData.gd"
+MoveData="*res://scripts/MoveData.gd"
+Fade="*res://scripts/Fade.gd"
+GameState="*res://scripts/GameState.gd"
+
+[display]
+
+window/size/viewport_width=480
+window/size/viewport_height=270
+window/size/window_width_override=960
+window/size/window_height_override=540
+window/stretch/mode="viewport"
+window/stretch/aspect="keep"
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0

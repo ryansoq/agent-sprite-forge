@@ -1,0 +1,48 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/TitleScreen.gd" id="1_title_script"]
+[ext_resource type="Texture2D" path="res://assets/pikachu_down.png" id="2_pikachu_tex"]
+
+[node name="TitleScreen" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_title_script")
+
+[node name="Bg" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.18, 0.22, 0.32, 1)
+
+[node name="Center" type="VBoxContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = -90.0
+offset_right = 160.0
+offset_bottom = 90.0
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="Logo" type="TextureRect" parent="Center"]
+custom_minimum_size = Vector2(64, 64)
+texture = ExtResource("2_pikachu_tex")
+expand_mode = 1
+stretch_mode = 5
+size_flags_horizontal = 4
+
+[node name="Title" type="Label" parent="Center"]
+text = "Pikachu Mini RPG"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 28
+
+[node name="Info" type="Label" parent="Center"]
+text = "A new adventure awaits."
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+
+[node name="Subtitle" type="Label" parent="Center"]
+text = "[Space] Start"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 14

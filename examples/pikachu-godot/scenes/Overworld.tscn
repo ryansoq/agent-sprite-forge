@@ -1,0 +1,67 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/Overworld.gd" id="1_overworld_script"]
+[ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2_player_scene"]
+[ext_resource type="Texture2D" path="res://assets/healing_pad.png" id="3_pad_tex"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pad"]
+size = Vector2(28, 28)
+
+[node name="Overworld" type="Node2D"]
+script = ExtResource("1_overworld_script")
+
+[node name="Background" type="Polygon2D" parent="."]
+color = Color(0.42, 0.706, 0.392, 1)
+polygon = PackedVector2Array(0, 0, 1280, 0, 1280, 720, 0, 720)
+
+[node name="Decor" type="Node2D" parent="."]
+
+[node name="Trees" type="Node2D" parent="."]
+
+[node name="Rocks" type="Node2D" parent="."]
+
+[node name="TallGrassPatches" type="Node2D" parent="."]
+
+[node name="HealingPad" type="Node2D" parent="."]
+position = Vector2(640, 360)
+
+[node name="Sprite2D" type="Sprite2D" parent="HealingPad"]
+texture = ExtResource("3_pad_tex")
+
+[node name="Area2D" type="Area2D" parent="HealingPad"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HealingPad/Area2D"]
+shape = SubResource("RectangleShape2D_pad")
+
+[node name="Player" parent="." instance=ExtResource("2_player_scene")]
+position = Vector2(640, 400)
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="HudPanel" type="Panel" parent="UI"]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 476.0
+offset_bottom = 26.0
+
+[node name="HudLabel" type="Label" parent="UI"]
+offset_left = 10.0
+offset_top = 6.0
+offset_right = 470.0
+offset_bottom = 22.0
+text = "HUD"
+theme_override_font_sizes/font_size = 11
+
+[node name="HintPanel" type="Panel" parent="UI"]
+offset_left = 4.0
+offset_top = 244.0
+offset_right = 476.0
+offset_bottom = 266.0
+
+[node name="HintLabel" type="Label" parent="UI"]
+offset_left = 10.0
+offset_top = 246.0
+offset_right = 470.0
+offset_bottom = 264.0
+text = "Arrows: move  ESC: pause"
+theme_override_font_sizes/font_size = 11
