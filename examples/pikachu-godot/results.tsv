@@ -19,3 +19,4 @@ dd940b9	content	keep	iter13: encounter table per region — 4 regions (central/s
 d15c00b	skill-ready	keep	iter17: data-driven overworld layout — inner_trees/rocks/pond/patches/regions in data/overworld_layout.json; SKILL replacement point
 5fa5a84	polish	keep	iter18: tween HP bars on damage/heal/burn/potion (0.25s); first Tier-4 polish iteration after Tier-3 EncounterTable was deemed superseded by iter17
 9453311	polish	keep	iter19: floating damage numbers — color-coded popups (red/gray/gold/green/orange) on damage/heal/burn sites
+a1c0f8a	polish	keep	iter20: move-type colour tag in Fight menu (yellow/orange/blue/green/pink/white per type)
