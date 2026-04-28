@@ -16,3 +16,4 @@ dd940b9	content	keep	iter13: encounter table per region — 4 regions (central/s
 9ad1cb8	content	keep	iter14: Gym Leader (Thunder Lord) — pre-fight dialogue then Lv 10 trainer battle; bonus +$100 +3 Pokeballs on win
 270114d	content	keep	iter15: second map (Cave) — north entrance + south exit door, cave wild pool Lv 6-10; LAST Tier-2 done
 810b45c	code	keep	iter16: semantic input actions (interact + pause) via InputBindings autoload; first Tier-3 iteration
+d15c00b	skill-ready	keep	iter17: data-driven overworld layout — inner_trees/rocks/pond/patches/regions in data/overworld_layout.json; SKILL replacement point
