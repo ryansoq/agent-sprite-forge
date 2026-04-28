@@ -30,3 +30,4 @@ a4f4dfd	polish	keep	iter24: battle log — last 3 messages stacked in resized pa
 aeb2312	content	keep	iter28: day/night cycle — 4-min sine, dark-blue overlay below UI, in both overworld and cave; first post-Tier-5 idea
 3c51123	content	keep	iter29: 3 more trainers (Lv 8/9/10) + 2nd gym leader Aqua Warden (Lv 14 Aquillo, NW corner); pure data expansion
 0751db7	content	keep	iter30: nighttime encounter pool variants — each region has night_pool, more mindling after dusk; extends iter28
+4976f69	depth	keep	iter31: move learning at level-up — learnset {lv: move} per species, _sync_moves helper, "X learned Y!" post-battle
