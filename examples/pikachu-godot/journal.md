@@ -5,11 +5,16 @@ Living notebook for the autonomous improvement loop on
 moving them into Reflections with the answer.
 
 ## Open Questions
-- Should xp_to_next be `level * 25` or curve faster (e.g. `level * level * 5`)?
-  Current curve: 5→6 needs 125, 6→7 needs 150, ... — could feel too slow once
-  a few captures stack via "Faint XP share". Revisit after that lands.
-- Wild level rolls 3-7 randomly. With type effectiveness (next iteration) this
-  may swing damage too wildly. Consider capping wild range or scaling per-region.
+- ~~XP curve too slow~~ — partially mitigated by iter6 (faint share doubles
+  effective team XP/battle). Curve itself unchanged; revisit if level cap or
+  evolution thresholds make late grinding tedious.
+- Wild level rolls 3-7 randomly. With iter5 (sleep/burn) and iter2 (type x2)
+  stacking, fights against high-level type-advantaged wilds can one-shot a low-
+  level party member. Consider region-scoped wild level pools when a second
+  map lands.
+- Status doesn't cure on faint+revive (heal_party_full clears it, but mid-
+  battle KO + party-switch keeps the original member statused on next entry).
+  Probably fine — adds permanence to status — but flag if it confuses players.
 
 ## Reflections
 - **Iter 0 (seed)** — Demo currently at: title screen, 1280×720 overworld
@@ -20,6 +25,18 @@ moving them into Reflections with the answer.
   **Biggest gaps:** no XP/levels, no type effectiveness, no status beyond
   paralyze, no trainer/NPC/dialogue, no shop, no second map. **Priority:
   ship Tier 1 gameplay-depth items first.**
+- **After iter1–iter6 (6 keeps)** — Six consecutive keep iterations on
+  Tier-1 depth: Level/XP (iter1, bundled with scaffold), Type effectiveness
+  (iter2), Critical hits (iter3), Move PP (iter4), Status sleep+burn
+  (iter5, biggest at 132+/53−), Faint XP share (iter6, smallest at 14+).
+  Zero discards, zero crashes; all hypotheses matched predictions. The
+  battle layer now has all the standard Pokémon-like decision pressures:
+  type matchup, PP economy, status threats, XP planning. **Remaining
+  Tier-1 are larger features:** Evolution, Trainer battles, Money+Shop —
+  each ~80-100 LOC and pulls in 1+ new asset/scene. **Next direction:**
+  Evolution — cleanest extension of Level/XP, needs a new Raichu sprite
+  via Pillow + a new monster id; surgical scope possible if held to
+  level-threshold evolution only (stones/triggers later).
 
 ## Done log
 
@@ -29,3 +46,11 @@ moving them into Reflections with the answer.
   will be properly surgical (one feature per commit).
 - **Meta (bde6cee)** — gitignore `.godot/` and `*.uid`; cleanup so future
   iteration diffs are readable.
+- **Iter2 (14b100f)** — Type effectiveness; 4-element chart, 2× / 0.5× /
+  1×, "super effective" / "not very effective" messages.
+- **Iter3 (6a9c847)** — Critical hits; 1/16 chance, 1.5×; both sides.
+- **Iter4 (552662a)** — Move PP; per-member persistent PP; healing pad
+  refills.
+- **Iter5 (b1ff534)** — Status sleep & burn; unified `_can_act` +
+  `_apply_burn_damage` helpers; both sides can be statused.
+- **Iter6 (305da12)** — Faint XP share; non-fainted bench gets ½ XP.

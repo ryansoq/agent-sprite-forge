@@ -5,3 +5,4 @@ bde6cee	meta	keep	gitignore .godot/ cache and *.uid so iteration diffs stay read
 6a9c847	depth	keep	iter3: critical hits — 1/16 chance, 1.5x damage, "Critical hit!" message; both sides can crit
 552662a	depth	keep	iter4: move PP — persistent PP per party member; buttons show X/Y and disable at 0; healing pad refills
 b1ff534	depth	keep	iter5: sleep & burn statuses; Sleep Powder (twigling) + Flame Touch (embertail); _can_act + burn helpers; round-end burn ticks for both sides
+305da12	depth	keep	iter6: faint XP share — non-fainted party members gain half-XP per battle win; resolves journal open question on slow XP curve
