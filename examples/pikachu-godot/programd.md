@@ -133,26 +133,20 @@ committing**. Do not commit a broken project.
 Pick one per iteration. Smallest still-meaningful change. Cross out (`~~~~`)
 when done — do not delete; future iterations should see history.
 
-### Tier 1 — Gameplay depth (do these first)
-- [ ] **Level / XP system.** Each party member tracks `level` (start 5) and
-      `xp`. Win battle → gain XP scaled by enemy level. Level up at
-      cumulative thresholds; level adds flat HP and damage bonus.
-- [ ] **Type effectiveness.** Add `type` field to monsters and moves
-      (electric, grass, fire, water, normal). Compute 2x / 0.5x / 1x
-      multiplier in damage roll. Message "It's super effective!" / "It's
-      not very effective…".
-- [ ] **Critical hits.** 1/16 base chance for 1.5x damage. Message "Critical
-      hit!" before damage line.
-- [ ] **Move PP** (limited uses per battle, restored on overworld). Disable
-      buttons when PP=0; force Run/Switch when all empty.
-- [ ] **Status — sleep / burn.** Sleep: skip turn for 1–3 turns. Burn:
-      lose 2 HP at end of own turn. Add to MoveData and Battle resolution.
-- [ ] **Faint XP share.** All non-fainted party members get partial XP.
-- [ ] **Evolution.** Pikachu → Raichu (new monster id, new sprite generated
-      in `make_assets.py`) at level 12 OR via Thunder Stone item.
-- [ ] **Trainer battle** entity in overworld: walks toward player on sight,
-      fixed party, can't catch, gives larger XP + money.
-- [ ] **Money / Pokédollars** + simple shop UI bound to a Shop NPC.
+### Tier 1 — Gameplay depth (ALL DONE as of iter9)
+- [x] ~~**Level / XP system.**~~ iter1 (7a5e555).
+- [x] ~~**Type effectiveness.**~~ iter2 (14b100f).
+- [x] ~~**Critical hits.**~~ iter3 (6a9c847).
+- [x] ~~**Move PP.**~~ iter4 (552662a).
+- [x] ~~**Status — sleep / burn.**~~ iter5 (b1ff534).
+- [x] ~~**Faint XP share.**~~ iter6 (305da12).
+- [x] ~~**Evolution.**~~ iter7 (586b325). Pikachu → Raichu at Lv 8.
+- [x] ~~**Trainer battle.**~~ iter8 (f6be18b). Stationary NPCs, no run/
+      catch, 2x XP, persistent.
+- [x] ~~**Money / Pokédollars + Shop NPC.**~~ iter9 (8a024a6). Wild:
+      5×lv. Trainer: 15×lv. Shop sells Potion $30, Pokeball $50.
+
+**All Tier-1 depth shipped. Pull from Tier 2 next.**
 
 ### Tier 2 — Content
 - [ ] **3+ new wild monsters**: a water type (e.g. Aquillo), a normal type

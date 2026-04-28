@@ -54,3 +54,26 @@ moving them into Reflections with the answer.
 - **Iter5 (b1ff534)** — Status sleep & burn; unified `_can_act` +
   `_apply_burn_damage` helpers; both sides can be statused.
 - **Iter6 (305da12)** — Faint XP share; non-fainted bench gets ½ XP.
+- **Iter7 (586b325)** — Evolution; Pikachu → Raichu at Lv 8;
+  evolves_at/evolves_to schema.
+- **Iter8 (f6be18b)** — Trainer battles; 2 stationary NPCs, no run/catch,
+  2× XP, defeated_trainers in save.
+- **Iter9 (8a024a6)** — Money + Shop NPC; battle wins grant Pokédollars
+  (5×lv wild, 15×lv trainer); shop sells Potion $30, Pokeball $50;
+  closes the demo's economic loop. **🎯 Last Tier-1 item.**
+
+## Milestone — All Tier-1 depth shipped (iter1–iter9)
+
+The battle layer + economic loop now matches a Pokémon-like prototype:
+- Levels, XP, faint share
+- Type chart (4 types, 2× / 0.5×)
+- Crits (1/16 × 1.5)
+- PP economy
+- Sleep / burn / paralyze statuses
+- Evolution (Pikachu → Raichu)
+- Trainer battles (no run/catch, 2× rewards, persistent)
+- Money + shop economy
+
+9 iterations, 9 keeps, zero discards, zero crashes. Next pulls go from
+Tier 2 (content): new wild monsters, Gym Leader, second map, NPC
+dialogue, overworld pickups, regional encounter pools.
