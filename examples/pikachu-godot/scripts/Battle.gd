@@ -49,11 +49,14 @@ const TYPE_COLORS := {
 @onready var party_back: Button = $UI/PartyMenu/BackButton
 
 var rng := RandomNumberGenerator.new()
+var enemy_status_label: Label
+var player_status_label: Label
 var state: int = State.INTRO
 var force_switch := false  # entering party menu because active fainted
 
 func _ready() -> void:
 	rng.randomize()
+	_create_status_labels()
 	fight_btn.pressed.connect(_on_fight_pressed)
 	bag_btn.pressed.connect(_on_bag_pressed)
 	party_btn.pressed.connect(_on_party_pressed)
@@ -111,6 +114,7 @@ func _can_act(actor: Dictionary, label: String) -> bool:
 			await get_tree().create_timer(0.7).timeout
 			return false
 		actor["status"] = ""
+		_refresh_bars()
 		message.text = "%s woke up!" % label
 		await get_tree().create_timer(0.7).timeout
 		return true
@@ -141,6 +145,7 @@ func _apply_status_to(target: Dictionary, status_id: String, label: String) -> v
 	target["status"] = status_id
 	if status_id == "sleep":
 		target["status_turns"] = rng.randi_range(1, 3)
+	_refresh_bars()
 	match status_id:
 		"paralyze": message.text = "%s is paralyzed!" % label
 		"sleep":    message.text = "%s fell asleep!" % label
@@ -152,11 +157,49 @@ func _refresh_bars(animate: bool = false) -> void:
 	enemy_hp_bar.max_value = wild["max_hp"]
 	_set_bar(enemy_hp_bar, int(wild["current_hp"]), animate)
 	enemy_hp_text.text = "%d/%d" % [wild["current_hp"], wild["max_hp"]]
+	_update_status_label(enemy_status_label, wild)
 	var active = GameState.active_monster()
 	var max_hp = GameState.max_hp_of(active)
 	player_hp_bar.max_value = max_hp
 	_set_bar(player_hp_bar, int(active["current_hp"]), animate)
 	player_hp_text.text = "%d/%d" % [active["current_hp"], max_hp]
+	_update_status_label(player_status_label, active)
+
+func _create_status_labels() -> void:
+	enemy_status_label = _make_status_label()
+	enemy_status_label.position = Vector2(212, 4)
+	$UI/EnemyPanel.add_child(enemy_status_label)
+	player_status_label = _make_status_label()
+	player_status_label.position = Vector2(192, 4)
+	$UI/PlayerPanel.add_child(player_status_label)
+
+func _make_status_label() -> Label:
+	var lbl := Label.new()
+	lbl.add_theme_font_size_override("font_size", 11)
+	lbl.add_theme_constant_override("outline_size", 2)
+	lbl.add_theme_color_override("font_outline_color", Color.BLACK)
+	lbl.hide()
+	return lbl
+
+func _update_status_label(lbl: Label, actor: Dictionary) -> void:
+	if lbl == null:
+		return
+	var status: String = String(actor.get("status", ""))
+	match status:
+		"paralyze":
+			lbl.text = "PAR"
+			lbl.modulate = Color(1.0, 0.85, 0.30)
+			lbl.show()
+		"sleep":
+			lbl.text = "SLP"
+			lbl.modulate = Color(0.55, 0.65, 1.00)
+			lbl.show()
+		"burn":
+			lbl.text = "BRN"
+			lbl.modulate = Color(1.0, 0.55, 0.30)
+			lbl.show()
+		_:
+			lbl.hide()
 
 func _spawn_damage_popup(at: Vector2, text: String, color: Color) -> void:
 	var lbl := Label.new()
