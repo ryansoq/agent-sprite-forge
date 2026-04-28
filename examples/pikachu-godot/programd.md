@@ -170,15 +170,17 @@ when done — do not delete; future iterations should see history.
 - [ ] **DialogueBox reusable scene** before adding any NPC.
 - [ ] **EncounterTable resource** so map regions can declare wild pools.
 
-### Tier 4 — Polish / juice / UI (only after major content lands)
-- [ ] Tween HP bars on damage instead of snap.
-- [ ] Damage number floats up from sprite on hit.
-- [ ] Move-type colour tag in Fight menu.
-- [ ] Status icon next to HP bar.
-- [ ] Themed StyleBox for panels.
-- [ ] Battle log keeps last 3 messages visible.
-- [ ] Pause menu shows playtime + captures.
-- [ ] Footstep dust on movement; healing pad sparkle.
+### Tier 4 — Polish / juice / UI (ALL DONE as of iter25)
+- [x] ~~Tween HP bars on damage~~ iter18 (5fa5a84).
+- [x] ~~Damage number popups~~ iter19 (9453311).
+- [x] ~~Move-type colour tag in Fight menu~~ iter20 (a1c0f8a).
+- [x] ~~Status icon next to HP bar~~ iter21 (53dba03).
+- [x] ~~Themed StyleBox for panels~~ iter23 (ec68c4b).
+- [x] ~~Battle log keeps last 3 messages~~ iter24 (a4f4dfd).
+- [x] ~~Pause menu playtime + summary~~ iter22 (49d7edd).
+- [x] ~~Footstep dust + healing pad sparkle~~ iter25 (7ba4536).
+
+**All Tier-1 / Tier-2 / Tier-3 / Tier-4 shipped. Pull from Tier 5 (misc / nice-to-have) next, or invent new ideas.**
 
 ### Tier 5 — Misc / nice-to-have
 - [ ] Multiple save slots on title screen.

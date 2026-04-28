@@ -142,3 +142,21 @@ colors, status badges. Remaining Tier-4: Panel StyleBox theming,
 battle log (last 3 messages), footstep dust / healing pad sparkle.
 **Next direction:** Battle log — biggest remaining UX gap; players
 can miss messages during fast resolution.
+
+## Milestone — All Tier 1-4 shipped (iter1–iter25)
+
+- **Iter23 (ec68c4b)** — Theming autoload sets root.theme; consistent
+  dark-green panel style across all scenes.
+- **Iter24 (a4f4dfd)** — Battle log; resize MessagePanel + _say() helper +
+  sed-converted 40 message.text= sites; last 3 messages visible.
+- **Iter25 (7ba4536)** — Footstep dust trail (every 0.18s while moving) +
+  healing pad sparkles (8 yellow stars rising on use); last Tier-4 item.
+
+25 iterations / 25 keeps / 0 discards / 0 crashes.
+
+Tier completion: T1 9/9 ✓ · T2 6/6 ✓ · T3 2/2 + 1 superseded ✓ · T4 8/8 ✓.
+
+Remaining backlog is Tier 5 (multiple save slots, WASD movement, hold-Z
+to fast-forward text). Beyond that, new ideas would need to be invented
+(broader battle moves, day/night, weather, NPC schedules, fishing,
+breeding, etc.) per programd.md "Add to this list as you discover ideas".
