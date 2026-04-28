@@ -61,7 +61,23 @@ func gain_xp(member: Dictionary, amount: int) -> Array:
 		var new_max: int = max_hp_of(member)
 		member["current_hp"] = int(member["current_hp"]) + (new_max - old_max)
 		levels_gained.append(int(member["level"]))
+		_check_evolution(member)
 	return levels_gained
+
+func _check_evolution(member: Dictionary) -> void:
+	var data = MonsterData.MONSTERS[member["id"]]
+	if not data.has("evolves_at"):
+		return
+	if int(member["level"]) < int(data["evolves_at"]):
+		return
+	var new_id: String = String(data["evolves_to"])
+	var hp_before: int = int(member["current_hp"])
+	var max_before: int = max_hp_of(member)
+	member["id"] = new_id
+	member["pp"] = _init_pp(new_id)
+	var max_after: int = max_hp_of(member)
+	# bump current HP by the species-change delta so evolution feels rewarding
+	member["current_hp"] = min(max_after, hp_before + max(0, max_after - max_before))
 
 func grant_battle_xp(enemy_level: int) -> Array:
 	var amount: int = enemy_level * 10
@@ -69,11 +85,14 @@ func grant_battle_xp(enemy_level: int) -> Array:
 	var active := active_monster()
 	if active.is_empty():
 		return summaries
+	var name_before: String = String(MonsterData.MONSTERS[active["id"]]["display_name"])
 	var levels := gain_xp(active, amount)
+	var name_after: String = String(MonsterData.MONSTERS[active["id"]]["display_name"])
 	summaries.append({
-		"name": String(MonsterData.MONSTERS[active["id"]]["display_name"]),
+		"name": name_before,
 		"xp": amount,
 		"levels": levels,
+		"evolved_to": (name_after if name_after != name_before else ""),
 	})
 	# Faint XP share: other non-fainted members get half
 	var share: int = amount / 2
@@ -83,11 +102,14 @@ func grant_battle_xp(enemy_level: int) -> Array:
 				continue
 			if int(m.get("current_hp", 0)) <= 0:
 				continue
+			var n_before: String = String(MonsterData.MONSTERS[m["id"]]["display_name"])
 			var lv := gain_xp(m, share)
+			var n_after: String = String(MonsterData.MONSTERS[m["id"]]["display_name"])
 			summaries.append({
-				"name": String(MonsterData.MONSTERS[m["id"]]["display_name"]),
+				"name": n_before,
 				"xp": share,
 				"levels": lv,
+				"evolved_to": (n_after if n_after != n_before else ""),
 			})
 	return summaries
 

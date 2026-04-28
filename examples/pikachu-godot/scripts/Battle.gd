@@ -391,6 +391,12 @@ func _victory() -> void:
 			message.text = "%s grew to Lv %d!" % [s["name"], int(new_lv)]
 			_refresh_bars()
 			await get_tree().create_timer(0.9).timeout
+		var evolved_to: String = String(s.get("evolved_to", ""))
+		if evolved_to != "":
+			message.text = "%s evolved into %s!" % [s["name"], evolved_to]
+			_setup_visuals()
+			_refresh_bars()
+			await get_tree().create_timer(1.4).timeout
 	GameState.go_to_overworld()
 
 func _white_out() -> void:

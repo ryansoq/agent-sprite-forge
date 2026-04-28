@@ -8,6 +8,15 @@ const MONSTERS := {
 		"max_hp": 35,
 		"moves": ["thunderbolt", "quick_attack", "thunder_wave", "recover"],
 		"sprite": "res://assets/pikachu_down.png",
+		"evolves_at": 8,
+		"evolves_to": "raichu",
+	},
+	"raichu": {
+		"display_name": "Raichu",
+		"type": "electric",
+		"max_hp": 50,
+		"moves": ["thunderbolt", "quick_attack", "thunder_wave", "recover"],
+		"sprite": "res://assets/raichu.png",
 	},
 	"volty": {
 		"display_name": "Volty",

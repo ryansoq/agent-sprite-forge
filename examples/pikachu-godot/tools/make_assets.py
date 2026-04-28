@@ -82,6 +82,37 @@ def make_pikachu_side() -> None:
     img.save(ASSETS / "pikachu_side.png")
 
 
+def make_raichu() -> None:
+    img, d = _new()
+    orange = (240, 160, 80, 255)
+    orange_dark = (180, 100, 30, 255)
+    cheek = (250, 220, 100, 255)
+
+    # smaller ears than Pikachu, with darker tips
+    d.polygon([(8, 3), (5, 13), (13, 11)], fill=orange, outline=BLACK)
+    d.polygon([(24, 3), (27, 13), (19, 11)], fill=orange, outline=BLACK)
+    d.polygon([(8, 3), (7, 8), (10, 8)], fill=orange_dark)
+    d.polygon([(24, 3), (25, 8), (22, 8)], fill=orange_dark)
+
+    # body
+    d.ellipse([4, 10, 28, 30], fill=orange, outline=BLACK)
+
+    # yellow cheek pouches (vs red on Pikachu)
+    d.ellipse([5, 19, 11, 25], fill=cheek)
+    d.ellipse([21, 19, 27, 25], fill=cheek)
+
+    # eyes
+    d.ellipse([10, 14, 14, 18], fill=BLACK)
+    d.ellipse([18, 14, 22, 18], fill=BLACK)
+    d.point((12, 15), fill=WHITE)
+    d.point((20, 15), fill=WHITE)
+
+    # smirking mouth (slightly more aggressive than Pikachu)
+    d.line([(13, 22), (16, 24), (19, 22)], fill=BLACK)
+
+    img.save(ASSETS / "raichu.png")
+
+
 def make_volty() -> None:
     """Original electric mouse-like creature; not Pikachu."""
     img, d = _new()
@@ -257,6 +288,7 @@ def main() -> None:
     make_pikachu_down()
     make_pikachu_up()
     make_pikachu_side()
+    make_raichu()
     make_volty()
     make_twigling()
     make_embertail()
