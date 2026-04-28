@@ -23,6 +23,46 @@ const SHOPS := [
 	{"id": "shop_main", "pos": Vector2(560, 360)},
 ]
 
+const REGIONS := {
+	"central_meadow": {
+		"pool": ["volty", "twigling", "embertail"],
+		"level_min": 3, "level_max": 6,
+	},
+	"south_field": {
+		"pool": ["bunten", "twigling", "volty"],
+		"level_min": 4, "level_max": 7,
+	},
+	"northwest_thicket": {
+		"pool": ["embertail", "mindling", "volty"],
+		"level_min": 5, "level_max": 8,
+	},
+	"east_pondside": {
+		"pool": ["aquillo", "bunten", "mindling"],
+		"level_min": 5, "level_max": 9,
+	},
+}
+
+const PATCHES := [
+	{"region": "central_meadow",     "pos": Vector2(420, 360)},
+	{"region": "central_meadow",     "pos": Vector2(460, 380)},
+	{"region": "central_meadow",     "pos": Vector2(500, 360)},
+	{"region": "central_meadow",     "pos": Vector2(540, 400)},
+	{"region": "central_meadow",     "pos": Vector2(580, 360)},
+	{"region": "central_meadow",     "pos": Vector2(620, 400)},
+	{"region": "central_meadow",     "pos": Vector2(720, 440)},
+	{"region": "central_meadow",     "pos": Vector2(760, 420)},
+	{"region": "central_meadow",     "pos": Vector2(800, 460)},
+	{"region": "south_field",        "pos": Vector2(380, 600)},
+	{"region": "south_field",        "pos": Vector2(420, 620)},
+	{"region": "south_field",        "pos": Vector2(460, 600)},
+	{"region": "northwest_thicket",  "pos": Vector2(140, 360)},
+	{"region": "northwest_thicket",  "pos": Vector2(180, 380)},
+	{"region": "northwest_thicket",  "pos": Vector2(220, 360)},
+	{"region": "east_pondside",      "pos": Vector2(1100, 500)},
+	{"region": "east_pondside",      "pos": Vector2(1140, 480)},
+	{"region": "east_pondside",      "pos": Vector2(1100, 460)},
+]
+
 const ITEM_SPAWNS := [
 	{"id": "pickup_potion_nw", "item": "potion",   "pos": Vector2(160, 220)},
 	{"id": "pickup_ball_ne",   "item": "pokeball", "pos": Vector2(1100, 200)},
@@ -152,18 +192,10 @@ func _build_world() -> void:
 			s.position = Vector2(x, y)
 			deco.add_child(s)
 
-	# tall grass patches scattered (encounter zones)
+	# tall grass patches scattered (encounter zones), tagged by region
 	var patches := $TallGrassPatches
-	var patch_positions := [
-		Vector2(420, 360), Vector2(460, 380), Vector2(500, 360),
-		Vector2(540, 400), Vector2(580, 360), Vector2(620, 400),
-		Vector2(720, 440), Vector2(760, 420), Vector2(800, 460),
-		Vector2(380, 600), Vector2(420, 620), Vector2(460, 600),
-		Vector2(140, 360), Vector2(180, 380), Vector2(220, 360),
-		Vector2(1100, 500), Vector2(1140, 480), Vector2(1100, 460),
-	]
-	for p in patch_positions:
-		_spawn_grass(patches, p)
+	for entry in PATCHES:
+		_spawn_grass(patches, entry["pos"], String(entry["region"]))
 
 func _spawn(parent: Node, tex: Texture2D, pos: Vector2, with_collider: bool,
 			collider_size: Vector2 = Vector2(20, 14),
@@ -187,7 +219,7 @@ func _spawn(parent: Node, tex: Texture2D, pos: Vector2, with_collider: bool,
 		sprite.position = pos
 		parent.add_child(sprite)
 
-func _spawn_grass(parent: Node, pos: Vector2) -> void:
+func _spawn_grass(parent: Node, pos: Vector2, region_id: String = "central_meadow") -> void:
 	var area := Area2D.new()
 	area.position = pos
 	var sprite := Sprite2D.new()
@@ -198,10 +230,11 @@ func _spawn_grass(parent: Node, pos: Vector2) -> void:
 	shape.size = Vector2(28, 28)
 	col.shape = shape
 	area.add_child(col)
+	area.set_meta("region_id", region_id)
 	parent.add_child(area)
-	area.body_entered.connect(_on_tall_grass_entered)
+	area.body_entered.connect(_on_tall_grass_entered.bind(area))
 
-func _on_tall_grass_entered(body: Node2D) -> void:
+func _on_tall_grass_entered(body: Node2D, area: Area2D = null) -> void:
 	if triggered or encounter_cooldown > 0.0:
 		return
 	if not (body is CharacterBody2D):
@@ -209,10 +242,18 @@ func _on_tall_grass_entered(body: Node2D) -> void:
 	if rng.randf() < ENCOUNTER_CHANCE:
 		triggered = true
 		encounter_cooldown = 1.0
-		hint.text = "A wild monster appeared!"
-		var wild_id: String = MonsterData.WILD_POOL[rng.randi() % MonsterData.WILD_POOL.size()]
+		var region_id: String = "central_meadow"
+		if area != null and area.has_meta("region_id"):
+			region_id = String(area.get_meta("region_id"))
+		var region: Dictionary = REGIONS.get(region_id, {})
+		var pool: Array = region.get("pool", MonsterData.WILD_POOL)
+		var lv_min: int = int(region.get("level_min", 3))
+		var lv_max: int = int(region.get("level_max", 7))
+		var wild_id: String = String(pool[rng.randi() % pool.size()])
+		var level: int = rng.randi_range(lv_min, lv_max)
+		hint.text = "A wild %s appeared!" % MonsterData.MONSTERS[wild_id]["display_name"]
 		await get_tree().create_timer(0.4).timeout
-		GameState.start_wild_battle(wild_id)
+		GameState.start_wild_battle(wild_id, level)
 	else:
 		encounter_cooldown = 0.5
 

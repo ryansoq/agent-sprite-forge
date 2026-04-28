@@ -211,8 +211,8 @@ func mark_trainer_defeated(trainer_id: String) -> void:
 	if trainer_id != "" and not (trainer_id in defeated_trainers):
 		defeated_trainers.append(trainer_id)
 
-func start_wild_battle(wild_id: String) -> void:
-	var wild_level := randi_range(3, 7)
+func start_wild_battle(wild_id: String, level: int = -1) -> void:
+	var wild_level: int = level if level > 0 else randi_range(3, 7)
 	var max_hp := _calc_max_hp(wild_id, wild_level)
 	current_wild = {
 		"id": wild_id,
