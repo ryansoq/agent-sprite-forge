@@ -49,6 +49,28 @@ func is_night() -> bool:
 	# True during the darker half of the cycle (dusk -> midnight -> dawn).
 	return night_alpha() > 0.20
 
+func current_weather() -> String:
+	# Phase-driven weather: sun → clear → rain → clear (across day/night).
+	var t: float = time_of_day
+	if t < 0.18:
+		return "sun"
+	elif t < 0.45:
+		return "clear"
+	elif t < 0.65:
+		return "rain"
+	else:
+		return "clear"
+
+func weather_damage_mult(move_type: String) -> float:
+	var w: String = current_weather()
+	if w == "sun":
+		if move_type == "fire": return 1.5
+		if move_type == "water": return 0.5
+	elif w == "rain":
+		if move_type == "water": return 1.5
+		if move_type == "fire": return 0.5
+	return 1.0
+
 func time_of_day_label() -> String:
 	var t: float = time_of_day
 	if t < 0.15 or t >= 0.85:

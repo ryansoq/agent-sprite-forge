@@ -488,7 +488,8 @@ func _player_uses_move(move_id: String) -> void:
 			var crit_mult := 1.5 if crit else 1.0
 			var atk_mult := _stage_mult(player_stages, "atk")
 			var def_mult := _stage_mult(enemy_stages, "def")
-			dmg = max(1, int(round(dmg * eff_mult * crit_mult * atk_mult / def_mult)))
+			var weather_mult := GameState.weather_damage_mult(move_type)
+			dmg = max(1, int(round(dmg * eff_mult * crit_mult * atk_mult / def_mult * weather_mult)))
 			GameState.current_wild["current_hp"] = max(0, int(GameState.current_wild["current_hp"]) - dmg)
 			await _flash(enemy_sprite)
 			_spawn_damage_popup(enemy_sprite.position, "-%d" % dmg, _damage_color(eff_mult, crit))
@@ -553,7 +554,8 @@ func _enemy_turn() -> void:
 			var crit_mult := 1.5 if crit else 1.0
 			var atk_mult := _stage_mult(enemy_stages, "atk")
 			var def_mult := _stage_mult(player_stages, "def")
-			dmg = max(1, int(round(dmg * eff_mult * crit_mult * atk_mult / def_mult)))
+			var weather_mult := GameState.weather_damage_mult(move_type)
+			dmg = max(1, int(round(dmg * eff_mult * crit_mult * atk_mult / def_mult * weather_mult)))
 			active["current_hp"] = max(0, int(active["current_hp"]) - dmg)
 			await _flash(player_sprite)
 			_spawn_damage_popup(player_sprite.position, "-%d" % dmg, _damage_color(eff_mult, crit))

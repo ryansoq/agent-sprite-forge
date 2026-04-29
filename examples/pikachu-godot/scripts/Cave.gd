@@ -83,7 +83,7 @@ func _refresh_hud() -> void:
 	var disp_name: String = MonsterData.MONSTERS[active["id"]]["display_name"]
 	var lv: int = int(active.get("level", 5))
 	var streak_str: String = ("  Streak %d" % GameState.catch_streak) if GameState.catch_streak > 0 else ""
-	hud.text = "%s Lv%d  %d/%d HP   $%d   Balls: %d  Potions: %d   [%s]  Seen %d/%d%s" % [
+	hud.text = "%s Lv%d  %d/%d HP   $%d   Balls: %d  Potions: %d   [%s · %s]  Seen %d/%d%s" % [
 		disp_name, lv,
 		int(active["current_hp"]),
 		GameState.max_hp_of(active),
@@ -91,6 +91,7 @@ func _refresh_hud() -> void:
 		int(GameState.inventory.get("pokeball", 0)),
 		int(GameState.inventory.get("potion", 0)),
 		GameState.time_of_day_label(),
+		GameState.current_weather(),
 		GameState.seen_species.size(),
 		MonsterData.MONSTERS.size(),
 		streak_str,
