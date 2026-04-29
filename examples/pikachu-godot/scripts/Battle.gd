@@ -91,8 +91,18 @@ func _ready() -> void:
 	_setup_visuals()
 	_refresh_bars()
 	_set_state(State.INTRO)
+	# Intro: slide enemy in from the right and player in from the left
+	var enemy_orig := enemy_sprite.position
+	var player_orig := player_sprite.position
+	enemy_sprite.position = Vector2(enemy_orig.x + 250, enemy_orig.y)
+	player_sprite.position = Vector2(player_orig.x - 250, player_orig.y)
+	var intro_tw := create_tween()
+	intro_tw.set_parallel(true)
+	intro_tw.tween_property(enemy_sprite, "position", enemy_orig, 0.45).set_ease(Tween.EASE_OUT)
+	intro_tw.tween_property(player_sprite, "position", player_orig, 0.45).set_ease(Tween.EASE_OUT)
 	_say("A wild %s appeared!" % MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"])
-	await get_tree().create_timer(0.60).timeout
+	await intro_tw.finished
+	await get_tree().create_timer(0.20).timeout
 	_say("Go, %s!" % MonsterData.MONSTERS[GameState.active_monster()["id"]]["display_name"])
 	await get_tree().create_timer(0.45).timeout
 	_show_main_menu()
@@ -294,6 +304,14 @@ func _spawn_damage_popup(at: Vector2, text: String, color: Color) -> void:
 	tw.tween_property(lbl, "modulate:a", 0.0, 0.7)
 	tw.finished.connect(lbl.queue_free)
 
+func _shake_screen(intensity: float = 5.0) -> void:
+	var orig: Vector2 = position
+	var tw := create_tween()
+	for i in 4:
+		var off := intensity if i % 2 == 0 else -intensity
+		tw.tween_property(self, "position", orig + Vector2(off, 0), 0.04)
+	tw.tween_property(self, "position", orig, 0.04)
+
 func _damage_color(eff_mult: float, crit: bool) -> Color:
 	if eff_mult > 1.0:
 		return Color(1.0, 0.35, 0.35)
@@ -309,6 +327,14 @@ func _set_bar(bar: ProgressBar, target: int, animate: bool) -> void:
 		tw.tween_property(bar, "value", float(target), 0.25)
 	else:
 		bar.value = target
+	# Tint by HP ratio: red <25%, yellow <50%, white otherwise
+	var ratio: float = float(target) / max(1.0, float(bar.max_value))
+	if ratio < 0.25:
+		bar.modulate = Color(1.4, 0.45, 0.45)
+	elif ratio < 0.50:
+		bar.modulate = Color(1.3, 1.2, 0.45)
+	else:
+		bar.modulate = Color.WHITE
 
 func _set_state(s: int) -> void:
 	state = s
@@ -468,6 +494,7 @@ func _player_uses_move(move_id: String) -> void:
 			_spawn_damage_popup(enemy_sprite.position, "-%d" % dmg, _damage_color(eff_mult, crit))
 			_refresh_bars(true)
 			if crit:
+				_shake_screen()
 				_say("Critical hit!")
 				await get_tree().create_timer(0.30).timeout
 			if eff_mult > 1.0:
@@ -532,6 +559,7 @@ func _enemy_turn() -> void:
 			_spawn_damage_popup(player_sprite.position, "-%d" % dmg, _damage_color(eff_mult, crit))
 			_refresh_bars(true)
 			if crit:
+				_shake_screen()
 				_say("Critical hit!")
 				await get_tree().create_timer(0.30).timeout
 			var prefix := ""
