@@ -108,6 +108,37 @@ func _setup_visuals() -> void:
 func _scale_damage(base_dmg: int, attacker_level: int) -> int:
 	return max(1, int(round(base_dmg * (1.0 + (attacker_level - 5) * 0.1))))
 
+func _unhandled_input(event: InputEvent) -> void:
+	if not (event is InputEventKey) or not event.pressed:
+		return
+	match state:
+		State.MAIN:
+			match event.keycode:
+				KEY_F: _on_fight_pressed()
+				KEY_B: _on_bag_pressed()
+				KEY_P: _on_party_pressed()
+				KEY_R: _on_run_pressed()
+		State.MOVE:
+			match event.keycode:
+				KEY_1: _on_move_chosen(0)
+				KEY_2: _on_move_chosen(1)
+				KEY_3: _on_move_chosen(2)
+				KEY_4: _on_move_chosen(3)
+				KEY_ESCAPE: _show_main_menu()
+		State.BAG:
+			match event.keycode:
+				KEY_1: _use_potion()
+				KEY_2: _throw_ball()
+				KEY_ESCAPE: _show_main_menu()
+		State.PARTY:
+			match event.keycode:
+				KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6:
+					var idx: int = event.keycode - KEY_1
+					_switch_to(idx)
+				KEY_ESCAPE:
+					if not force_switch:
+						_show_main_menu()
+
 func _stage_mult(stages: Dictionary, stat: String) -> float:
 	# stage range -3..+3 → 0.7..1.3 (10% per stage)
 	return 1.0 + 0.10 * float(stages.get(stat, 0))
