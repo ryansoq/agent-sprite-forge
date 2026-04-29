@@ -52,6 +52,8 @@ var rng := RandomNumberGenerator.new()
 var enemy_status_label: Label
 var player_status_label: Label
 var message_log: Array = []
+var player_stages: Dictionary = {"atk": 0, "def": 0}
+var enemy_stages: Dictionary = {"atk": 0, "def": 0}
 var state: int = State.INTRO
 var force_switch := false  # entering party menu because active fainted
 
@@ -105,6 +107,25 @@ func _setup_visuals() -> void:
 
 func _scale_damage(base_dmg: int, attacker_level: int) -> int:
 	return max(1, int(round(base_dmg * (1.0 + (attacker_level - 5) * 0.1))))
+
+func _stage_mult(stages: Dictionary, stat: String) -> float:
+	# stage range -3..+3 → 0.7..1.3 (10% per stage)
+	return 1.0 + 0.10 * float(stages.get(stat, 0))
+
+func _apply_stat_stage(stages: Dictionary, stat: String, delta: int, label: String) -> void:
+	var current: int = int(stages.get(stat, 0))
+	var new_val: int = clamp(current + delta, -3, 3)
+	if new_val == current:
+		var dir := "higher" if delta > 0 else "lower"
+		_say("%s's %s won't go %s!" % [label, stat, dir])
+		await get_tree().create_timer(0.7).timeout
+		return
+	stages[stat] = new_val
+	if delta > 0:
+		_say("%s's %s rose!" % [label, stat])
+	else:
+		_say("%s's %s fell!" % [label, stat])
+	await get_tree().create_timer(0.7).timeout
 
 func _process(_delta: float) -> void:
 	Engine.time_scale = 4.0 if Input.is_action_pressed("fast_forward") else 1.0
@@ -408,7 +429,9 @@ func _player_uses_move(move_id: String) -> void:
 			var eff_mult := MoveData.effectiveness(move_type, defender_type)
 			var crit := rng.randi_range(1, 16) == 1
 			var crit_mult := 1.5 if crit else 1.0
-			dmg = max(1, int(round(dmg * eff_mult * crit_mult)))
+			var atk_mult := _stage_mult(player_stages, "atk")
+			var def_mult := _stage_mult(enemy_stages, "def")
+			dmg = max(1, int(round(dmg * eff_mult * crit_mult * atk_mult / def_mult)))
 			GameState.current_wild["current_hp"] = max(0, int(GameState.current_wild["current_hp"]) - dmg)
 			await _flash(enemy_sprite)
 			_spawn_damage_popup(enemy_sprite.position, "-%d" % dmg, _damage_color(eff_mult, crit))
@@ -439,6 +462,13 @@ func _player_uses_move(move_id: String) -> void:
 			var status_id: String = String(move.get("status", ""))
 			var wild_label: String = MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]
 			await _apply_status_to(GameState.current_wild, status_id, wild_label)
+		"stat":
+			var actor_name: String = MonsterData.MONSTERS[GameState.active_monster()["id"]]["display_name"]
+			var foe_name: String = MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]
+			var target_self: bool = String(move.get("target", "self")) == "self"
+			var stages: Dictionary = player_stages if target_self else enemy_stages
+			var label: String = actor_name if target_self else foe_name
+			await _apply_stat_stage(stages, String(move["stat"]), int(move["delta"]), label)
 
 func _enemy_turn() -> void:
 	if int(GameState.current_wild["current_hp"]) <= 0:
@@ -463,7 +493,9 @@ func _enemy_turn() -> void:
 			var eff_mult := MoveData.effectiveness(move_type, defender_type)
 			var crit := rng.randi_range(1, 16) == 1
 			var crit_mult := 1.5 if crit else 1.0
-			dmg = max(1, int(round(dmg * eff_mult * crit_mult)))
+			var atk_mult := _stage_mult(enemy_stages, "atk")
+			var def_mult := _stage_mult(player_stages, "def")
+			dmg = max(1, int(round(dmg * eff_mult * crit_mult * atk_mult / def_mult)))
 			active["current_hp"] = max(0, int(active["current_hp"]) - dmg)
 			await _flash(player_sprite)
 			_spawn_damage_popup(player_sprite.position, "-%d" % dmg, _damage_color(eff_mult, crit))
@@ -489,6 +521,14 @@ func _enemy_turn() -> void:
 			var active = GameState.active_monster()
 			var active_label: String = MonsterData.MONSTERS[active["id"]]["display_name"]
 			await _apply_status_to(active, status_id, active_label)
+		elif String(move["kind"]) == "stat":
+			var target_self: bool = String(move.get("target", "self")) == "self"
+			var stages: Dictionary = enemy_stages if target_self else player_stages
+			var foe_name: String = MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]
+			var active2 = GameState.active_monster()
+			var active_name: String = MonsterData.MONSTERS[active2["id"]]["display_name"]
+			var label: String = foe_name if target_self else active_name
+			await _apply_stat_stage(stages, String(move["stat"]), int(move["delta"]), label)
 	# End-of-round burn ticks (player first, then enemy)
 	var active2 = GameState.active_monster()
 	if not active2.is_empty() and int(active2["current_hp"]) > 0:
@@ -554,6 +594,7 @@ func _victory() -> void:
 	if GameState.is_trainer_battle and not GameState.trainer_party_remaining.is_empty():
 		var next: Dictionary = GameState.trainer_party_remaining.pop_front()
 		GameState.current_wild = GameState._make_wild_dict(String(next["monster"]), int(next["level"]))
+		enemy_stages = {"atk": 0, "def": 0}  # fresh foe gets fresh stages
 		_say("Trainer sent out %s!" % MonsterData.MONSTERS[next["monster"]]["display_name"])
 		await get_tree().create_timer(1.0).timeout
 		_setup_visuals()
@@ -699,6 +740,7 @@ func _switch_to(idx: int) -> void:
 	var chosen = GameState.party[idx]
 	GameState.party.remove_at(idx)
 	GameState.party.insert(0, chosen)
+	player_stages = {"atk": 0, "def": 0}  # fresh switch-in resets stat stages
 	force_switch = false
 	_set_state(State.RESOLVING)
 	_setup_visuals()

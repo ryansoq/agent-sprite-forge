@@ -21,6 +21,8 @@ const MOVES := {
 	"rock_throw":    {"name": "Rock Throw",    "kind": "damage", "type": "ground",   "min": 6,  "max": 11, "accuracy": 90,  "max_pp": 15},
 	"venom_strike":  {"name": "Venom Strike",  "kind": "damage", "type": "poison",   "min": 5,  "max": 9,  "accuracy": 95,  "max_pp": 20},
 	"gust":          {"name": "Gust",          "kind": "damage", "type": "flying",   "min": 5,  "max": 9,  "accuracy": 100, "max_pp": 25},
+	"iron_defense":  {"name": "Iron Defense",  "kind": "stat",   "type": "normal",   "target": "self", "stat": "def", "delta":  1, "accuracy": 100, "max_pp": 15},
+	"growl":         {"name": "Growl",         "kind": "stat",   "type": "normal",   "target": "opp",  "stat": "atk", "delta": -1, "accuracy": 100, "max_pp": 25},
 }
 
 # Only non-1.0 entries listed; missing pairs default to neutral (1.0).

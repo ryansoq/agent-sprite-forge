@@ -57,7 +57,7 @@ const MONSTERS := {
 		"type": "normal",
 		"max_hp": 32,
 		"moves": ["pound", "tackle"],
-		"learnset": {7: "quick_attack"},
+		"learnset": {7: "quick_attack", 10: "growl"},
 		"sprite": "res://assets/enemy_bunten.png",
 	},
 	"mindling": {
@@ -73,7 +73,7 @@ const MONSTERS := {
 		"type": "ground",
 		"max_hp": 38,
 		"moves": ["pound", "tackle", "rock_throw"],
-		"learnset": {},
+		"learnset": {8: "iron_defense"},
 		"sprite": "res://assets/enemy_pebbleon.png",
 	},
 	"toxidew": {
