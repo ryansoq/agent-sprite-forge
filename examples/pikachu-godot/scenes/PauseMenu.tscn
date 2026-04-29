@@ -41,6 +41,9 @@ theme_override_font_sizes/font_size = 10
 [node name="ResumeButton" type="Button" parent="Panel/V"]
 text = "Resume"
 
+[node name="PotionButton" type="Button" parent="Panel/V"]
+text = "Use Potion"
+
 [node name="PokedexButton" type="Button" parent="Panel/V"]
 text = "Pokedex"
 

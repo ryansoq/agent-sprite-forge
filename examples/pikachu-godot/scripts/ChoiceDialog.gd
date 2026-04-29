@@ -4,6 +4,7 @@ signal chosen(index: int)
 
 var pending_title: String = ""
 var pending_choices: Array = []
+var was_paused_before: bool = false
 
 func set_data(title: String, choices: Array) -> void:
 	pending_title = title
@@ -11,6 +12,9 @@ func set_data(title: String, choices: Array) -> void:
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	# Remember the prior pause state — only restore (don't unpause) if a
+	# parent menu had already paused the tree.
+	was_paused_before = get_tree().paused
 	get_tree().paused = true
 	$Panel/V/Title.text = pending_title
 	for i in pending_choices.size():
@@ -27,6 +31,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func _on_pressed(idx: int) -> void:
-	get_tree().paused = false
+	if not was_paused_before:
+		get_tree().paused = false
 	chosen.emit(idx)
 	queue_free()
