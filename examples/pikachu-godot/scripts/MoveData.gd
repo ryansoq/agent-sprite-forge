@@ -18,14 +18,16 @@ const MOVES := {
 	"water_pulse":   {"name": "Water Pulse",   "kind": "damage", "type": "water",    "min": 6,  "max": 10, "accuracy": 95,  "max_pp": 20},
 	"pound":         {"name": "Pound",         "kind": "damage", "type": "normal",   "min": 5,  "max": 9,  "accuracy": 100, "max_pp": 35},
 	"confusion":     {"name": "Confusion",     "kind": "damage", "type": "psychic",  "min": 5,  "max": 9,  "accuracy": 100, "max_pp": 25},
+	"rock_throw":    {"name": "Rock Throw",    "kind": "damage", "type": "ground",   "min": 6,  "max": 11, "accuracy": 90,  "max_pp": 15},
 }
 
 # Only non-1.0 entries listed; missing pairs default to neutral (1.0).
 const TYPE_CHART := {
-	"electric": {"water": 2.0, "grass": 0.5},
-	"fire":     {"grass": 2.0, "water": 0.5},
-	"water":    {"fire":  2.0, "grass": 0.5},
-	"grass":    {"water": 2.0, "fire":  0.5},
+	"electric": {"water": 2.0, "grass": 0.5, "ground": 0.5},
+	"fire":     {"grass": 2.0, "water": 0.5, "ground": 0.5},
+	"water":    {"fire":  2.0, "grass": 0.5, "ground": 2.0},
+	"grass":    {"water": 2.0, "fire":  0.5, "ground": 2.0},
+	"ground":   {"electric": 2.0, "fire": 2.0, "water": 0.5, "grass": 0.5},
 }
 
 static func name_of(id: String) -> String:

@@ -8,8 +8,8 @@ const ROCK_TEX := preload("res://assets/rock.png")
 const TALL_GRASS_TEX := preload("res://assets/tall_grass.png")
 
 const CAVE_REGION := {
-	"pool": ["aquillo", "mindling", "bunten"],
-	"night_pool": ["mindling", "mindling", "aquillo"],
+	"pool": ["aquillo", "mindling", "pebbleon"],
+	"night_pool": ["pebbleon", "mindling", "pebbleon"],
 	"level_min": 6,
 	"level_max": 10,
 }

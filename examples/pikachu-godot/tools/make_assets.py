@@ -298,6 +298,27 @@ def make_embertail() -> None:
     img.save(ASSETS / "enemy_embertail.png")
 
 
+def make_pebbleon() -> None:
+    img, d = _new()
+    rock = (130, 100, 80, 255)
+    rock_dark = (90, 70, 50, 255)
+    gray = (160, 160, 160, 255)
+    # roundish rocky body
+    d.ellipse([4, 8, 28, 30], fill=rock, outline=BLACK)
+    # granite patches
+    d.ellipse([8, 12, 14, 16], fill=gray, outline=rock_dark)
+    d.ellipse([18, 20, 24, 24], fill=gray, outline=rock_dark)
+    d.ellipse([21, 11, 26, 15], fill=gray, outline=rock_dark)
+    # determined eyes
+    d.ellipse([10, 16, 13, 19], fill=BLACK)
+    d.ellipse([19, 16, 22, 19], fill=BLACK)
+    d.point((11, 17), fill=WHITE)
+    d.point((20, 17), fill=WHITE)
+    # frown
+    d.line([(13, 24), (16, 22), (19, 24)], fill=BLACK)
+    img.save(ASSETS / "enemy_pebbleon.png")
+
+
 def make_aquillo() -> None:
     img, d = _new()
     blue = (90, 160, 220, 255)
@@ -505,6 +526,7 @@ def main() -> None:
     make_aquillo()
     make_bunten()
     make_mindling()
+    make_pebbleon()
     make_cave_entrance()
     make_grass_tile()
     make_tall_grass_tile()

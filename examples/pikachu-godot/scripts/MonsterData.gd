@@ -68,6 +68,14 @@ const MONSTERS := {
 		"learnset": {8: "tackle", 12: "thunder_wave"},
 		"sprite": "res://assets/enemy_mindling.png",
 	},
+	"pebbleon": {
+		"display_name": "Pebbleon",
+		"type": "ground",
+		"max_hp": 38,
+		"moves": ["pound", "tackle", "rock_throw"],
+		"learnset": {},
+		"sprite": "res://assets/enemy_pebbleon.png",
+	},
 }
 
-const WILD_POOL := ["volty", "twigling", "embertail", "aquillo", "bunten", "mindling"]
+const WILD_POOL := ["volty", "twigling", "embertail", "aquillo", "bunten", "mindling", "pebbleon"]
