@@ -12,6 +12,7 @@ var captures: int = 0
 var defeated_trainers: Array = []
 var picked_up_items: Array = []
 var money: int = 0
+var seen_species: Array = []
 var playtime_seconds: float = 0.0
 var time_of_day: float = 0.0  # 0..1; 0 = noon, 0.5 = midnight, smooth sine
 
@@ -45,6 +46,22 @@ func is_night() -> bool:
 	# True during the darker half of the cycle (dusk -> midnight -> dawn).
 	return night_alpha() > 0.20
 
+func time_of_day_label() -> String:
+	var t: float = time_of_day
+	if t < 0.15 or t >= 0.85:
+		return "Day"
+	if t < 0.35:
+		return "Dusk"
+	if t < 0.65:
+		return "Night"
+	return "Dawn"
+
+func mark_seen(species_id: String) -> void:
+	if species_id == "":
+		return
+	if not (species_id in seen_species):
+		seen_species.append(species_id)
+
 func new_game() -> void:
 	party = [_make_party_member("pikachu")]
 	inventory = {"potion": 3, "pokeball": 5}
@@ -53,6 +70,8 @@ func new_game() -> void:
 	picked_up_items = []
 	money = 0
 	playtime_seconds = 0.0
+	seen_species = []
+	mark_seen("pikachu")
 	overworld_position = Vector2(640, 360)
 	overworld_facing = "down"
 	save_game()
@@ -147,6 +166,7 @@ func _check_evolution(member: Dictionary) -> void:
 	if int(member["level"]) < int(data["evolves_at"]):
 		return
 	var new_id: String = String(data["evolves_to"])
+	mark_seen(new_id)
 	var hp_before: int = int(member["current_hp"])
 	var max_before: int = max_hp_of(member)
 	member["id"] = new_id
@@ -275,9 +295,11 @@ func start_trainer_battle(trainer_id: String, party: Array) -> void:
 		return
 	var first: Dictionary = party[0]
 	current_wild = _make_wild_dict(String(first["monster"]), int(first["level"]))
+	mark_seen(String(first["monster"]))
 	trainer_party_remaining = []
 	for i in range(1, party.size()):
 		trainer_party_remaining.append(party[i])
+		mark_seen(String(party[i]["monster"]))
 	is_trainer_battle = true
 	current_trainer_id = trainer_id
 	Fade.go_to_scene("res://scenes/Battle.tscn")
@@ -299,6 +321,7 @@ func mark_trainer_defeated(trainer_id: String) -> void:
 
 func start_wild_battle(wild_id: String, level: int = -1) -> void:
 	var wild_level: int = level if level > 0 else randi_range(3, 7)
+	mark_seen(wild_id)
 	var max_hp := _calc_max_hp(wild_id, wild_level)
 	current_wild = {
 		"id": wild_id,
@@ -337,6 +360,7 @@ func save_game() -> void:
 	cfg.set_value("save", "money", money)
 	cfg.set_value("save", "picked_up_items", picked_up_items)
 	cfg.set_value("save", "playtime_seconds", playtime_seconds)
+	cfg.set_value("save", "seen_species", seen_species)
 	cfg.save(_save_path_for(current_slot))
 
 func _save_path_for(slot: int) -> String:
@@ -358,6 +382,10 @@ func load_game() -> bool:
 	money = cfg.get_value("save", "money", 0)
 	picked_up_items = cfg.get_value("save", "picked_up_items", [])
 	playtime_seconds = float(cfg.get_value("save", "playtime_seconds", 0.0))
+	seen_species = cfg.get_value("save", "seen_species", [])
+	# Make sure starter is always counted (legacy saves predating iter36)
+	if seen_species.is_empty():
+		mark_seen("pikachu")
 	# backfill level/xp/pp/status on legacy saves
 	for m in party:
 		if not m.has("level"):

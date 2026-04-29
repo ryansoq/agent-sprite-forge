@@ -161,14 +161,16 @@ func _refresh_hud() -> void:
 	var active := GameState.active_monster()
 	var disp_name: String = MonsterData.MONSTERS[active["id"]]["display_name"]
 	var lv: int = int(active.get("level", 5))
-	hud.text = "%s Lv%d  %d/%d HP   $%d   Balls: %d  Potions: %d   Caught: %d" % [
+	hud.text = "%s Lv%d  %d/%d HP   $%d   Balls: %d  Potions: %d   [%s]  Seen %d/%d" % [
 		disp_name, lv,
 		int(active["current_hp"]),
 		GameState.max_hp_of(active),
 		GameState.money,
 		int(GameState.inventory.get("pokeball", 0)),
 		int(GameState.inventory.get("potion", 0)),
-		GameState.captures,
+		GameState.time_of_day_label(),
+		GameState.seen_species.size(),
+		MonsterData.MONSTERS.size(),
 	]
 
 func _unhandled_input(event: InputEvent) -> void:
