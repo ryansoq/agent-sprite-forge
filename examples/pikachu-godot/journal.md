@@ -204,3 +204,31 @@ gameplay variant (iter30) the same week — pattern: a single
 atmospheric mechanic naturally seeds gameplay rules. **Next
 direction:** move learning at level-up — biggest remaining
 mechanical gap, requires per-member moves field + sync helper.
+
+## After iter31–iter40 (mid-late content + depth, 10 more keeps)
+
+- **Iter31 (4976f69)** — Move learning at level-up (per-member moves).
+- **Iter32 (3e90821)** — Ground type + Pebbleon, counters electric.
+- **Iter33 (0fad58d)** — Poison type + Toxidew in south_field.
+- **Iter34 (0f27c83)** — Move replace dialog (ChoiceDialog reusable).
+- **Iter35 (b468157)** — Multi-monster trainer parties; gyms + 2 trainers
+  now field 2 monsters.
+- **Iter36 (b4b19c5)** — HUD enrichment: time-of-day label + Seen N/M.
+- **Iter37 (8a30de1)** — Pokedex menu via PauseMenu.
+- **Iter38 (1255d6c)** — Item tiers: 3 potions ($30/80/200) + 3 balls
+  (+0/15/30% catch); ItemData autoload; ChoiceDialog tier-pick.
+- **Iter39 (a6962aa)** — Flying type + Skywing in central meadow; chart
+  reaches 7 types.
+- **Iter40 (b028c15)** — Starter choice (Pikachu/Twigling/Embertail) on
+  new-slot via ChoiceDialog.
+
+40 iterations / 40 keeps / 0 discards / 0 crashes. Pattern observation:
+**ChoiceDialog (introduced iter34) became the reuse engine** — iter38
+shop/bag tier picks and iter40 starter choice both lean on it without
+adding new scenes. The "atmospheric → gameplay rule" pattern from
+iter28→iter30 also held: HUD enrichment (iter36 atmospheric) seeded
+Pokedex (iter37 mechanical). **Type chart now 7 types** with full
+asymmetric matchups — matches mid-tier Pokemon Gen 1 in coverage. **No
+remaining clear "must-have" backlog items** — future iters need to
+invent new directions (stat moves, weather, item pickups in cave,
+trainer rematches, deeper learnsets).
