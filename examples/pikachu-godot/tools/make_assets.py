@@ -298,6 +298,31 @@ def make_embertail() -> None:
     img.save(ASSETS / "enemy_embertail.png")
 
 
+def make_skywing() -> None:
+    img, d = _new()
+    blue = (130, 180, 230, 255)
+    blue_dark = (80, 120, 180, 255)
+    white = (240, 240, 255, 255)
+    yellow = (240, 200, 80, 255)
+    # body
+    d.ellipse([8, 10, 24, 26], fill=blue, outline=BLACK)
+    # head
+    d.ellipse([10, 4, 22, 14], fill=blue, outline=BLACK)
+    # outstretched wings
+    d.polygon([(0, 14), (8, 12), (8, 22), (4, 24)], fill=white, outline=BLACK)
+    d.polygon([(31, 14), (24, 12), (24, 22), (27, 24)], fill=white, outline=BLACK)
+    # eyes
+    d.ellipse([12, 7, 15, 10], fill=BLACK)
+    d.ellipse([17, 7, 20, 10], fill=BLACK)
+    d.point((13, 8), fill=WHITE)
+    d.point((18, 8), fill=WHITE)
+    # beak
+    d.polygon([(14, 11), (18, 11), (16, 14)], fill=yellow, outline=BLACK)
+    # tail feathers
+    d.polygon([(14, 26), (18, 26), (16, 30)], fill=blue_dark, outline=BLACK)
+    img.save(ASSETS / "enemy_skywing.png")
+
+
 def make_toxidew() -> None:
     img, d = _new()
     purple = (160, 110, 200, 255)
@@ -551,6 +576,7 @@ def main() -> None:
     make_mindling()
     make_toxidew()
     make_pebbleon()
+    make_skywing()
     make_cave_entrance()
     make_grass_tile()
     make_tall_grass_tile()

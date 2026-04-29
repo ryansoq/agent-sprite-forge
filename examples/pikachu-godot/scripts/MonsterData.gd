@@ -84,6 +84,14 @@ const MONSTERS := {
 		"learnset": {9: "pound"},
 		"sprite": "res://assets/enemy_toxidew.png",
 	},
+	"skywing": {
+		"display_name": "Skywing",
+		"type": "flying",
+		"max_hp": 28,
+		"moves": ["gust", "tackle"],
+		"learnset": {8: "quick_attack"},
+		"sprite": "res://assets/enemy_skywing.png",
+	},
 }
 
-const WILD_POOL := ["volty", "twigling", "embertail", "aquillo", "bunten", "mindling", "pebbleon", "toxidew"]
+const WILD_POOL := ["volty", "twigling", "embertail", "aquillo", "bunten", "mindling", "pebbleon", "toxidew", "skywing"]

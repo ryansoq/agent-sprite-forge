@@ -20,16 +20,18 @@ const MOVES := {
 	"confusion":     {"name": "Confusion",     "kind": "damage", "type": "psychic",  "min": 5,  "max": 9,  "accuracy": 100, "max_pp": 25},
 	"rock_throw":    {"name": "Rock Throw",    "kind": "damage", "type": "ground",   "min": 6,  "max": 11, "accuracy": 90,  "max_pp": 15},
 	"venom_strike":  {"name": "Venom Strike",  "kind": "damage", "type": "poison",   "min": 5,  "max": 9,  "accuracy": 95,  "max_pp": 20},
+	"gust":          {"name": "Gust",          "kind": "damage", "type": "flying",   "min": 5,  "max": 9,  "accuracy": 100, "max_pp": 25},
 }
 
 # Only non-1.0 entries listed; missing pairs default to neutral (1.0).
 const TYPE_CHART := {
-	"electric": {"water": 2.0, "grass": 0.5, "ground": 0.5},
+	"electric": {"water": 2.0, "grass": 0.5, "ground": 0.5, "flying": 2.0},
 	"fire":     {"grass": 2.0, "water": 0.5, "ground": 0.5},
 	"water":    {"fire":  2.0, "grass": 0.5, "ground": 2.0},
-	"grass":    {"water": 2.0, "fire":  0.5, "ground": 2.0, "poison": 0.5},
-	"ground":   {"electric": 2.0, "fire": 2.0, "water": 0.5, "grass": 0.5, "poison": 2.0},
+	"grass":    {"water": 2.0, "fire":  0.5, "ground": 2.0, "poison": 0.5, "flying": 0.5},
+	"ground":   {"electric": 2.0, "fire": 2.0, "water": 0.5, "grass": 0.5, "poison": 2.0, "flying": 0.5},
 	"poison":   {"grass": 2.0, "ground": 0.5, "poison": 0.5},
+	"flying":   {"grass": 2.0, "electric": 0.5, "ground": 0.5},
 }
 
 static func name_of(id: String) -> String:
