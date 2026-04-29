@@ -564,8 +564,20 @@ func _victory() -> void:
 	await get_tree().create_timer(1.0).timeout
 	var enemy_lv: int = int(GameState.current_wild.get("level", 5))
 	var xp_level: int = enemy_lv * 2 if GameState.is_trainer_battle else enemy_lv
+	var is_rematch: bool = false
 	if GameState.is_trainer_battle:
-		GameState.mark_trainer_defeated(GameState.current_trainer_id)
+		var tid := GameState.current_trainer_id
+		if tid in GameState.defeated_trainers:
+			# Rematch (already in first-defeat list); track second defeat separately.
+			is_rematch = true
+			if not (tid in GameState.rematch_completed):
+				GameState.rematch_completed.append(tid)
+		else:
+			GameState.mark_trainer_defeated(tid)
+		if tid == "gym_aqua_warden" and not GameState.rematch_unlocked:
+			GameState.rematch_unlocked = true
+			_say("Rematch challenges unlocked! Defeated trainers will return.")
+			await get_tree().create_timer(1.4).timeout
 	var summaries: Array = GameState.grant_battle_xp(xp_level)
 	for s in summaries:
 		_say("%s gained %d XP!" % [s["name"], int(s["xp"])])
@@ -602,6 +614,8 @@ func _victory() -> void:
 		_show_main_menu()
 		return
 	var money_reward: int = enemy_lv * (15 if GameState.is_trainer_battle else 5)
+	if is_rematch:
+		money_reward = int(money_reward * 1.5)
 	if money_reward > 0:
 		GameState.grant_money(money_reward)
 		_say("Got $%d!" % money_reward)

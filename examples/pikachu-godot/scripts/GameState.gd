@@ -10,6 +10,8 @@ var party: Array = []
 var inventory: Dictionary = {}
 var captures: int = 0
 var defeated_trainers: Array = []
+var rematch_completed: Array = []
+var rematch_unlocked: bool = false
 var picked_up_items: Array = []
 var money: int = 0
 var seen_species: Array = []
@@ -68,6 +70,8 @@ func new_game(starter_id: String = "pikachu") -> void:
 	inventory = {"potion": 3, "pokeball": 5}
 	captures = 0
 	defeated_trainers = []
+	rematch_completed = []
+	rematch_unlocked = false
 	picked_up_items = []
 	money = 0
 	playtime_seconds = 0.0
@@ -365,6 +369,8 @@ func save_game() -> void:
 	cfg.set_value("save", "playtime_seconds", playtime_seconds)
 	cfg.set_value("save", "seen_species", seen_species)
 	cfg.set_value("save", "catch_streak", catch_streak)
+	cfg.set_value("save", "rematch_completed", rematch_completed)
+	cfg.set_value("save", "rematch_unlocked", rematch_unlocked)
 	cfg.save(_save_path_for(current_slot))
 
 func _save_path_for(slot: int) -> String:
@@ -388,6 +394,8 @@ func load_game() -> bool:
 	playtime_seconds = float(cfg.get_value("save", "playtime_seconds", 0.0))
 	seen_species = cfg.get_value("save", "seen_species", [])
 	catch_streak = int(cfg.get_value("save", "catch_streak", 0))
+	rematch_completed = cfg.get_value("save", "rematch_completed", [])
+	rematch_unlocked = bool(cfg.get_value("save", "rematch_unlocked", false))
 	# Make sure starter is always counted (legacy saves predating iter36)
 	if seen_species.is_empty():
 		mark_seen("pikachu")

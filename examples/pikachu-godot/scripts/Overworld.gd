@@ -316,7 +316,8 @@ func _spawn_trainers() -> void:
 	node.name = "Trainers"
 	add_child(node)
 	for t in TRAINERS:
-		if String(t["id"]) in GameState.defeated_trainers:
+		var party_use = _resolve_party(String(t["id"]), t["party"])
+		if party_use == null:
 			continue
 		var area := Area2D.new()
 		area.position = t["pos"]
@@ -329,9 +330,26 @@ func _spawn_trainers() -> void:
 		col.shape = shape
 		area.add_child(col)
 		area.set_meta("trainer_id", String(t["id"]))
-		area.set_meta("party", t["party"])
+		area.set_meta("party", party_use)
 		node.add_child(area)
 		area.body_entered.connect(_on_trainer_entered.bind(area))
+
+func _resolve_party(tid: String, base_party: Array):
+	# Returns the party Array to spawn with, or null to skip spawning.
+	var defeated: bool = tid in GameState.defeated_trainers
+	var rematch_done: bool = tid in GameState.rematch_completed
+	if not defeated:
+		return base_party
+	# Aqua Warden is the rematch gate, not itself a rematch target.
+	if tid == "gym_aqua_warden":
+		return null
+	if not GameState.rematch_unlocked or rematch_done:
+		return null
+	# Build rematch party: same monsters, +5 levels each
+	var bumped: Array = []
+	for m in base_party:
+		bumped.append({"monster": m["monster"], "level": int(m["level"]) + 5})
+	return bumped
 
 func _on_trainer_entered(body: Node2D, area: Area2D) -> void:
 	if not (body is CharacterBody2D):
@@ -449,7 +467,8 @@ func _spawn_gym_leaders() -> void:
 	node.name = "GymLeaders"
 	add_child(node)
 	for g in GYM_LEADERS:
-		if String(g["id"]) in GameState.defeated_trainers:
+		var party_use = _resolve_party(String(g["id"]), g["party"])
+		if party_use == null:
 			continue
 		var area := Area2D.new()
 		area.position = g["pos"]
@@ -463,7 +482,7 @@ func _spawn_gym_leaders() -> void:
 		area.add_child(col)
 		area.set_meta("id", String(g["id"]))
 		area.set_meta("name", String(g["name"]))
-		area.set_meta("party", g["party"])
+		area.set_meta("party", party_use)
 		area.set_meta("pre_dialogue", g["pre_dialogue"])
 		node.add_child(area)
 		area.body_entered.connect(_on_gym_entered.bind(area))
