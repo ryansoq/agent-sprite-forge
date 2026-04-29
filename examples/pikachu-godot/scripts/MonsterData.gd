@@ -35,6 +35,16 @@ const MONSTERS := {
 		"moves": ["vine_lash", "tackle", "sleep_powder"],
 		"learnset": {9: "pound"},
 		"sprite": "res://assets/enemy_twigling.png",
+		"evolves_at": 10,
+		"evolves_to": "treant",
+	},
+	"treant": {
+		"display_name": "Treant",
+		"type": "grass",
+		"max_hp": 50,
+		"moves": ["vine_lash", "tackle", "sleep_powder", "pound"],
+		"learnset": {},
+		"sprite": "res://assets/treant.png",
 	},
 	"embertail": {
 		"display_name": "Embertail",
@@ -43,6 +53,16 @@ const MONSTERS := {
 		"moves": ["ember", "scratch", "flame_touch"],
 		"learnset": {10: "quick_attack"},
 		"sprite": "res://assets/enemy_embertail.png",
+		"evolves_at": 11,
+		"evolves_to": "pyrebrand",
+	},
+	"pyrebrand": {
+		"display_name": "Pyrebrand",
+		"type": "fire",
+		"max_hp": 48,
+		"moves": ["ember", "scratch", "flame_touch", "quick_attack"],
+		"learnset": {},
+		"sprite": "res://assets/pyrebrand.png",
 	},
 	"aquillo": {
 		"display_name": "Aquillo",

@@ -82,6 +82,59 @@ def make_pikachu_side() -> None:
     img.save(ASSETS / "pikachu_side.png")
 
 
+def make_treant() -> None:
+    img, d = _new()
+    leaf = (90, 160, 80, 255)
+    leaf_dark = (50, 100, 50, 255)
+    leaf_light = (140, 200, 110, 255)
+    bark = (110, 80, 40, 255)
+    bark_dark = (70, 50, 25, 255)
+    # large leafy crown
+    d.ellipse([2, 0, 30, 14], fill=leaf, outline=leaf_dark)
+    d.ellipse([4, 2, 14, 11], fill=leaf_light)
+    d.ellipse([18, 2, 26, 10], fill=leaf_light)
+    # bark body
+    d.ellipse([5, 12, 27, 30], fill=bark, outline=BLACK)
+    # vertical bark grooves
+    d.line([(11, 16), (11, 28)], fill=bark_dark)
+    d.line([(21, 16), (21, 28)], fill=bark_dark)
+    # eyes
+    d.ellipse([10, 17, 14, 21], fill=BLACK)
+    d.ellipse([18, 17, 22, 21], fill=BLACK)
+    d.point((11, 18), fill=WHITE)
+    d.point((19, 18), fill=WHITE)
+    # leafy smile
+    d.line([(13, 25), (16, 26), (19, 25)], fill=BLACK)
+    img.save(ASSETS / "treant.png")
+
+
+def make_pyrebrand() -> None:
+    img, d = _new()
+    body = (220, 100, 50, 255)
+    body_dark = (160, 60, 30, 255)
+    flame = (255, 220, 80, 255)
+    flame_inner = (255, 160, 60, 255)
+    # large flame plume
+    d.polygon([(8, 2), (16, 0), (24, 2), (22, 10), (16, 13), (10, 10)],
+              fill=flame, outline=BLACK)
+    d.polygon([(13, 5), (16, 2), (19, 5), (16, 9)], fill=flame_inner)
+    # short horns
+    d.polygon([(7, 8), (4, 13), (10, 12)], fill=body_dark, outline=BLACK)
+    d.polygon([(25, 8), (28, 13), (22, 12)], fill=body_dark, outline=BLACK)
+    # body
+    d.ellipse([4, 13, 28, 30], fill=body, outline=BLACK)
+    # angry brows
+    d.line([(10, 17), (13, 18)], fill=BLACK)
+    d.line([(22, 17), (19, 18)], fill=BLACK)
+    # eyes
+    d.ellipse([10, 18, 13, 21], fill=BLACK)
+    d.ellipse([19, 18, 22, 21], fill=BLACK)
+    # fangs
+    d.polygon([(13, 23), (14, 26), (15, 23)], fill=WHITE)
+    d.polygon([(17, 23), (18, 26), (19, 23)], fill=WHITE)
+    img.save(ASSETS / "pyrebrand.png")
+
+
 def make_raichu() -> None:
     img, d = _new()
     orange = (240, 160, 80, 255)
@@ -584,6 +637,8 @@ def main() -> None:
     make_pikachu_up()
     make_pikachu_side()
     make_raichu()
+    make_treant()
+    make_pyrebrand()
     make_trainer()
     make_shopkeeper()
     make_gym_leader()
