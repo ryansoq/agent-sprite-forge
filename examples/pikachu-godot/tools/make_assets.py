@@ -298,6 +298,29 @@ def make_embertail() -> None:
     img.save(ASSETS / "enemy_embertail.png")
 
 
+def make_toxidew() -> None:
+    img, d = _new()
+    purple = (160, 110, 200, 255)
+    purple_dark = (110, 70, 160, 255)
+    venom = (90, 220, 130, 255)
+    # blob body
+    d.ellipse([4, 12, 28, 30], fill=purple, outline=BLACK)
+    # head bumps
+    d.ellipse([8, 6, 14, 14], fill=purple, outline=BLACK)
+    d.ellipse([18, 6, 24, 14], fill=purple, outline=BLACK)
+    d.ellipse([12, 4, 20, 12], fill=purple_dark, outline=BLACK)
+    # venom drip from chin
+    d.ellipse([14, 26, 18, 31], fill=venom, outline=BLACK)
+    # beady eyes
+    d.ellipse([10, 16, 13, 19], fill=BLACK)
+    d.ellipse([19, 16, 22, 19], fill=BLACK)
+    d.point((11, 17), fill=WHITE)
+    d.point((20, 17), fill=WHITE)
+    # smug mouth
+    d.line([(13, 22), (16, 24), (19, 22)], fill=BLACK)
+    img.save(ASSETS / "enemy_toxidew.png")
+
+
 def make_pebbleon() -> None:
     img, d = _new()
     rock = (130, 100, 80, 255)
@@ -526,6 +549,7 @@ def main() -> None:
     make_aquillo()
     make_bunten()
     make_mindling()
+    make_toxidew()
     make_pebbleon()
     make_cave_entrance()
     make_grass_tile()

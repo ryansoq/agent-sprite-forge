@@ -76,6 +76,14 @@ const MONSTERS := {
 		"learnset": {},
 		"sprite": "res://assets/enemy_pebbleon.png",
 	},
+	"toxidew": {
+		"display_name": "Toxidew",
+		"type": "poison",
+		"max_hp": 32,
+		"moves": ["venom_strike", "tackle"],
+		"learnset": {9: "pound"},
+		"sprite": "res://assets/enemy_toxidew.png",
+	},
 }
 
-const WILD_POOL := ["volty", "twigling", "embertail", "aquillo", "bunten", "mindling", "pebbleon"]
+const WILD_POOL := ["volty", "twigling", "embertail", "aquillo", "bunten", "mindling", "pebbleon", "toxidew"]

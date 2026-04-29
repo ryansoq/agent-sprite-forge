@@ -18,7 +18,7 @@
   },
   "regions": {
     "central_meadow":     {"pool": ["volty", "twigling", "embertail"],   "night_pool": ["volty", "mindling", "embertail"],   "level_min": 3, "level_max": 6},
-    "south_field":        {"pool": ["bunten", "twigling", "volty"],      "night_pool": ["bunten", "mindling", "volty"],      "level_min": 4, "level_max": 7},
+    "south_field":        {"pool": ["bunten", "twigling", "toxidew"],    "night_pool": ["toxidew", "mindling", "volty"],     "level_min": 4, "level_max": 7},
     "northwest_thicket":  {"pool": ["embertail", "mindling", "pebbleon"], "night_pool": ["mindling", "embertail", "pebbleon"], "level_min": 5, "level_max": 8},
     "east_pondside":      {"pool": ["aquillo", "bunten", "mindling"],    "night_pool": ["aquillo", "mindling", "mindling"],   "level_min": 5, "level_max": 9}
   },
