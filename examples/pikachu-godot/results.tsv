@@ -31,3 +31,4 @@ aeb2312	content	keep	iter28: day/night cycle — 4-min sine, dark-blue overlay b
 3c51123	content	keep	iter29: 3 more trainers (Lv 8/9/10) + 2nd gym leader Aqua Warden (Lv 14 Aquillo, NW corner); pure data expansion
 0751db7	content	keep	iter30: nighttime encounter pool variants — each region has night_pool, more mindling after dusk; extends iter28
 4976f69	depth	keep	iter31: move learning at level-up — learnset {lv: move} per species, _sync_moves helper, "X learned Y!" post-battle
+3e90821	content	keep	iter32: Pebbleon (ground) + ground type chart entries — counters electric/fire, weak to water/grass; rock_throw move
