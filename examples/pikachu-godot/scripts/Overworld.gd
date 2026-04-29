@@ -66,6 +66,10 @@ const ITEM_SPAWNS := [
 	{"id": "pickup_ball_sw",   "item": "pokeball", "pos": Vector2(200, 600)},
 ]
 
+const MOVE_TUTORS := [
+	{"id": "tutor_main", "name": "Move Tutor", "pos": Vector2(560, 200)},
+]
+
 const NPCS := [
 	{
 		"id": "elder",
@@ -106,8 +110,10 @@ var night_overlay: ColorRect
 var pause_scene: PackedScene = preload("res://scenes/PauseMenu.tscn")
 var shop_scene: PackedScene = preload("res://scenes/ShopMenu.tscn")
 var dialogue_scene: PackedScene = preload("res://scenes/DialogueBox.tscn")
+var choice_scene: PackedScene = preload("res://scenes/ChoiceDialog.tscn")
 var nearby_npc: Area2D = null
 var nearby_gym_leader: Area2D = null
+var nearby_tutor: Area2D = null
 
 func _ready() -> void:
 	rng.randomize()
@@ -130,6 +136,7 @@ func _ready() -> void:
 	_spawn_npcs()
 	_spawn_pickups()
 	_spawn_gym_leaders()
+	_spawn_move_tutors()
 	_spawn_cave_doors()
 	_create_night_overlay()
 	heal_area.body_entered.connect(_on_healing_pad_entered)
@@ -185,6 +192,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		dlg.set_dialogue_pages(leader.get_meta("pre_dialogue"))
 		dlg.closed.connect(_on_gym_dialogue_closed.bind(leader))
 		add_child(dlg)
+	elif event.is_action_pressed("interact") and nearby_tutor != null:
+		_run_tutor_flow()
 	elif event.is_action_pressed("interact") and nearby_npc != null:
 		var dlg := dialogue_scene.instantiate()
 		dlg.set_dialogue_pages(nearby_npc.get_meta("pages"))
@@ -505,6 +514,121 @@ func _on_gym_dialogue_closed(leader: Area2D) -> void:
 		String(leader.get_meta("id")),
 		leader.get_meta("party"),
 	)
+
+func _spawn_move_tutors() -> void:
+	var node := Node2D.new()
+	node.name = "MoveTutors"
+	add_child(node)
+	for t in MOVE_TUTORS:
+		var area := Area2D.new()
+		area.position = t["pos"]
+		var sprite := Sprite2D.new()
+		sprite.texture = NPC_ELDER_TEX
+		sprite.modulate = Color(1.1, 1.0, 0.7)  # warmer tint to distinguish
+		area.add_child(sprite)
+		var col := CollisionShape2D.new()
+		var shape := RectangleShape2D.new()
+		shape.size = Vector2(28, 32)
+		col.shape = shape
+		area.add_child(col)
+		area.set_meta("name", String(t["name"]))
+		node.add_child(area)
+		area.body_entered.connect(_on_tutor_entered.bind(area))
+		area.body_exited.connect(_on_tutor_exited.bind(area))
+
+func _on_tutor_entered(body: Node2D, area: Area2D) -> void:
+	if not (body is CharacterBody2D):
+		return
+	nearby_tutor = area
+	hint.text = "Press [Space] to talk to %s" % String(area.get_meta("name"))
+
+func _on_tutor_exited(body: Node2D, area: Area2D) -> void:
+	if not (body is CharacterBody2D):
+		return
+	if nearby_tutor == area:
+		nearby_tutor = null
+
+func _run_tutor_flow() -> void:
+	# 1. Pick a party member
+	var labels: Array = []
+	for m in GameState.party:
+		labels.append("%s Lv%d" % [
+			MonsterData.MONSTERS[m["id"]]["display_name"],
+			int(m.get("level", 5)),
+		])
+	labels.append("Cancel")
+	var dlg = choice_scene.instantiate()
+	dlg.set_data("Teach a forgotten move. Pick a partner.", labels)
+	add_child(dlg)
+	var idx: int = await dlg.chosen
+	if idx < 0 or idx >= GameState.party.size():
+		return
+	var member: Dictionary = GameState.party[idx]
+	# 2. Compute relearnable moves
+	var data: Dictionary = MonsterData.MONSTERS[member["id"]]
+	var current_moves: Array = member.get("moves", [])
+	var lset: Dictionary = data.get("learnset", {})
+	var lvl: int = int(member.get("level", 5))
+	var candidates: Array = []
+	for mv in data["moves"]:
+		if not (String(mv) in current_moves):
+			candidates.append(String(mv))
+	for k in lset.keys():
+		if int(k) <= lvl:
+			var mv: String = String(lset[k])
+			if not (mv in current_moves) and not (mv in candidates):
+				candidates.append(mv)
+	if candidates.is_empty():
+		hint.text = "%s has nothing forgotten to relearn." % MonsterData.MONSTERS[member["id"]]["display_name"]
+		return
+	# 3. Pick which move to teach
+	var move_labels: Array = []
+	for mv in candidates:
+		move_labels.append(MoveData.name_of(mv))
+	move_labels.append("Cancel")
+	var dlg2 = choice_scene.instantiate()
+	dlg2.set_data("Teach which move?", move_labels)
+	add_child(dlg2)
+	var midx: int = await dlg2.chosen
+	if midx < 0 or midx >= candidates.size():
+		return
+	var taught: String = candidates[midx]
+	# 4. Append directly if room, else replace dialog
+	var moves_now: Array = member.get("moves", [])
+	if moves_now.size() < 4:
+		moves_now.append(taught)
+		member["moves"] = moves_now
+		var pp: Dictionary = (member.get("pp", {}) as Dictionary).duplicate()
+		pp[taught] = int(MoveData.MOVES[taught].get("max_pp", 10))
+		member["pp"] = pp
+		GameState.save_game()
+		hint.text = "%s learned %s!" % [MonsterData.MONSTERS[member["id"]]["display_name"], MoveData.name_of(taught)]
+		return
+	# 4b. 4-cap: pick which to forget
+	var rep_labels: Array = []
+	for mv in moves_now:
+		rep_labels.append(MoveData.name_of(String(mv)))
+	rep_labels.append("Don't learn %s" % MoveData.name_of(taught))
+	var dlg3 = choice_scene.instantiate()
+	dlg3.set_data("Forget which move to learn %s?" % MoveData.name_of(taught), rep_labels)
+	add_child(dlg3)
+	var ridx: int = await dlg3.chosen
+	if ridx < 0 or ridx >= moves_now.size():
+		hint.text = "%s did not learn %s." % [MonsterData.MONSTERS[member["id"]]["display_name"], MoveData.name_of(taught)]
+		return
+	var forgotten: String = String(moves_now[ridx])
+	moves_now[ridx] = taught
+	member["moves"] = moves_now
+	var pp2: Dictionary = (member.get("pp", {}) as Dictionary).duplicate()
+	pp2.erase(forgotten)
+	pp2[taught] = int(MoveData.MOVES[taught].get("max_pp", 10))
+	member["pp"] = pp2
+	GameState.save_game()
+	hint.text = "%s forgot %s and learned %s!" % [
+		MonsterData.MONSTERS[member["id"]]["display_name"],
+		MoveData.name_of(forgotten),
+		MoveData.name_of(taught),
+	]
 
 func _spawn_cave_doors() -> void:
 	var node := Node2D.new()
