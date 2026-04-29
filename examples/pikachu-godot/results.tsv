@@ -44,3 +44,4 @@ b028c15	depth	keep	iter40: starter choice on new game — empty slot prompts Pik
 f49ab76	depth	keep	iter42: stat-modifying moves — Iron Defense (+1 def self) / Growl (-1 atk foe); ±3 stages = ±10%/stage; pebbleon/bunten learn them
 dff6dd6	depth	keep	iter43: catch streak — +5%/streak (cap +30%) on successful catch; reset on miss; HUD + capture msg show streak
 4d18551	content	keep	iter44: trainer rematches after Aqua Warden — 5 trainers + Thunder Lord respawn at +5 levels with 1.5x money
+0033dcf	content	keep	iter45: ice type + Frostling — cave critter; chart reaches 8 types; ice 2x grass/ground/flying, weak to fire
