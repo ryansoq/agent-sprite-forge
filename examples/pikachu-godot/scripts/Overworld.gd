@@ -342,6 +342,18 @@ func _spawn_trainers() -> void:
 		area.set_meta("party", party_use)
 		node.add_child(area)
 		area.body_entered.connect(_on_trainer_entered.bind(area))
+		# Line-of-sight: 22x64 area extending south of the trainer (trainers face down)
+		var sight := Area2D.new()
+		sight.position = Vector2(t["pos"].x, t["pos"].y + 36)
+		var sight_shape := RectangleShape2D.new()
+		sight_shape.size = Vector2(22, 64)
+		var sight_col := CollisionShape2D.new()
+		sight_col.shape = sight_shape
+		sight.add_child(sight_col)
+		sight.set_meta("trainer_id", String(t["id"]))
+		sight.set_meta("party", party_use)
+		node.add_child(sight)
+		sight.body_entered.connect(_on_trainer_entered.bind(sight))
 
 func _resolve_party(tid: String, base_party: Array):
 	# Returns the party Array to spawn with, or null to skip spawning.
