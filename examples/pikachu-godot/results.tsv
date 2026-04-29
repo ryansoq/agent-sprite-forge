@@ -60,3 +60,4 @@ a47743c	depth	keep	iter53: weather system — phase-driven sun/rain/clear; fire/
 cc692de	polish	keep	iter58: per-region battle backgrounds — green/yellow/forest/blue/purple per region; trainer/gym stay tan
 9e7cc56	depth	keep	iter59: Max Ether ($250) refills all PP for chosen member; PauseMenu "Use Ether" button + cave SE pickup; cyan tint
 beeb0e9	content	keep	iter60: shop sells Max Ether + 2 held items ($600 each); 4 category buttons (Potion/Ball/Ether/Held)
+55bc213	polish	keep	iter61: party HP dots in battle — 6 colored dots at top-left, green/yellow/red/grey by ratio; refreshes with HP changes
