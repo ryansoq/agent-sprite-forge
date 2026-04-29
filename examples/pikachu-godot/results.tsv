@@ -37,3 +37,4 @@ aeb2312	content	keep	iter28: day/night cycle — 4-min sine, dark-blue overlay b
 b468157	depth	keep	iter35: multi-monster trainer parties — start_trainer_battle takes party Array; _victory sends out next on faint; 4 trainers/gyms now 2-mon
 b4b19c5	polish	keep	iter36: HUD enrichment — [Day/Dusk/Night/Dawn] label + Seen N/M species tracker; marks on wild/trainer/evolution/starter
 8a30de1	content	keep	iter37: Pokedex menu — pause -> Pokedex; 2-column grid of all 10 species with silhouette/name/type/captured marker
+1255d6c	depth	keep	iter38: item tiers — 3 potions ($30/80/200 = 20/50/100 HP) + 3 balls (+0/15/30% catch bonus); ItemData autoload; ChoiceDialog tier-pick
