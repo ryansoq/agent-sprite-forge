@@ -19,9 +19,10 @@ func _ready() -> void:
 		btn.pressed.connect(_on_pressed.bind(i))
 		$Panel/V.add_child(btn)
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
+	# _input runs before any node's _unhandled_input, so a stacked modal
+	# always intercepts ESC before the underlying PauseMenu sees it.
 	if event.is_action_pressed("pause"):
-		# ESC = pick the last option (typically "skip" / "cancel")
 		_on_pressed(pending_choices.size() - 1)
 		get_viewport().set_input_as_handled()
 
