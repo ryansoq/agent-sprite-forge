@@ -14,6 +14,20 @@ var dust_timer := 0.0
 
 func _ready() -> void:
 	_apply_facing(GameState.overworld_facing)
+	_create_shadow()
+
+func _create_shadow() -> void:
+	var shadow := Polygon2D.new()
+	shadow.color = Color(0, 0, 0, 0.32)
+	var pts := PackedVector2Array()
+	for i in 18:
+		var ang: float = i * TAU / 18
+		pts.append(Vector2(cos(ang) * 9, sin(ang) * 3))
+	shadow.polygon = pts
+	shadow.position = Vector2(0, 12)
+	shadow.z_index = -1
+	add_child(shadow)
+	move_child(shadow, 0)
 
 func _physics_process(delta: float) -> void:
 	var dir := Vector2.ZERO

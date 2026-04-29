@@ -20,7 +20,7 @@ var playtime_seconds: float = 0.0
 var time_of_day: float = 0.0  # 0..1; 0 = noon, 0.5 = midnight, smooth sine
 
 const DAY_LENGTH_SECONDS := 240.0  # 4 minutes per full cycle
-const NIGHT_PEAK_ALPHA := 0.45
+const NIGHT_PEAK_ALPHA := 0.28
 
 var overworld_position: Vector2 = Vector2(640, 360)
 var overworld_facing: String = "down"
