@@ -23,8 +23,8 @@ const TIER_TINTS := {
 }
 
 const CAVE_REGION := {
-	"pool": ["aquillo", "mindling", "pebbleon"],
-	"night_pool": ["pebbleon", "mindling", "pebbleon"],
+	"pool": ["aquillo", "mindling", "pebbleon", "frostling"],
+	"night_pool": ["pebbleon", "mindling", "frostling", "frostling"],
 	"level_min": 6,
 	"level_max": 10,
 }

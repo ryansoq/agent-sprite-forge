@@ -298,6 +298,26 @@ def make_embertail() -> None:
     img.save(ASSETS / "enemy_embertail.png")
 
 
+def make_frostling() -> None:
+    img, d = _new()
+    cyan = (180, 230, 240, 255)
+    cyan_dark = (110, 170, 200, 255)
+    white = (250, 250, 255, 255)
+    # body
+    d.ellipse([4, 10, 28, 30], fill=cyan, outline=BLACK)
+    # snow drift on head
+    d.polygon([(7, 8), (12, 1), (17, 8)], fill=white, outline=BLACK)
+    d.polygon([(15, 8), (20, 1), (25, 8)], fill=white, outline=BLACK)
+    # icicle on side
+    d.polygon([(2, 18), (4, 14), (6, 18)], fill=white, outline=cyan_dark)
+    # sharp triangle eyes
+    d.polygon([(10, 16), (13, 14), (13, 18)], fill=BLACK)
+    d.polygon([(22, 16), (19, 14), (19, 18)], fill=BLACK)
+    # cold half-smile
+    d.line([(13, 23), (16, 22), (19, 23)], fill=BLACK)
+    img.save(ASSETS / "enemy_frostling.png")
+
+
 def make_skywing() -> None:
     img, d = _new()
     blue = (130, 180, 230, 255)
@@ -577,6 +597,7 @@ def main() -> None:
     make_toxidew()
     make_pebbleon()
     make_skywing()
+    make_frostling()
     make_cave_entrance()
     make_grass_tile()
     make_tall_grass_tile()

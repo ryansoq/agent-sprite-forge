@@ -23,17 +23,19 @@ const MOVES := {
 	"gust":          {"name": "Gust",          "kind": "damage", "type": "flying",   "min": 5,  "max": 9,  "accuracy": 100, "max_pp": 25},
 	"iron_defense":  {"name": "Iron Defense",  "kind": "stat",   "type": "normal",   "target": "self", "stat": "def", "delta":  1, "accuracy": 100, "max_pp": 15},
 	"growl":         {"name": "Growl",         "kind": "stat",   "type": "normal",   "target": "opp",  "stat": "atk", "delta": -1, "accuracy": 100, "max_pp": 25},
+	"ice_shard":     {"name": "Ice Shard",     "kind": "damage", "type": "ice",      "min": 5,  "max": 9,  "accuracy": 100, "max_pp": 25},
 }
 
 # Only non-1.0 entries listed; missing pairs default to neutral (1.0).
 const TYPE_CHART := {
 	"electric": {"water": 2.0, "grass": 0.5, "ground": 0.5, "flying": 2.0},
-	"fire":     {"grass": 2.0, "water": 0.5, "ground": 0.5},
-	"water":    {"fire":  2.0, "grass": 0.5, "ground": 2.0},
-	"grass":    {"water": 2.0, "fire":  0.5, "ground": 2.0, "poison": 0.5, "flying": 0.5},
-	"ground":   {"electric": 2.0, "fire": 2.0, "water": 0.5, "grass": 0.5, "poison": 2.0, "flying": 0.5},
+	"fire":     {"grass": 2.0, "water": 0.5, "ground": 0.5, "ice": 2.0},
+	"water":    {"fire":  2.0, "grass": 0.5, "ground": 2.0, "ice": 0.5},
+	"grass":    {"water": 2.0, "fire":  0.5, "ground": 2.0, "poison": 0.5, "flying": 0.5, "ice": 0.5},
+	"ground":   {"electric": 2.0, "fire": 2.0, "water": 0.5, "grass": 0.5, "poison": 2.0, "flying": 0.5, "ice": 0.5},
 	"poison":   {"grass": 2.0, "ground": 0.5, "poison": 0.5},
-	"flying":   {"grass": 2.0, "electric": 0.5, "ground": 0.5},
+	"flying":   {"grass": 2.0, "electric": 0.5, "ground": 0.5, "ice": 0.5},
+	"ice":      {"grass": 2.0, "ground": 2.0, "flying": 2.0, "water": 0.5, "fire": 0.5, "ice": 0.5},
 }
 
 static func name_of(id: String) -> String:

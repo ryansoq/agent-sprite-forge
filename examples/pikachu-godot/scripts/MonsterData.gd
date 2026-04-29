@@ -92,6 +92,14 @@ const MONSTERS := {
 		"learnset": {8: "quick_attack"},
 		"sprite": "res://assets/enemy_skywing.png",
 	},
+	"frostling": {
+		"display_name": "Frostling",
+		"type": "ice",
+		"max_hp": 28,
+		"moves": ["ice_shard", "tackle"],
+		"learnset": {9: "growl"},
+		"sprite": "res://assets/enemy_frostling.png",
+	},
 }
 
-const WILD_POOL := ["volty", "twigling", "embertail", "aquillo", "bunten", "mindling", "pebbleon", "toxidew", "skywing"]
+const WILD_POOL := ["volty", "twigling", "embertail", "aquillo", "bunten", "mindling", "pebbleon", "toxidew", "skywing", "frostling"]
