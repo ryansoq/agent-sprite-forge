@@ -6,6 +6,21 @@ const ENCOUNTER_CHANCE := 0.25
 
 const ROCK_TEX := preload("res://assets/rock.png")
 const TALL_GRASS_TEX := preload("res://assets/tall_grass.png")
+const POTION_TEX := preload("res://assets/potion.png")
+const POKEBALL_TEX := preload("res://assets/pokeball.png")
+
+const ITEM_SPAWNS := [
+	{"id": "cave_super_potion_nw", "item": "super_potion", "pos": Vector2(60, 60)},
+	{"id": "cave_great_ball_ne",   "item": "great_ball",   "pos": Vector2(420, 60)},
+	{"id": "cave_pokeball_sw",     "item": "pokeball",     "pos": Vector2(60, 300)},
+]
+
+const TIER_TINTS := {
+	"super_potion": Color(0.65, 0.75, 1.30),  # blueish
+	"hyper_potion": Color(1.30, 1.15, 0.45),  # yellowish
+	"great_ball":   Color(0.65, 0.80, 1.40),  # blueish
+	"ultra_ball":   Color(1.40, 1.25, 0.45),  # yellowish
+}
 
 const CAVE_REGION := {
 	"pool": ["aquillo", "mindling", "pebbleon"],
@@ -38,6 +53,7 @@ func _ready() -> void:
 	camera.limit_bottom = CAVE_H
 	camera.make_current()
 	_build_cave()
+	_spawn_pickups()
 	_create_night_overlay()
 	hint.text = "Cave depths.  ESC: pause.  Walk to the south door to exit."
 	_refresh_hud()
@@ -123,6 +139,47 @@ func _spawn_rock(parent: Node, pos: Vector2) -> void:
 	col.shape = shape
 	body.add_child(col)
 	parent.add_child(body)
+
+func _spawn_pickups() -> void:
+	var node := Node2D.new()
+	node.name = "Pickups"
+	add_child(node)
+	for entry in ITEM_SPAWNS:
+		var pickup_id: String = String(entry["id"])
+		if pickup_id in GameState.picked_up_items:
+			continue
+		var item_id: String = String(entry["item"])
+		var area := Area2D.new()
+		area.position = entry["pos"]
+		var sprite := Sprite2D.new()
+		var is_ball: bool = item_id in ItemData.BALL_TIERS
+		sprite.texture = POKEBALL_TEX if is_ball else POTION_TEX
+		sprite.scale = Vector2(1.5, 1.5)
+		if TIER_TINTS.has(item_id):
+			sprite.modulate = TIER_TINTS[item_id]
+		area.add_child(sprite)
+		var col := CollisionShape2D.new()
+		var shape := RectangleShape2D.new()
+		shape.size = Vector2(20, 20)
+		col.shape = shape
+		area.add_child(col)
+		area.set_meta("pickup_id", pickup_id)
+		area.set_meta("item_id", item_id)
+		node.add_child(area)
+		area.body_entered.connect(_on_item_pickup.bind(area))
+
+func _on_item_pickup(body: Node2D, area: Area2D) -> void:
+	if not (body is CharacterBody2D):
+		return
+	var pickup_id: String = String(area.get_meta("pickup_id"))
+	if pickup_id in GameState.picked_up_items:
+		return
+	var item_id: String = String(area.get_meta("item_id"))
+	GameState.picked_up_items.append(pickup_id)
+	GameState.grant_item(item_id, 1)
+	GameState.save_game()
+	hint.text = "Picked up a %s!" % ItemData.name_of(item_id)
+	area.queue_free()
 
 func _spawn_grass(parent: Node, pos: Vector2) -> void:
 	var area := Area2D.new()
