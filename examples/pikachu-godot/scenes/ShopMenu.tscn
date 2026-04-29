@@ -44,6 +44,12 @@ text = "Buy Potion"
 [node name="BallButton" type="Button" parent="Panel/V"]
 text = "Buy Pokeball"
 
+[node name="EtherButton" type="Button" parent="Panel/V"]
+text = "Buy Max Ether"
+
+[node name="HeldButton" type="Button" parent="Panel/V"]
+text = "Buy Held Item"
+
 [node name="Status" type="Label" parent="Panel/V"]
 text = ""
 horizontal_alignment = 1

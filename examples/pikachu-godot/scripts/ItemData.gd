@@ -16,8 +16,8 @@ const BALL_TIERS := ["pokeball", "great_ball", "ultra_ball"]
 
 # Held items — equipped to a single party member; affect damage during battle.
 const HELD_ITEMS := {
-	"power_band":   {"name": "Power Band",   "kind": "held", "atk_mult": 1.15},
-	"shield_charm": {"name": "Shield Charm", "kind": "held", "def_mult": 1.15},
+	"power_band":   {"name": "Power Band",   "kind": "held", "atk_mult": 1.15, "price": 600},
+	"shield_charm": {"name": "Shield Charm", "kind": "held", "def_mult": 1.15, "price": 600},
 }
 
 static func held_name(id: String) -> String:
