@@ -211,9 +211,14 @@ func _attach_held_item(item_id: String) -> void:
 	add_child(dlg)
 	var idx: int = await dlg.chosen
 	if idx < 0 or idx >= GameState.party.size():
-		hint.text = "Left the %s." % ItemData.held_name(item_id)
+		# "Drop" / Cancel — keep in inventory bag for later equip via PauseMenu
+		GameState.grant_item(item_id, 1)
+		hint.text = "Picked up %s into your bag." % ItemData.held_name(item_id)
 		return
 	var prev: String = String(GameState.party[idx].get("held_item", ""))
+	if prev != "":
+		# Returning the previously-held item back to the bag
+		GameState.grant_item(prev, 1)
 	GameState.party[idx]["held_item"] = item_id
 	if prev != "":
 		hint.text = "%s swapped %s for %s." % [

@@ -60,10 +60,11 @@ const GYM_LEADERS := [
 const LAYOUT_PATH := "res://data/overworld_layout.json"
 
 const ITEM_SPAWNS := [
-	{"id": "pickup_potion_nw", "item": "potion",   "pos": Vector2(160, 220)},
-	{"id": "pickup_ball_ne",   "item": "pokeball", "pos": Vector2(1100, 200)},
-	{"id": "pickup_potion_e",  "item": "potion",   "pos": Vector2(940, 480)},
-	{"id": "pickup_ball_sw",   "item": "pokeball", "pos": Vector2(200, 600)},
+	{"id": "pickup_potion_nw",  "item": "potion",       "pos": Vector2(160, 220)},
+	{"id": "pickup_ball_ne",    "item": "pokeball",     "pos": Vector2(1100, 200)},
+	{"id": "pickup_potion_e",   "item": "potion",       "pos": Vector2(940, 480)},
+	{"id": "pickup_ball_sw",    "item": "pokeball",     "pos": Vector2(200, 600)},
+	{"id": "pickup_shield_se",  "item": "shield_charm", "pos": Vector2(1140, 600)},
 ]
 
 const MOVE_TUTORS := [
@@ -458,8 +459,12 @@ func _spawn_pickups() -> void:
 		area.position = entry["pos"]
 		var sprite := Sprite2D.new()
 		var item_id: String = String(entry["item"])
-		sprite.texture = POTION_TEX if item_id == "potion" else POKEBALL_TEX
+		var is_ball: bool = item_id in ItemData.BALL_TIERS
+		sprite.texture = POKEBALL_TEX if is_ball else POTION_TEX
 		sprite.scale = Vector2(1.5, 1.5)
+		# Tint held items lavender to mark them as special
+		if ItemData.HELD_ITEMS.has(item_id):
+			sprite.modulate = Color(1.30, 0.80, 1.40)
 		area.add_child(sprite)
 		var col := CollisionShape2D.new()
 		var shape := RectangleShape2D.new()
@@ -481,7 +486,10 @@ func _on_item_pickup(body: Node2D, area: Area2D) -> void:
 	GameState.picked_up_items.append(pickup_id)
 	GameState.grant_item(item_id, 1)
 	GameState.save_game()
-	hint.text = "Picked up a %s!" % ("Potion" if item_id == "potion" else "Pokeball")
+	if ItemData.HELD_ITEMS.has(item_id):
+		hint.text = "Picked up %s — equip via Pause menu." % ItemData.held_name(item_id)
+	else:
+		hint.text = "Picked up a %s!" % ("Potion" if item_id == "potion" else "Pokeball")
 	area.queue_free()
 
 func _spawn_gym_leaders() -> void:
