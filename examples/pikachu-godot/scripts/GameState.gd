@@ -31,6 +31,7 @@ var current_wild: Dictionary = {}
 var is_trainer_battle: bool = false
 var current_trainer_id: String = ""
 var trainer_party_remaining: Array = []
+var current_battle_bg: Color = Color(0.95, 0.85, 0.60)  # default tan
 
 func _ready() -> void:
 	if not load_game():
@@ -334,6 +335,17 @@ func use_potion_on(member: Dictionary, item_id: String = "potion") -> int:
 	member["current_hp"] = min(max_hp, before + heal)
 	return int(member["current_hp"]) - before
 
+const REGION_BG := {
+	"central_meadow":    Color(0.65, 0.85, 0.55),
+	"south_field":       Color(0.85, 0.83, 0.45),
+	"northwest_thicket": Color(0.45, 0.65, 0.40),
+	"east_pondside":     Color(0.62, 0.85, 0.95),
+	"cave_depths":       Color(0.30, 0.25, 0.40),
+}
+
+func bg_for_region(region_id: String) -> Color:
+	return REGION_BG.get(region_id, Color(0.95, 0.85, 0.60))
+
 func start_trainer_battle(trainer_id: String, party: Array) -> void:
 	# party: [{"monster": id, "level": N}, ...]
 	if party.is_empty():
@@ -347,6 +359,7 @@ func start_trainer_battle(trainer_id: String, party: Array) -> void:
 		mark_seen(String(party[i]["monster"]))
 	is_trainer_battle = true
 	current_trainer_id = trainer_id
+	current_battle_bg = bg_for_region("")  # default tan for trainer battles
 	Fade.go_to_scene("res://scenes/Battle.tscn")
 
 func _make_wild_dict(monster_id: String, level: int) -> Dictionary:

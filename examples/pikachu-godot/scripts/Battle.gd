@@ -89,6 +89,7 @@ func _ready() -> void:
 			"status_turns": 0,
 		}
 	_setup_visuals()
+	$Background.color = GameState.current_battle_bg
 	_refresh_bars()
 	_set_state(State.INTRO)
 	# Intro: slide enemy in from the right and player in from the left

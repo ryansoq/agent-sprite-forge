@@ -259,6 +259,7 @@ func _on_grass_entered(body: Node2D) -> void:
 		var wild_id: String = String(pool[rng.randi() % pool.size()])
 		var level: int = rng.randi_range(lv_min, lv_max)
 		hint.text = "A wild %s appeared!" % MonsterData.MONSTERS[wild_id]["display_name"]
+		GameState.current_battle_bg = GameState.bg_for_region("cave_depths")
 		await get_tree().create_timer(0.4).timeout
 		GameState.start_wild_battle(wild_id, level)
 	else:
