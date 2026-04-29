@@ -281,12 +281,13 @@ func spend_money(amount: int) -> bool:
 	money -= amount
 	return true
 
-func use_potion_on(member: Dictionary) -> int:
-	if not consume_item("potion"):
+func use_potion_on(member: Dictionary, item_id: String = "potion") -> int:
+	if not consume_item(item_id):
 		return 0
+	var heal: int = int(ItemData.ITEMS.get(item_id, {}).get("heal", 20))
 	var max_hp = max_hp_of(member)
 	var before = int(member["current_hp"])
-	member["current_hp"] = min(max_hp, before + 20)
+	member["current_hp"] = min(max_hp, before + heal)
 	return int(member["current_hp"]) - before
 
 func start_trainer_battle(trainer_id: String, party: Array) -> void:

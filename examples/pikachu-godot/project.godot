@@ -15,6 +15,7 @@ InputBindings="*res://scripts/InputBindings.gd"
 Theming="*res://scripts/Theming.gd"
 MonsterData="*res://scripts/MonsterData.gd"
 MoveData="*res://scripts/MoveData.gd"
+ItemData="*res://scripts/ItemData.gd"
 Fade="*res://scripts/Fade.gd"
 GameState="*res://scripts/GameState.gd"
 

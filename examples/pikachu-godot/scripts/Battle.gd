@@ -308,14 +308,20 @@ func _tint_button_by_type(btn: Button, type_id: String) -> void:
 	btn.add_theme_color_override("font_disabled_color", c.darkened(0.55))
 
 func _on_bag_pressed() -> void:
-	potion_btn.text = "Potion x%d" % int(GameState.inventory.get("potion", 0))
-	potion_btn.disabled = int(GameState.inventory.get("potion", 0)) <= 0
+	var total_potions: int = 0
+	for id in ItemData.POTION_TIERS:
+		total_potions += int(GameState.inventory.get(id, 0))
+	potion_btn.text = "Potions x%d" % total_potions
+	potion_btn.disabled = total_potions <= 0
+	var total_balls: int = 0
+	for id in ItemData.BALL_TIERS:
+		total_balls += int(GameState.inventory.get(id, 0))
 	if GameState.is_trainer_battle:
-		ball_btn.text = "Pokeball (no use)"
+		ball_btn.text = "Balls (no use)"
 		ball_btn.disabled = true
 	else:
-		ball_btn.text = "Pokeball x%d" % int(GameState.inventory.get("pokeball", 0))
-		ball_btn.disabled = int(GameState.inventory.get("pokeball", 0)) <= 0
+		ball_btn.text = "Balls x%d" % total_balls
+		ball_btn.disabled = total_balls <= 0
 	_set_state(State.BAG)
 
 func _on_party_pressed() -> void:
@@ -613,27 +619,51 @@ func _white_out() -> void:
 	GameState.go_to_overworld()
 
 func _use_potion() -> void:
-	if int(GameState.inventory.get("potion", 0)) <= 0:
+	var item_id: String = await _pick_tier(ItemData.POTION_TIERS, "Use which potion?")
+	if item_id == "":
 		return
 	_set_state(State.RESOLVING)
 	var active = GameState.active_monster()
-	var healed = GameState.use_potion_on(active)
+	var healed = GameState.use_potion_on(active, item_id)
 	_refresh_bars(true)
-	_say("Used a Potion. Restored %d HP." % healed)
+	_say("Used a %s. Restored %d HP." % [ItemData.name_of(item_id), healed])
 	await get_tree().create_timer(0.9).timeout
 	await _enemy_turn()
 	if state != State.ENDING:
 		_show_main_menu()
 
+func _pick_tier(tiers: Array, prompt: String) -> String:
+	var owned: Array = []
+	for id in tiers:
+		if int(GameState.inventory.get(id, 0)) > 0:
+			owned.append(String(id))
+	if owned.is_empty():
+		return ""
+	if owned.size() == 1:
+		return owned[0]
+	var labels: Array = []
+	for id in owned:
+		labels.append("%s  x%d" % [ItemData.name_of(id), int(GameState.inventory[id])])
+	labels.append("Cancel")
+	var dlg = choice_scene.instantiate()
+	dlg.set_data(prompt, labels)
+	add_child(dlg)
+	var idx: int = await dlg.chosen
+	if idx < 0 or idx >= owned.size():
+		return ""
+	return owned[idx]
+
 func _throw_ball() -> void:
-	if int(GameState.inventory.get("pokeball", 0)) <= 0:
+	var item_id: String = await _pick_tier(ItemData.BALL_TIERS, "Throw which ball?")
+	if item_id == "":
 		return
 	_set_state(State.RESOLVING)
-	GameState.consume_item("pokeball")
-	_say("Threw a Pokeball!")
+	GameState.consume_item(item_id)
+	_say("Threw a %s!" % ItemData.name_of(item_id))
 	await get_tree().create_timer(0.7).timeout
 	var hp_ratio = float(GameState.current_wild["current_hp"]) / float(GameState.current_wild["max_hp"])
-	var chance: float = clamp(0.85 - hp_ratio * 0.7, 0.1, 0.85)
+	var bonus: float = float(ItemData.ITEMS[item_id].get("bonus", 0.0))
+	var chance: float = clamp(0.85 - hp_ratio * 0.7 + bonus, 0.1, 0.99)
 	var caught := rng.randf() < chance
 	# wobble animation
 	var tw := create_tween()
