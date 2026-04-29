@@ -38,3 +38,4 @@ b468157	depth	keep	iter35: multi-monster trainer parties — start_trainer_battl
 b4b19c5	polish	keep	iter36: HUD enrichment — [Day/Dusk/Night/Dawn] label + Seen N/M species tracker; marks on wild/trainer/evolution/starter
 8a30de1	content	keep	iter37: Pokedex menu — pause -> Pokedex; 2-column grid of all 10 species with silhouette/name/type/captured marker
 1255d6c	depth	keep	iter38: item tiers — 3 potions ($30/80/200 = 20/50/100 HP) + 3 balls (+0/15/30% catch bonus); ItemData autoload; ChoiceDialog tier-pick
+a6962aa	content	keep	iter39: flying type + Skywing — bird in central meadow; gust move; chart now 7 types (electric/fire/water/grass/ground/poison/flying)
