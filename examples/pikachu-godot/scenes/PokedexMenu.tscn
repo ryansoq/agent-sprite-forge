@@ -1,0 +1,49 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/PokedexMenu.gd" id="1_dex_script"]
+
+[node name="PokedexMenu" type="CanvasLayer"]
+layer = 55
+script = ExtResource("1_dex_script")
+
+[node name="Dim" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.55)
+
+[node name="Panel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -230.0
+offset_top = -125.0
+offset_right = 230.0
+offset_bottom = 125.0
+
+[node name="V" type="VBoxContainer" parent="Panel"]
+offset_left = 8.0
+offset_top = 6.0
+offset_right = 452.0
+offset_bottom = 244.0
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="Panel/V"]
+text = "POKEDEX"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 14
+
+[node name="Summary" type="Label" parent="Panel/V"]
+text = "Seen 0/0   Caught 0"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 11
+
+[node name="Grid" type="GridContainer" parent="Panel/V"]
+columns = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 2
+
+[node name="Hint" type="Label" parent="Panel/V"]
+text = "[ESC] Back"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 10
