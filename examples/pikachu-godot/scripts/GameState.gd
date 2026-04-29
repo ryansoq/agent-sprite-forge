@@ -62,8 +62,8 @@ func mark_seen(species_id: String) -> void:
 	if not (species_id in seen_species):
 		seen_species.append(species_id)
 
-func new_game() -> void:
-	party = [_make_party_member("pikachu")]
+func new_game(starter_id: String = "pikachu") -> void:
+	party = [_make_party_member(starter_id)]
 	inventory = {"potion": 3, "pokeball": 5}
 	captures = 0
 	defeated_trainers = []
@@ -71,7 +71,7 @@ func new_game() -> void:
 	money = 0
 	playtime_seconds = 0.0
 	seen_species = []
-	mark_seen("pikachu")
+	mark_seen(starter_id)
 	overworld_position = Vector2(640, 360)
 	overworld_facing = "down"
 	save_game()

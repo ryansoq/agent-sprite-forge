@@ -3,7 +3,10 @@ extends Control
 @onready var info: Label = $Center/Info
 @onready var subtitle: Label = $Center/Subtitle
 
+const STARTERS := ["pikachu", "twigling", "embertail"]
+
 var slot_buttons: Array = []
+var choice_scene: PackedScene = preload("res://scenes/ChoiceDialog.tscn")
 
 func _ready() -> void:
 	info.text = "Pick a save slot to continue or start fresh."
@@ -37,8 +40,22 @@ func _slot_button_text(slot: int) -> String:
 
 func _on_slot_pressed(slot: int) -> void:
 	GameState.set_slot(slot)
-	if not GameState.load_game():
-		GameState.new_game()
+	if GameState.load_game():
+		Fade.go_to_scene("res://scenes/Overworld.tscn")
+		return
+	# Empty slot — let the player pick a starter
+	var labels: Array = []
+	for sid in STARTERS:
+		var data: Dictionary = MonsterData.MONSTERS[sid]
+		labels.append("%s  (%s)" % [String(data["display_name"]), String(data["type"])])
+	labels.append("Cancel")
+	var dlg = choice_scene.instantiate()
+	dlg.set_data("Pick your starter for slot %d:" % slot, labels)
+	add_child(dlg)
+	var idx: int = await dlg.chosen
+	if idx < 0 or idx >= STARTERS.size():
+		return
+	GameState.new_game(String(STARTERS[idx]))
 	Fade.go_to_scene("res://scenes/Overworld.tscn")
 
 func _unhandled_input(event: InputEvent) -> void:
