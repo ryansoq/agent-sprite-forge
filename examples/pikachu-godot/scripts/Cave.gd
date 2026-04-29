@@ -62,7 +62,7 @@ func _process(delta: float) -> void:
 	if encounter_cooldown > 0.0:
 		encounter_cooldown -= delta
 	if night_overlay:
-		night_overlay.color.a = GameState.night_alpha()
+		night_overlay.color = GameState.ambient_overlay_color()
 	_refresh_hud()
 
 func _create_night_overlay() -> void:

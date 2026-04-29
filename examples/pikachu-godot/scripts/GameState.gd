@@ -61,6 +61,20 @@ func current_weather() -> String:
 	else:
 		return "clear"
 
+func ambient_overlay_color() -> Color:
+	# Combined night + weather tint for the per-scene atmosphere overlay.
+	var night_a: float = night_alpha()
+	match current_weather():
+		"rain":
+			# Cool grey-blue, with a baseline 0.18 alpha even at noon
+			return Color(0.15, 0.20, 0.32, max(night_a, 0.18))
+		"sun":
+			# Warm orange, baseline 0.10 alpha
+			return Color(0.35, 0.22, 0.10, max(night_a, 0.10))
+		_:
+			# Clear: just night component
+			return Color(0.05, 0.08, 0.20, night_a)
+
 func weather_damage_mult(move_type: String) -> float:
 	var w: String = current_weather()
 	if w == "sun":
