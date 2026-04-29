@@ -44,6 +44,9 @@ text = "Resume"
 [node name="PotionButton" type="Button" parent="Panel/V"]
 text = "Use Potion"
 
+[node name="EtherButton" type="Button" parent="Panel/V"]
+text = "Use Ether"
+
 [node name="HeldButton" type="Button" parent="Panel/V"]
 text = "Held Items"
 

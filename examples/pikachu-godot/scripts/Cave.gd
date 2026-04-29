@@ -14,6 +14,7 @@ const ITEM_SPAWNS := [
 	{"id": "cave_great_ball_ne",   "item": "great_ball",   "pos": Vector2(420, 60)},
 	{"id": "cave_pokeball_sw",     "item": "pokeball",     "pos": Vector2(60, 300)},
 	{"id": "cave_power_band",      "item": "power_band",   "pos": Vector2(420, 300)},
+	{"id": "cave_max_ether",       "item": "max_ether",    "pos": Vector2(240, 100)},
 ]
 
 var choice_scene: PackedScene = preload("res://scenes/ChoiceDialog.tscn")
@@ -23,6 +24,7 @@ const TIER_TINTS := {
 	"hyper_potion": Color(1.30, 1.15, 0.45),  # yellowish
 	"great_ball":   Color(0.65, 0.80, 1.40),  # blueish
 	"ultra_ball":   Color(1.40, 1.25, 0.45),  # yellowish
+	"max_ether":    Color(0.55, 1.30, 1.30),  # cyan
 }
 
 const CAVE_REGION := {

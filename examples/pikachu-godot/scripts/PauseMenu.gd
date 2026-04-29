@@ -2,6 +2,7 @@ extends CanvasLayer
 
 @onready var resume_btn: Button = $Panel/V/ResumeButton
 @onready var potion_btn: Button = $Panel/V/PotionButton
+@onready var ether_btn: Button = $Panel/V/EtherButton
 @onready var held_btn: Button = $Panel/V/HeldButton
 @onready var pokedex_btn: Button = $Panel/V/PokedexButton
 @onready var save_btn: Button = $Panel/V/SaveButton
@@ -15,6 +16,7 @@ func _ready() -> void:
 	get_tree().paused = true
 	resume_btn.pressed.connect(_resume)
 	potion_btn.pressed.connect(_use_potion)
+	ether_btn.pressed.connect(_use_ether)
 	held_btn.pressed.connect(_manage_held)
 	pokedex_btn.pressed.connect(_open_pokedex)
 	save_btn.pressed.connect(_save)
@@ -39,6 +41,28 @@ func _unhandled_input(event: InputEvent) -> void:
 func _resume() -> void:
 	get_tree().paused = false
 	queue_free()
+
+func _use_ether() -> void:
+	var count: int = int(GameState.inventory.get("max_ether", 0))
+	if count <= 0:
+		$Panel/V/Status.text = "No Max Ether in bag."
+		return
+	var labels: Array = []
+	for m in GameState.party:
+		labels.append("%s Lv%d" % [
+			MonsterData.MONSTERS[m["id"]]["display_name"],
+			int(m.get("level", 5)),
+		])
+	labels.append("Cancel")
+	var dlg = choice_scene.instantiate()
+	dlg.set_data("Use Max Ether on whom?  (have %d)" % count, labels)
+	get_parent().add_child(dlg)
+	var idx: int = await dlg.chosen
+	if idx < 0 or idx >= GameState.party.size():
+		return
+	var refilled: int = GameState.use_ether_on(GameState.party[idx])
+	GameState.save_game()
+	$Panel/V/Status.text = "Restored %d total PP." % refilled
 
 func _manage_held() -> void:
 	# Pick a member

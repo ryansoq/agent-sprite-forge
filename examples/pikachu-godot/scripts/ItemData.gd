@@ -8,6 +8,7 @@ const ITEMS := {
 	"pokeball":     {"name": "Pokeball",     "price": 50,  "kind": "ball", "bonus": 0.0},
 	"great_ball":   {"name": "Great Ball",   "price": 150, "kind": "ball", "bonus": 0.15},
 	"ultra_ball":   {"name": "Ultra Ball",   "price": 350, "kind": "ball", "bonus": 0.30},
+	"max_ether":    {"name": "Max Ether",    "price": 250, "kind": "pp"},
 }
 
 const POTION_TIERS := ["potion", "super_potion", "hyper_potion"]

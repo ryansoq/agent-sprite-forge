@@ -326,6 +326,21 @@ func spend_money(amount: int) -> bool:
 	money -= amount
 	return true
 
+func use_ether_on(member: Dictionary) -> int:
+	if not consume_item("max_ether"):
+		return 0
+	# Refill every known move's PP to max
+	var pp: Dictionary = (member.get("pp", {}) as Dictionary).duplicate()
+	var refilled: int = 0
+	for mv_id in pp.keys():
+		var max_pp: int = int(MoveData.MOVES[mv_id].get("max_pp", 10))
+		var before: int = int(pp[mv_id])
+		if before < max_pp:
+			refilled += max_pp - before
+			pp[mv_id] = max_pp
+	member["pp"] = pp
+	return refilled
+
 func use_potion_on(member: Dictionary, item_id: String = "potion") -> int:
 	if not consume_item(item_id):
 		return 0
