@@ -55,3 +55,4 @@ e03f696	depth	keep	iter50: Move Tutor NPC — relearn species default + learnset
 a47743c	depth	keep	iter53: weather system — phase-driven sun/rain/clear; fire/water moves 1.5x or 0.5x by weather; HUD shows [phase · weather]
 23b985c	polish	keep	iter54: weather visual overlay — sun warm tint, rain cool tint; ambient_overlay_color helper unifies night + weather
 61f303b	content	keep	iter55: starter evo lines — Twigling→Treant Lv10 (50 HP grass), Embertail→Pyrebrand Lv11 (48 HP fire); reuses iter7 evolution infra
+08f243b	depth	keep	iter56: held items — Power Band (+15% atk) hidden in cave SE; Shield Charm registered; ChoiceDialog assigns to member on pickup
