@@ -57,3 +57,4 @@ a47743c	depth	keep	iter53: weather system — phase-driven sun/rain/clear; fire/
 61f303b	content	keep	iter55: starter evo lines — Twigling→Treant Lv10 (50 HP grass), Embertail→Pyrebrand Lv11 (48 HP fire); reuses iter7 evolution infra
 08f243b	depth	keep	iter56: held items — Power Band (+15% atk) hidden in cave SE; Shield Charm registered; ChoiceDialog assigns to member on pickup
 84acaf5	depth	keep	iter57: held item management — Shield Charm overworld pickup; PauseMenu "Held Items" equip/unequip; "Drop" deposits to bag
+cc692de	polish	keep	iter58: per-region battle backgrounds — green/yellow/forest/blue/purple per region; trainer/gym stay tan
