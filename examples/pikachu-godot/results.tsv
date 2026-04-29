@@ -42,3 +42,4 @@ a6962aa	content	keep	iter39: flying type + Skywing — bird in central meadow; g
 b028c15	depth	keep	iter40: starter choice on new game — empty slot prompts Pikachu/Twigling/Embertail via ChoiceDialog; new_game accepts starter_id
 72ebe10	content	keep	iter41: cave item pickups — 3 cave-only pickups (Super Potion + Great Ball + Pokeball); tier-tinted via Sprite modulate
 f49ab76	depth	keep	iter42: stat-modifying moves — Iron Defense (+1 def self) / Growl (-1 atk foe); ±3 stages = ±10%/stage; pebbleon/bunten learn them
+dff6dd6	depth	keep	iter43: catch streak — +5%/streak (cap +30%) on successful catch; reset on miss; HUD + capture msg show streak
