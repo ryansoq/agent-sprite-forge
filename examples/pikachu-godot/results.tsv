@@ -32,3 +32,4 @@ aeb2312	content	keep	iter28: day/night cycle — 4-min sine, dark-blue overlay b
 0751db7	content	keep	iter30: nighttime encounter pool variants — each region has night_pool, more mindling after dusk; extends iter28
 4976f69	depth	keep	iter31: move learning at level-up — learnset {lv: move} per species, _sync_moves helper, "X learned Y!" post-battle
 3e90821	content	keep	iter32: Pebbleon (ground) + ground type chart entries — counters electric/fire, weak to water/grass; rock_throw move
+0fad58d	content	keep	iter33: Toxidew (poison) + poison type chart entries — 2x grass, 0.5x ground; venom_strike move; in south_field
