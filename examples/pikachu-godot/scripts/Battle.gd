@@ -704,7 +704,8 @@ func _throw_ball() -> void:
 	await get_tree().create_timer(0.7).timeout
 	var hp_ratio = float(GameState.current_wild["current_hp"]) / float(GameState.current_wild["max_hp"])
 	var bonus: float = float(ItemData.ITEMS[item_id].get("bonus", 0.0))
-	var chance: float = clamp(0.85 - hp_ratio * 0.7 + bonus, 0.1, 0.99)
+	var streak_bonus: float = min(GameState.catch_streak, 6) * 0.05
+	var chance: float = clamp(0.85 - hp_ratio * 0.7 + bonus + streak_bonus, 0.1, 0.99)
 	var caught := rng.randf() < chance
 	# wobble animation
 	var tw := create_tween()
@@ -715,15 +716,17 @@ func _throw_ball() -> void:
 	await tw.finished
 	if caught:
 		var added = GameState.add_to_party(GameState.current_wild["id"], int(GameState.current_wild["current_hp"]), int(GameState.current_wild.get("level", 5)))
+		GameState.catch_streak += 1
 		if added:
-			_say("Gotcha! %s was caught!" % MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"])
+			_say("Gotcha! %s caught — streak %d!" % [MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"], GameState.catch_streak])
 		else:
-			_say("Caught! But the party is full — released.")
+			_say("Caught (streak %d)! But the party is full — released." % GameState.catch_streak)
 		await get_tree().create_timer(1.4).timeout
 		_set_state(State.ENDING)
 		GameState.go_to_overworld()
 		return
-	_say("It broke free!")
+	GameState.catch_streak = 0
+	_say("It broke free! (Streak reset)")
 	await get_tree().create_timer(0.8).timeout
 	await _enemy_turn()
 	if state != State.ENDING:

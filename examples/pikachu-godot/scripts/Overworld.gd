@@ -161,7 +161,8 @@ func _refresh_hud() -> void:
 	var active := GameState.active_monster()
 	var disp_name: String = MonsterData.MONSTERS[active["id"]]["display_name"]
 	var lv: int = int(active.get("level", 5))
-	hud.text = "%s Lv%d  %d/%d HP   $%d   Balls: %d  Potions: %d   [%s]  Seen %d/%d" % [
+	var streak_str: String = ("  Streak %d" % GameState.catch_streak) if GameState.catch_streak > 0 else ""
+	hud.text = "%s Lv%d  %d/%d HP   $%d   Balls: %d  Potions: %d   [%s]  Seen %d/%d%s" % [
 		disp_name, lv,
 		int(active["current_hp"]),
 		GameState.max_hp_of(active),
@@ -171,6 +172,7 @@ func _refresh_hud() -> void:
 		GameState.time_of_day_label(),
 		GameState.seen_species.size(),
 		MonsterData.MONSTERS.size(),
+		streak_str,
 	]
 
 func _unhandled_input(event: InputEvent) -> void:

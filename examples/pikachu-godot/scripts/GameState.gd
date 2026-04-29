@@ -13,6 +13,7 @@ var defeated_trainers: Array = []
 var picked_up_items: Array = []
 var money: int = 0
 var seen_species: Array = []
+var catch_streak: int = 0
 var playtime_seconds: float = 0.0
 var time_of_day: float = 0.0  # 0..1; 0 = noon, 0.5 = midnight, smooth sine
 
@@ -71,6 +72,7 @@ func new_game(starter_id: String = "pikachu") -> void:
 	money = 0
 	playtime_seconds = 0.0
 	seen_species = []
+	catch_streak = 0
 	mark_seen(starter_id)
 	overworld_position = Vector2(640, 360)
 	overworld_facing = "down"
@@ -362,6 +364,7 @@ func save_game() -> void:
 	cfg.set_value("save", "picked_up_items", picked_up_items)
 	cfg.set_value("save", "playtime_seconds", playtime_seconds)
 	cfg.set_value("save", "seen_species", seen_species)
+	cfg.set_value("save", "catch_streak", catch_streak)
 	cfg.save(_save_path_for(current_slot))
 
 func _save_path_for(slot: int) -> String:
@@ -384,6 +387,7 @@ func load_game() -> bool:
 	picked_up_items = cfg.get_value("save", "picked_up_items", [])
 	playtime_seconds = float(cfg.get_value("save", "playtime_seconds", 0.0))
 	seen_species = cfg.get_value("save", "seen_species", [])
+	catch_streak = int(cfg.get_value("save", "catch_streak", 0))
 	# Make sure starter is always counted (legacy saves predating iter36)
 	if seen_species.is_empty():
 		mark_seen("pikachu")
