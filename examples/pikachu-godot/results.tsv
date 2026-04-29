@@ -53,3 +53,4 @@ e03f696	depth	keep	iter50: Move Tutor NPC — relearn species default + learnset
 035b0ba	content	keep	iter51: trainer line-of-sight — 22x64 south-facing sight cone auto-engages battle (gym leaders unchanged to preserve pre-dialogue)
 26691a3	polish	keep	iter52: battle juice — HP bar low-HP color (red<25% / yellow<50%), sprite slide-in intro, crit screen shake
 a47743c	depth	keep	iter53: weather system — phase-driven sun/rain/clear; fire/water moves 1.5x or 0.5x by weather; HUD shows [phase · weather]
+23b985c	polish	keep	iter54: weather visual overlay — sun warm tint, rain cool tint; ambient_overlay_color helper unifies night + weather
