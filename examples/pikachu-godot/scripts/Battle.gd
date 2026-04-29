@@ -51,6 +51,7 @@ const TYPE_COLORS := {
 var rng := RandomNumberGenerator.new()
 var enemy_status_label: Label
 var player_status_label: Label
+var party_dots: Array = []
 var message_log: Array = []
 var player_stages: Dictionary = {"atk": 0, "def": 0}
 var enemy_stages: Dictionary = {"atk": 0, "def": 0}
@@ -60,6 +61,7 @@ var force_switch := false  # entering party menu because active fainted
 func _ready() -> void:
 	rng.randomize()
 	_create_status_labels()
+	_create_party_dots()
 	_resize_message_panel()
 	fight_btn.pressed.connect(_on_fight_pressed)
 	bag_btn.pressed.connect(_on_bag_pressed)
@@ -247,6 +249,7 @@ func _refresh_bars(animate: bool = false) -> void:
 	_set_bar(player_hp_bar, int(active["current_hp"]), animate)
 	player_hp_text.text = "%d/%d" % [active["current_hp"], max_hp]
 	_update_status_label(player_status_label, active)
+	_refresh_party_dots()
 
 func _resize_message_panel() -> void:
 	# Make room for 3 stacked log lines (~14px line height at font 11)
@@ -263,6 +266,41 @@ func _say(text: String) -> void:
 	while message_log.size() > 3:
 		message_log.pop_front()
 	message.text = "\n".join(message_log)
+
+func _create_party_dots() -> void:
+	var hbox := HBoxContainer.new()
+	hbox.position = Vector2(8, 62)
+	hbox.add_theme_constant_override("separation", 2)
+	$UI.add_child(hbox)
+	for i in 6:
+		var lbl := Label.new()
+		lbl.text = "●"
+		lbl.add_theme_font_size_override("font_size", 14)
+		lbl.add_theme_constant_override("outline_size", 2)
+		lbl.add_theme_color_override("font_outline_color", Color.BLACK)
+		lbl.hide()
+		hbox.add_child(lbl)
+		party_dots.append(lbl)
+
+func _refresh_party_dots() -> void:
+	for i in 6:
+		var lbl: Label = party_dots[i]
+		if i >= GameState.party.size():
+			lbl.hide()
+			continue
+		lbl.show()
+		var m: Dictionary = GameState.party[i]
+		var hp: int = int(m.get("current_hp", 0))
+		var max_hp: int = GameState.max_hp_of(m)
+		var ratio: float = float(hp) / max(1.0, float(max_hp))
+		if hp <= 0:
+			lbl.modulate = Color(0.45, 0.45, 0.45)
+		elif ratio < 0.25:
+			lbl.modulate = Color(1.0, 0.40, 0.40)
+		elif ratio < 0.5:
+			lbl.modulate = Color(1.0, 1.0, 0.40)
+		else:
+			lbl.modulate = Color(0.45, 1.0, 0.50)
 
 func _create_status_labels() -> void:
 	enemy_status_label = _make_status_label()
