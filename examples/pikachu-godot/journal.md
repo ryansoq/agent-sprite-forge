@@ -232,3 +232,37 @@ asymmetric matchups — matches mid-tier Pokemon Gen 1 in coverage. **No
 remaining clear "must-have" backlog items** — future iters need to
 invent new directions (stat moves, weather, item pickups in cave,
 trainer rematches, deeper learnsets).
+
+## After iter41–iter50 (post-Tier mid-game expansion, 10 more keeps)
+
+- **Iter41 (72ebe10)** — Cave item pickups (3 tier-tinted items).
+- **Iter42 (f49ab76)** — Stat-modifying moves (Iron Defense / Growl).
+- **Iter43 (dff6dd6)** — Catch streak (+5%/streak, capped +30%).
+- **Iter44 (4d18551)** — Trainer rematches after Aqua Warden.
+- **Iter45 (0033dcf)** — Ice type + Frostling (chart now 8 types).
+- **Iter46 (4f637f9)** — Battle quick keys (F/B/P/R + 1-4).
+- **Iter47 (ac00873)** — Visual polish: softer night + sprite shadow.
+- **Iter48 (35ba958)** — Snappier battle pacing (~40% faster) + ChoiceDialog _input.
+- **Iter49 (2a81def)** — PauseMenu Use Potion + ChoiceDialog respects opener pause.
+- **Iter50 (e03f696)** — Move Tutor NPC.
+
+50 iterations / 50 keeps / 0 discards / 0 crashes. 🎉
+
+Pattern observation: **User feedback drove iter47-iter49**. iter47 night
+softer + shadow was a "feel" guess. iter48 was triggered by user reporting
+"attack screen feels stuck" — fix was timer compression (40% across the
+board) + ChoiceDialog _input correctness. iter49 was natural follow-up
+(pause-respecting ChoiceDialog enables the whole "use items in pause"
+ergonomic). The single user note "very slow attack" exposed FOUR hidden
+correctness/UX bugs in stacked modal pause + timer length — investing in
+direct user feedback is highest-ROI.
+
+Type chart now 8 species: electric/fire/water/grass/ground/poison/flying/
+ice. 12 monsters total. 5 trainers + 2 gyms (4 of those 2-mon parties)
++ rematch unlock. 6 tier-3 items. Move learning + tutor closes the
+move-management loop completely.
+
+**Next direction:** Trainer eye-contact line-of-sight (auto-engage when
+walked into trainer's facing line). Or: held items, weather, badge
+collection. Or polish the existing visuals (animated battle intro,
+critical-hit screen shake). User redirection welcome.

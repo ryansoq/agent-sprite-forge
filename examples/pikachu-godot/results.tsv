@@ -49,3 +49,4 @@ dff6dd6	depth	keep	iter43: catch streak — +5%/streak (cap +30%) on successful 
 ac00873	polish	keep	iter47: softer night (peak alpha 0.45→0.28) + player foot shadow (grounds sprite)
 35ba958	polish	keep	iter48: snappier battle pacing — all timers ~40% shorter; ChoiceDialog ESC now _input (correct modal stacking over PauseMenu)
 2a81def	depth	keep	iter49: PauseMenu Use Potion (overworld heal) + ChoiceDialog respects opener pause state (fix nested-modal leak)
+e03f696	depth	keep	iter50: Move Tutor NPC — relearn species default + learnset moves; 3-stage ChoiceDialog flow with 4-cap forget step
