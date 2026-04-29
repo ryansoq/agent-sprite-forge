@@ -538,6 +538,12 @@ func _victory() -> void:
 		for mv_id in s.get("learned", []):
 			_say("%s learned %s!" % [s["name"], MoveData.name_of(mv_id)])
 			await get_tree().create_timer(1.0).timeout
+	# Resolve any pending move-replace prompts (4-move cap)
+	for member in GameState.party:
+		if int(member.get("current_hp", 0)) <= 0:
+			continue
+		while not (member.get("pending_learn", []) as Array).is_empty():
+			await _resolve_pending_learn(member)
 	var money_reward: int = enemy_lv * (15 if GameState.is_trainer_battle else 5)
 	if money_reward > 0:
 		GameState.grant_money(money_reward)
@@ -549,6 +555,44 @@ func _victory() -> void:
 		_say("Gym victory bonus: $100 and 3 Pokeballs!")
 		await get_tree().create_timer(1.4).timeout
 	GameState.go_to_overworld()
+
+var choice_scene: PackedScene = preload("res://scenes/ChoiceDialog.tscn")
+
+func _resolve_pending_learn(member: Dictionary) -> void:
+	var pending: Array = member["pending_learn"]
+	if pending.is_empty():
+		return
+	var new_move: String = String(pending[0])
+	var member_name: String = MonsterData.MONSTERS[member["id"]]["display_name"]
+	var current_moves: Array = member.get("moves", [])
+	var labels: Array = []
+	for mv in current_moves:
+		labels.append(MoveData.name_of(String(mv)))
+	labels.append("Don't learn %s" % MoveData.name_of(new_move))
+	var title: String = "%s wants to learn\n%s.\nForget which move?" % [
+		member_name, MoveData.name_of(new_move),
+	]
+	var dlg = choice_scene.instantiate()
+	dlg.set_data(title, labels)
+	add_child(dlg)
+	var idx: int = await dlg.chosen
+	if idx >= 0 and idx < current_moves.size():
+		var forgotten: String = String(current_moves[idx])
+		current_moves[idx] = new_move
+		member["moves"] = current_moves
+		var pp: Dictionary = (member.get("pp", {}) as Dictionary).duplicate()
+		pp.erase(forgotten)
+		pp[new_move] = int(MoveData.MOVES[new_move].get("max_pp", 10))
+		member["pp"] = pp
+		_say("%s forgot %s and learned %s!" % [
+			member_name, MoveData.name_of(forgotten), MoveData.name_of(new_move),
+		])
+		await get_tree().create_timer(1.0).timeout
+	else:
+		_say("%s did not learn %s." % [member_name, MoveData.name_of(new_move)])
+		await get_tree().create_timer(0.8).timeout
+	pending.pop_front()
+	member["pending_learn"] = pending
 
 func _white_out() -> void:
 	_set_state(State.ENDING)

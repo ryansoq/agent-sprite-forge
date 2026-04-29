@@ -109,15 +109,20 @@ func _sync_moves(member: Dictionary) -> Array:
 	var lvl: int = int(member.get("level", 5))
 	var prev: Array = (member.get("moves", []) as Array).duplicate()
 	var moves: Array = (data["moves"] as Array).duplicate()
+	var pending: Array = (member.get("pending_learn", []) as Array).duplicate()
 	var lset: Dictionary = data.get("learnset", {})
 	var sorted_keys: Array = lset.keys()
 	sorted_keys.sort()
 	for k in sorted_keys:
-		if int(k) <= lvl and not (lset[k] in moves):
+		var mv: String = String(lset[k])
+		if int(k) <= lvl and not (mv in moves) and not (mv in pending):
 			if moves.size() < 4:
-				moves.append(lset[k])
-			# else: 4-move cap reached, skip (no replace dialog in V1)
+				moves.append(mv)
+			else:
+				# 4-cap: defer to player via the move-replace dialog
+				pending.append(mv)
 	member["moves"] = moves
+	member["pending_learn"] = pending
 	# Sync pp dict: add full PP for new moves, drop entries for moves no longer present
 	var pp = (member.get("pp", {}) as Dictionary).duplicate()
 	for mv in moves:
@@ -353,6 +358,8 @@ func load_game() -> bool:
 			m["status"] = ""
 		if not m.has("status_turns"):
 			m["status_turns"] = 0
+		if not m.has("pending_learn"):
+			m["pending_learn"] = []
 		if not m.has("moves"):
 			# Legacy save: derive moves + sync pp from current species + level.
 			# Discard the returned newly-learned list — no level-up notification.
