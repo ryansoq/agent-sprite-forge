@@ -118,6 +118,18 @@ func _setup_visuals() -> void:
 func _scale_damage(base_dmg: int, attacker_level: int) -> int:
 	return max(1, int(round(base_dmg * (1.0 + (attacker_level - 5) * 0.1))))
 
+func _held_atk_mult(member_or_wild: Dictionary) -> float:
+	var item: String = String(member_or_wild.get("held_item", ""))
+	if item == "" or not ItemData.HELD_ITEMS.has(item):
+		return 1.0
+	return float(ItemData.HELD_ITEMS[item].get("atk_mult", 1.0))
+
+func _held_def_mult(member_or_wild: Dictionary) -> float:
+	var item: String = String(member_or_wild.get("held_item", ""))
+	if item == "" or not ItemData.HELD_ITEMS.has(item):
+		return 1.0
+	return float(ItemData.HELD_ITEMS[item].get("def_mult", 1.0))
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey) or not event.pressed:
 		return
@@ -489,7 +501,9 @@ func _player_uses_move(move_id: String) -> void:
 			var atk_mult := _stage_mult(player_stages, "atk")
 			var def_mult := _stage_mult(enemy_stages, "def")
 			var weather_mult := GameState.weather_damage_mult(move_type)
-			dmg = max(1, int(round(dmg * eff_mult * crit_mult * atk_mult / def_mult * weather_mult)))
+			var held_atk := _held_atk_mult(GameState.active_monster())
+			var held_def := _held_def_mult(GameState.current_wild)
+			dmg = max(1, int(round(dmg * eff_mult * crit_mult * atk_mult / def_mult * weather_mult * held_atk / held_def)))
 			GameState.current_wild["current_hp"] = max(0, int(GameState.current_wild["current_hp"]) - dmg)
 			await _flash(enemy_sprite)
 			_spawn_damage_popup(enemy_sprite.position, "-%d" % dmg, _damage_color(eff_mult, crit))
@@ -555,7 +569,9 @@ func _enemy_turn() -> void:
 			var atk_mult := _stage_mult(enemy_stages, "atk")
 			var def_mult := _stage_mult(player_stages, "def")
 			var weather_mult := GameState.weather_damage_mult(move_type)
-			dmg = max(1, int(round(dmg * eff_mult * crit_mult * atk_mult / def_mult * weather_mult)))
+			var held_atk := _held_atk_mult(GameState.current_wild)
+			var held_def := _held_def_mult(active)
+			dmg = max(1, int(round(dmg * eff_mult * crit_mult * atk_mult / def_mult * weather_mult * held_atk / held_def)))
 			active["current_hp"] = max(0, int(active["current_hp"]) - dmg)
 			await _flash(player_sprite)
 			_spawn_damage_popup(player_sprite.position, "-%d" % dmg, _damage_color(eff_mult, crit))

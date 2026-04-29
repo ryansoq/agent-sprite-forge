@@ -128,6 +128,7 @@ func _make_party_member(id: String, level: int = 5) -> Dictionary:
 		"moves": [],
 		"status": "",
 		"status_turns": 0,
+		"held_item": "",
 	}
 	_sync_moves(m)
 	return m
@@ -296,6 +297,7 @@ func add_to_party(id: String, current_hp: int, level: int = 5) -> bool:
 		"moves": [],
 		"status": "",
 		"status_turns": 0,
+		"held_item": "",
 	}
 	_sync_moves(m)
 	party.append(m)
@@ -449,6 +451,8 @@ func load_game() -> bool:
 			m["status_turns"] = 0
 		if not m.has("pending_learn"):
 			m["pending_learn"] = []
+		if not m.has("held_item"):
+			m["held_item"] = ""
 		if not m.has("moves"):
 			# Legacy save: derive moves + sync pp from current species + level.
 			# Discard the returned newly-learned list — no level-up notification.

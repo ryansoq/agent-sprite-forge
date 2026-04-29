@@ -13,7 +13,10 @@ const ITEM_SPAWNS := [
 	{"id": "cave_super_potion_nw", "item": "super_potion", "pos": Vector2(60, 60)},
 	{"id": "cave_great_ball_ne",   "item": "great_ball",   "pos": Vector2(420, 60)},
 	{"id": "cave_pokeball_sw",     "item": "pokeball",     "pos": Vector2(60, 300)},
+	{"id": "cave_power_band",      "item": "power_band",   "pos": Vector2(420, 300)},
 ]
+
+var choice_scene: PackedScene = preload("res://scenes/ChoiceDialog.tscn")
 
 const TIER_TINTS := {
 	"super_potion": Color(0.65, 0.75, 1.30),  # blueish
@@ -178,11 +181,50 @@ func _on_item_pickup(body: Node2D, area: Area2D) -> void:
 	if pickup_id in GameState.picked_up_items:
 		return
 	var item_id: String = String(area.get_meta("item_id"))
+	if ItemData.HELD_ITEMS.has(item_id):
+		# Held item: ask which party member to attach it to
+		await _attach_held_item(item_id)
+		# Mark consumed regardless (Cancel still consumes the visible pickup
+		# to avoid soft-locking the floor with a permanent ask-loop)
+		GameState.picked_up_items.append(pickup_id)
+		GameState.save_game()
+		area.queue_free()
+		return
 	GameState.picked_up_items.append(pickup_id)
 	GameState.grant_item(item_id, 1)
 	GameState.save_game()
 	hint.text = "Picked up a %s!" % ItemData.name_of(item_id)
 	area.queue_free()
+
+func _attach_held_item(item_id: String) -> void:
+	var labels: Array = []
+	for m in GameState.party:
+		var holding: String = String(m.get("held_item", ""))
+		var hold_str := "  (holds %s)" % ItemData.held_name(holding) if holding != "" else ""
+		labels.append("%s Lv%d%s" % [
+			MonsterData.MONSTERS[m["id"]]["display_name"],
+			int(m.get("level", 5)), hold_str,
+		])
+	labels.append("Drop on the ground")
+	var dlg = choice_scene.instantiate()
+	dlg.set_data("Found a %s! Give it to whom?" % ItemData.held_name(item_id), labels)
+	add_child(dlg)
+	var idx: int = await dlg.chosen
+	if idx < 0 or idx >= GameState.party.size():
+		hint.text = "Left the %s." % ItemData.held_name(item_id)
+		return
+	var prev: String = String(GameState.party[idx].get("held_item", ""))
+	GameState.party[idx]["held_item"] = item_id
+	if prev != "":
+		hint.text = "%s swapped %s for %s." % [
+			MonsterData.MONSTERS[GameState.party[idx]["id"]]["display_name"],
+			ItemData.held_name(prev), ItemData.held_name(item_id),
+		]
+	else:
+		hint.text = "%s is now holding %s." % [
+			MonsterData.MONSTERS[GameState.party[idx]["id"]]["display_name"],
+			ItemData.held_name(item_id),
+		]
 
 func _spawn_grass(parent: Node, pos: Vector2) -> void:
 	var area := Area2D.new()

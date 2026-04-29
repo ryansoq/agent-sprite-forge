@@ -13,5 +13,14 @@ const ITEMS := {
 const POTION_TIERS := ["potion", "super_potion", "hyper_potion"]
 const BALL_TIERS := ["pokeball", "great_ball", "ultra_ball"]
 
+# Held items — equipped to a single party member; affect damage during battle.
+const HELD_ITEMS := {
+	"power_band":   {"name": "Power Band",   "kind": "held", "atk_mult": 1.15},
+	"shield_charm": {"name": "Shield Charm", "kind": "held", "def_mult": 1.15},
+}
+
+static func held_name(id: String) -> String:
+	return String(HELD_ITEMS[id]["name"]) if HELD_ITEMS.has(id) else id
+
 static func name_of(id: String) -> String:
 	return String(ITEMS[id]["name"]) if ITEMS.has(id) else id
