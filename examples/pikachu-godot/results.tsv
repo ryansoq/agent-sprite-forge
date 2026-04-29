@@ -47,3 +47,4 @@ dff6dd6	depth	keep	iter43: catch streak — +5%/streak (cap +30%) on successful 
 0033dcf	content	keep	iter45: ice type + Frostling — cave critter; chart reaches 8 types; ice 2x grass/ground/flying, weak to fire
 4f637f9	polish	keep	iter46: battle quick keys — F/B/P/R main menu, 1-4 move/bag/party slot, ESC back; ~30 LOC
 ac00873	polish	keep	iter47: softer night (peak alpha 0.45→0.28) + player foot shadow (grounds sprite)
+35ba958	polish	keep	iter48: snappier battle pacing — all timers ~40% shorter; ChoiceDialog ESC now _input (correct modal stacking over PauseMenu)
