@@ -103,7 +103,8 @@ func _ready() -> void:
 	intro_tw.set_parallel(true)
 	intro_tw.tween_property(enemy_sprite, "position", enemy_orig, 0.45).set_ease(Tween.EASE_OUT)
 	intro_tw.tween_property(player_sprite, "position", player_orig, 0.45).set_ease(Tween.EASE_OUT)
-	_say("A wild %s appeared!" % MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"])
+	var wild_prefix: String = "A shiny" if GameState.current_wild.get("shiny", false) else "A wild"
+	_say("%s %s appeared!" % [wild_prefix, MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"]])
 	await intro_tw.finished
 	await get_tree().create_timer(0.20).timeout
 	_say("Go, %s!" % MonsterData.MONSTERS[GameState.active_monster()["id"]]["display_name"])
@@ -115,8 +116,14 @@ func _setup_visuals() -> void:
 	player_sprite.texture = load(MonsterData.MONSTERS[GameState.active_monster()["id"]]["sprite"])
 	var wild_lv: int = int(GameState.current_wild.get("level", 5))
 	var active_lv: int = int(GameState.active_monster().get("level", 5))
-	enemy_name.text = "%s  Lv %d" % [MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"], wild_lv]
-	player_name.text = "%s  Lv %d" % [MonsterData.MONSTERS[GameState.active_monster()["id"]]["display_name"], active_lv]
+	var wild_marker: String = " *" if GameState.current_wild.get("shiny", false) else ""
+	var active_marker: String = " *" if GameState.active_monster().get("shiny", false) else ""
+	enemy_name.text = "%s%s  Lv %d" % [MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"], wild_marker, wild_lv]
+	player_name.text = "%s%s  Lv %d" % [MonsterData.MONSTERS[GameState.active_monster()["id"]]["display_name"], active_marker, active_lv]
+	# Shiny gold tint on sprites
+	var shiny_tint := Color(1.50, 1.40, 0.50)
+	enemy_sprite.modulate = shiny_tint if GameState.current_wild.get("shiny", false) else Color.WHITE
+	player_sprite.modulate = shiny_tint if GameState.active_monster().get("shiny", false) else Color.WHITE
 
 func _scale_damage(base_dmg: int, attacker_level: int) -> int:
 	return max(1, int(round(base_dmg * (1.0 + (attacker_level - 5) * 0.1))))
@@ -845,7 +852,7 @@ func _throw_ball() -> void:
 	tw.tween_property(enemy_sprite, "rotation", 0.0, 0.08)
 	await tw.finished
 	if caught:
-		var added = GameState.add_to_party(GameState.current_wild["id"], int(GameState.current_wild["current_hp"]), int(GameState.current_wild.get("level", 5)))
+		var added = GameState.add_to_party(GameState.current_wild["id"], int(GameState.current_wild["current_hp"]), int(GameState.current_wild.get("level", 5)), bool(GameState.current_wild.get("shiny", false)))
 		GameState.catch_streak += 1
 		if added:
 			_say("Gotcha! %s caught — streak %d!" % [MonsterData.MONSTERS[GameState.current_wild["id"]]["display_name"], GameState.catch_streak])

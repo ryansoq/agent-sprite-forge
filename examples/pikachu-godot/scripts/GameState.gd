@@ -130,6 +130,7 @@ func _make_party_member(id: String, level: int = 5) -> Dictionary:
 		"status": "",
 		"status_turns": 0,
 		"held_item": "",
+		"shiny": false,
 	}
 	_sync_moves(m)
 	return m
@@ -286,7 +287,7 @@ func heal_party_full() -> void:
 		m["status_turns"] = 0
 	save_game()
 
-func add_to_party(id: String, current_hp: int, level: int = 5) -> bool:
+func add_to_party(id: String, current_hp: int, level: int = 5, shiny: bool = false) -> bool:
 	if party.size() >= 6:
 		return false
 	var m := {
@@ -299,6 +300,7 @@ func add_to_party(id: String, current_hp: int, level: int = 5) -> bool:
 		"status": "",
 		"status_turns": 0,
 		"held_item": "",
+		"shiny": shiny,
 	}
 	_sync_moves(m)
 	party.append(m)
@@ -386,6 +388,7 @@ func _make_wild_dict(monster_id: String, level: int) -> Dictionary:
 		"current_hp": max_hp,
 		"status": "",
 		"status_turns": 0,
+		"shiny": randi_range(1, 256) == 1,
 	}
 
 func mark_trainer_defeated(trainer_id: String) -> void:
@@ -395,15 +398,7 @@ func mark_trainer_defeated(trainer_id: String) -> void:
 func start_wild_battle(wild_id: String, level: int = -1) -> void:
 	var wild_level: int = level if level > 0 else randi_range(3, 7)
 	mark_seen(wild_id)
-	var max_hp := _calc_max_hp(wild_id, wild_level)
-	current_wild = {
-		"id": wild_id,
-		"level": wild_level,
-		"max_hp": max_hp,
-		"current_hp": max_hp,
-		"status": "",
-		"status_turns": 0,
-	}
+	current_wild = _make_wild_dict(wild_id, wild_level)
 	Fade.go_to_scene("res://scenes/Battle.tscn")
 
 func go_to_cave(entrance_pos: Vector2) -> void:
@@ -481,6 +476,8 @@ func load_game() -> bool:
 			m["pending_learn"] = []
 		if not m.has("held_item"):
 			m["held_item"] = ""
+		if not m.has("shiny"):
+			m["shiny"] = false
 		if not m.has("moves"):
 			# Legacy save: derive moves + sync pp from current species + level.
 			# Discard the returned newly-learned list — no level-up notification.
