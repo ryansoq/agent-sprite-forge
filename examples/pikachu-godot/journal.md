@@ -266,3 +266,40 @@ move-management loop completely.
 walked into trainer's facing line). Or: held items, weather, badge
 collection. Or polish the existing visuals (animated battle intro,
 critical-hit screen shake). User redirection welcome.
+
+## After iter51–iter60 (combat depth + economy completion, 10 more keeps)
+
+- **Iter51 (035b0ba)** — Trainer line-of-sight (south-facing 22x64).
+- **Iter52 (26691a3)** — Battle juice: HP color, slide intro, crit shake.
+- **Iter53 (a47743c)** — Weather system (sun/rain affect fire/water).
+- **Iter54 (23b985c)** — Weather visual overlay tints.
+- **Iter55 (61f303b)** — Twigling→Treant + Embertail→Pyrebrand evos.
+- **Iter56 (08f243b)** — Held items framework + Power Band cave pickup.
+- **Iter57 (84acaf5)** — Held item PauseMenu management + Shield Charm.
+- **Iter58 (cc692de)** — Per-region battle backgrounds.
+- **Iter59 (9e7cc56)** — Max Ether (PP refill) + cave pickup.
+- **Iter60 (beeb0e9)** — Shop sells Max Ether + held items.
+
+60 iterations / 60 keeps / 0 discards / 0 crashes. Pattern observation:
+**iter56-iter60 was a bundled "items + economy" arc** — Power Band pickup
+seeded Held items framework, which seeded equip menu, which seeded shield
+charm spawn, which seeded Max Ether (a "what about PP?" follow-up), which
+seeded the shop expansion. Each prior iter naturally exposed the next
+gap. The most ROI-positive form of iteration: **find the smallest
+reasonable "what about X?" question after each commit, answer it next**.
+
+Full damage formula now:
+```
+final = base × level_scale × type_eff × crit
+        × (atk_stage / def_stage) × weather_mult
+        × (held_atk / held_def)
+```
+
+Five compounding multipliers — late-game crits with type advantage in
+ideal weather with a Power Band can hit ~5-7x base.
+
+**Remaining surface**: physical/special move category split, party HUD
+overview in battle, shiny variants, more NPCs / dialogue trees, a
+tutorial NPC, autosave indicator. None feel must-have; future iters
+should respond to user-feedback "what would you want next?" or polish
+existing surfaces.

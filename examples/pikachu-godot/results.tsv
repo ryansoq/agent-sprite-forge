@@ -59,3 +59,4 @@ a47743c	depth	keep	iter53: weather system — phase-driven sun/rain/clear; fire/
 84acaf5	depth	keep	iter57: held item management — Shield Charm overworld pickup; PauseMenu "Held Items" equip/unequip; "Drop" deposits to bag
 cc692de	polish	keep	iter58: per-region battle backgrounds — green/yellow/forest/blue/purple per region; trainer/gym stay tan
 9e7cc56	depth	keep	iter59: Max Ether ($250) refills all PP for chosen member; PauseMenu "Use Ether" button + cave SE pickup; cyan tint
+beeb0e9	content	keep	iter60: shop sells Max Ether + 2 held items ($600 each); 4 category buttons (Potion/Ball/Ether/Held)
