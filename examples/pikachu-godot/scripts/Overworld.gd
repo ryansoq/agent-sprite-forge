@@ -21,11 +21,11 @@ const CAVE_DOORS := [
 ]
 
 const TRAINERS := [
-	{"id": "trainer_volty",    "monster": "volty",    "level": 6,  "pos": Vector2(880, 300)},
-	{"id": "trainer_twigling", "monster": "twigling", "level": 7,  "pos": Vector2(260, 460)},
-	{"id": "trainer_aquillo",  "monster": "aquillo",  "level": 8,  "pos": Vector2(1020, 540)},
-	{"id": "trainer_bunten",   "monster": "bunten",   "level": 9,  "pos": Vector2(520, 280)},
-	{"id": "trainer_mindling", "monster": "mindling", "level": 10, "pos": Vector2(740, 600)},
+	{"id": "trainer_volty",    "party": [{"monster": "volty", "level": 6}],                                            "pos": Vector2(880, 300)},
+	{"id": "trainer_twigling", "party": [{"monster": "twigling", "level": 7}],                                         "pos": Vector2(260, 460)},
+	{"id": "trainer_aquillo",  "party": [{"monster": "aquillo", "level": 8}, {"monster": "mindling", "level": 7}],     "pos": Vector2(1020, 540)},
+	{"id": "trainer_bunten",   "party": [{"monster": "bunten", "level": 9}],                                           "pos": Vector2(520, 280)},
+	{"id": "trainer_mindling", "party": [{"monster": "mindling", "level": 10}, {"monster": "twigling", "level": 8}],   "pos": Vector2(740, 600)},
 ]
 
 const SHOPS := [
@@ -36,8 +36,7 @@ const GYM_LEADERS := [
 	{
 		"id": "gym_thunder_lord",
 		"name": "Thunder Lord",
-		"monster": "embertail",
-		"level": 10,
+		"party": [{"monster": "embertail", "level": 10}, {"monster": "mindling", "level": 9}],
 		"pos": Vector2(1100, 100),
 		"pre_dialogue": [
 			"So, you've reached me at last.",
@@ -48,8 +47,7 @@ const GYM_LEADERS := [
 	{
 		"id": "gym_aqua_warden",
 		"name": "Aqua Warden",
-		"monster": "aquillo",
-		"level": 14,
+		"party": [{"monster": "aquillo", "level": 14}, {"monster": "pebbleon", "level": 12}],
 		"pos": Vector2(380, 100),
 		"pre_dialogue": [
 			"Another trainer. So Thunder Lord let you pass…",
@@ -327,8 +325,7 @@ func _spawn_trainers() -> void:
 		col.shape = shape
 		area.add_child(col)
 		area.set_meta("trainer_id", String(t["id"]))
-		area.set_meta("monster_id", String(t["monster"]))
-		area.set_meta("level", int(t["level"]))
+		area.set_meta("party", t["party"])
 		node.add_child(area)
 		area.body_entered.connect(_on_trainer_entered.bind(area))
 
@@ -343,8 +340,7 @@ func _on_trainer_entered(body: Node2D, area: Area2D) -> void:
 	await get_tree().create_timer(0.4).timeout
 	GameState.start_trainer_battle(
 		String(area.get_meta("trainer_id")),
-		String(area.get_meta("monster_id")),
-		int(area.get_meta("level")),
+		area.get_meta("party"),
 	)
 
 func _spawn_shops() -> void:
@@ -463,8 +459,7 @@ func _spawn_gym_leaders() -> void:
 		area.add_child(col)
 		area.set_meta("id", String(g["id"]))
 		area.set_meta("name", String(g["name"]))
-		area.set_meta("monster", String(g["monster"]))
-		area.set_meta("level", int(g["level"]))
+		area.set_meta("party", g["party"])
 		area.set_meta("pre_dialogue", g["pre_dialogue"])
 		node.add_child(area)
 		area.body_entered.connect(_on_gym_entered.bind(area))
@@ -485,8 +480,7 @@ func _on_gym_exited(body: Node2D, area: Area2D) -> void:
 func _on_gym_dialogue_closed(leader: Area2D) -> void:
 	GameState.start_trainer_battle(
 		String(leader.get_meta("id")),
-		String(leader.get_meta("monster")),
-		int(leader.get_meta("level")),
+		leader.get_meta("party"),
 	)
 
 func _spawn_cave_doors() -> void:

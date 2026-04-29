@@ -26,6 +26,7 @@ var overworld_return_pos: Vector2 = Vector2.ZERO
 var current_wild: Dictionary = {}
 var is_trainer_battle: bool = false
 var current_trainer_id: String = ""
+var trainer_party_remaining: Array = []
 
 func _ready() -> void:
 	if not load_game():
@@ -268,9 +269,22 @@ func use_potion_on(member: Dictionary) -> int:
 	member["current_hp"] = min(max_hp, before + 20)
 	return int(member["current_hp"]) - before
 
-func start_trainer_battle(trainer_id: String, monster_id: String, level: int) -> void:
+func start_trainer_battle(trainer_id: String, party: Array) -> void:
+	# party: [{"monster": id, "level": N}, ...]
+	if party.is_empty():
+		return
+	var first: Dictionary = party[0]
+	current_wild = _make_wild_dict(String(first["monster"]), int(first["level"]))
+	trainer_party_remaining = []
+	for i in range(1, party.size()):
+		trainer_party_remaining.append(party[i])
+	is_trainer_battle = true
+	current_trainer_id = trainer_id
+	Fade.go_to_scene("res://scenes/Battle.tscn")
+
+func _make_wild_dict(monster_id: String, level: int) -> Dictionary:
 	var max_hp := _calc_max_hp(monster_id, level)
-	current_wild = {
+	return {
 		"id": monster_id,
 		"level": level,
 		"max_hp": max_hp,
@@ -278,9 +292,6 @@ func start_trainer_battle(trainer_id: String, monster_id: String, level: int) ->
 		"status": "",
 		"status_turns": 0,
 	}
-	is_trainer_battle = true
-	current_trainer_id = trainer_id
-	Fade.go_to_scene("res://scenes/Battle.tscn")
 
 func mark_trainer_defeated(trainer_id: String) -> void:
 	if trainer_id != "" and not (trainer_id in defeated_trainers):
@@ -307,6 +318,7 @@ func go_to_cave(entrance_pos: Vector2) -> void:
 func go_to_overworld() -> void:
 	is_trainer_battle = false
 	current_trainer_id = ""
+	trainer_party_remaining = []
 	save_game()
 	Fade.go_to_scene("res://scenes/Overworld.tscn")
 

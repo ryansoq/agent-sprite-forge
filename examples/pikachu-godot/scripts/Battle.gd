@@ -544,6 +544,16 @@ func _victory() -> void:
 			continue
 		while not (member.get("pending_learn", []) as Array).is_empty():
 			await _resolve_pending_learn(member)
+	# Trainer multi-monster: send out the next one and continue battle
+	if GameState.is_trainer_battle and not GameState.trainer_party_remaining.is_empty():
+		var next: Dictionary = GameState.trainer_party_remaining.pop_front()
+		GameState.current_wild = GameState._make_wild_dict(String(next["monster"]), int(next["level"]))
+		_say("Trainer sent out %s!" % MonsterData.MONSTERS[next["monster"]]["display_name"])
+		await get_tree().create_timer(1.0).timeout
+		_setup_visuals()
+		_refresh_bars()
+		_show_main_menu()
+		return
 	var money_reward: int = enemy_lv * (15 if GameState.is_trainer_battle else 5)
 	if money_reward > 0:
 		GameState.grant_money(money_reward)
