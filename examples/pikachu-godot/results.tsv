@@ -34,3 +34,4 @@ aeb2312	content	keep	iter28: day/night cycle — 4-min sine, dark-blue overlay b
 3e90821	content	keep	iter32: Pebbleon (ground) + ground type chart entries — counters electric/fire, weak to water/grass; rock_throw move
 0fad58d	content	keep	iter33: Toxidew (poison) + poison type chart entries — 2x grass, 0.5x ground; venom_strike move; in south_field
 0f27c83	depth	keep	iter34: move replace dialog (4-move cap UX) — generic ChoiceDialog scene; pending_learn deferred from _sync_moves; closes iter31 gap
+b468157	depth	keep	iter35: multi-monster trainer parties — start_trainer_battle takes party Array; _victory sends out next on faint; 4 trainers/gyms now 2-mon
